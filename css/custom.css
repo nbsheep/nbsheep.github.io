@@ -146,6 +146,41 @@
 [data-theme='dark'] .card-info .site-data .headline {
   opacity: .8;
 }
+
+/* ============ 侧边栏各组件：标题/内容文字 全部白色（深蓝底清楚可读） ============ */
+/* 组件标题（公告/最新文章/分类/标签/归档/网站信息），含小图标一并变白 */
+[data-theme='dark'] #aside-content .card-widget .item-headline {
+  color: #ffffff !important;
+}
+/* 公告内容 */
+[data-theme='dark'] #aside-content .card-announcement .announcement_content {
+  color: rgba(255, 255, 255, .92) !important;
+}
+/* 最新文章：标题 + 日期 */
+[data-theme='dark'] #aside-content .card-recent-post .content a.title,
+[data-theme='dark'] #aside-content .card-recent-post .content time {
+  color: rgba(255, 255, 255, .92) !important;
+}
+/* 标签云 */
+[data-theme='dark'] #aside-content .card-tags .card-tag-cloud a {
+  color: rgba(255, 255, 255, .9) !important;
+}
+/* 分类：名称 + 数量 */
+[data-theme='dark'] #aside-content .card-categories a,
+[data-theme='dark'] #aside-content .card-categories .category-list-count {
+  color: rgba(255, 255, 255, .9) !important;
+}
+/* 归档：月份 + 数量 */
+[data-theme='dark'] #aside-content .card-archives .archive-list-link,
+[data-theme='dark'] #aside-content .card-archives .archive-list-count,
+[data-theme='dark'] #aside-content .card-archives .archive-list-date {
+  color: rgba(255, 255, 255, .9) !important;
+}
+/* 网站信息：项目名 + 数字 */
+[data-theme='dark'] #aside-content .card-webinfo .item-name,
+[data-theme='dark'] #aside-content .card-webinfo .item-count {
+  color: rgba(255, 255, 255, .9) !important;
+}
 #page-header.full_page #site-subtitle {
   letter-spacing: 1px;
   opacity: .95;
