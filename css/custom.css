@@ -94,9 +94,21 @@
 
 /* 首页 hero 标题排版（深色背景上更清晰） */
 #page-header.full_page #site-title {
-  letter-spacing: 2px;
-  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.55);
-  color: #e8eef7;
+  font-size: 2.9em;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: #ffffff;
+  text-shadow: 0 3px 24px rgba(0, 0, 0, 0.75), 0 0 46px rgba(0, 212, 255, 0.35);
+}
+
+/* ============ 提亮正文：卡片略亮 + 文字更清晰 ============ */
+[data-theme='dark'] {
+  --card-bg: #1c2433;
+  --sidebar-bg: #1c2433;
+  --global-bg: #12161f;
+  --font-color: alpha(#FFFFFF, .86);
+  --light-grey: alpha(#FFFFFF, .8);
+  --white: alpha(#FFFFFF, .92);
 }
 #page-header.full_page #site-subtitle {
   letter-spacing: 1px;
