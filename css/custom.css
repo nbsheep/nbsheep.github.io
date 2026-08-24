@@ -1,0 +1,78 @@
+/* 背景音乐播放按钮（右下角悬浮） */
+#music-btn {
+  position: fixed;
+  bottom: 96px;
+  right: 18px;
+  z-index: 9998;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(0, 212, 255, 0.12);
+  color: #00d4ff;
+  border: 1px solid rgba(0, 212, 255, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 0 16px rgba(0, 212, 255, 0.25);
+  transition: all .3s ease;
+  user-select: none;
+}
+#music-btn:hover {
+  transform: scale(1.12);
+  background: rgba(0, 212, 255, 0.24);
+}
+#music-btn.playing {
+  animation: musicSpin 3s linear infinite;
+}
+@keyframes musicSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* 进入页面时的音乐询问弹窗 */
+#music-tip {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.65);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+#music-tip.show { display: flex; }
+.music-tip-box {
+  background: #161b22;
+  border: 1px solid rgba(0, 212, 255, 0.4);
+  border-radius: 14px;
+  padding: 30px 38px;
+  text-align: center;
+  color: #e6edf3;
+  box-shadow: 0 0 40px rgba(0, 212, 255, 0.2);
+  animation: tipIn .4s ease;
+}
+.music-tip-box h3 { margin: 0 0 6px; color: #00d4ff; font-size: 18px; }
+.music-tip-box .sub { margin: 0 0 22px; font-size: 13px; color: #8b949e; }
+.music-tip-box .btns { display: flex; gap: 12px; justify-content: center; }
+.music-tip-box button {
+  padding: 8px 22px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid rgba(0, 212, 255, 0.5);
+  font-size: 14px;
+  transition: all .25s ease;
+}
+.music-tip-box .yes { background: #00d4ff; color: #0d1117; border: none; }
+.music-tip-box .yes:hover { box-shadow: 0 0 18px rgba(0, 212, 255, 0.6); }
+.music-tip-box .no { background: transparent; color: #8b949e; }
+.music-tip-box .no:hover { color: #e6edf3; border-color: #8b949e; }
+@keyframes tipIn {
+  from { opacity: 0; transform: scale(.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
