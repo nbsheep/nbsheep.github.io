@@ -1,13 +1,13 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>把大疆 M3E 无人机接进 RoboNIX：目前的进展 | nbsheep 的技术博客</title><meta name="author" content="nbsheep"><meta name="copyright" content="nbsheep"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#0d0d0d"><meta name="description" content="想做什么把大疆 Mavic 3 Enterprise (M3E) 无人机接入 RoboNIX——一个面向具身智能的机器人操作系统。 RoboNIX 目前已经接入了机械臂、灵巧手这类设备，但还没有无人机本体和对应的原语。所以这个方向算是「从零打通一条路」，把无人机变成 RoboNIX 能调度的一个执行单元。 硬件与总体思路 硬件：M3E 飞机 + DJI RC Pro (RM510B) 遥控器 两条">
+<!DOCTYPE html><html lang="zh-CN" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>把大疆 M3E 无人机接进 RoboNIX：目前的进展 | nbsheep 的技术博客</title><meta name="author" content="nbsheep"><meta name="copyright" content="nbsheep"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#0d0d0d"><meta name="description" content="一、背景与目标RoboNIX 是 syswonder 社区的一个面向具身智能的机器人操作系统，目前主要接入了机械臂、灵巧手这类设备。我最近在做的一件事，是把大疆 Mavic 3 Enterprise（M3E）无人机作为「首个无人机本体」接进去，让它成为 RoboNIX 能调度、能编程控制的一个执行单元。 最终想要的效果是：在 RoboNIX 里能对无人机做到——  程序化飞控：起飞 &#x2F;">
 <meta property="og:type" content="article">
 <meta property="og:title" content="把大疆 M3E 无人机接进 RoboNIX：目前的进展">
 <meta property="og:url" content="https://nbsheep.github.io/2026/08/24/m3e-robonix-progress/index.html">
 <meta property="og:site_name" content="nbsheep 的技术博客">
-<meta property="og:description" content="想做什么把大疆 Mavic 3 Enterprise (M3E) 无人机接入 RoboNIX——一个面向具身智能的机器人操作系统。 RoboNIX 目前已经接入了机械臂、灵巧手这类设备，但还没有无人机本体和对应的原语。所以这个方向算是「从零打通一条路」，把无人机变成 RoboNIX 能调度的一个执行单元。 硬件与总体思路 硬件：M3E 飞机 + DJI RC Pro (RM510B) 遥控器 两条">
+<meta property="og:description" content="一、背景与目标RoboNIX 是 syswonder 社区的一个面向具身智能的机器人操作系统，目前主要接入了机械臂、灵巧手这类设备。我最近在做的一件事，是把大疆 Mavic 3 Enterprise（M3E）无人机作为「首个无人机本体」接进去，让它成为 RoboNIX 能调度、能编程控制的一个执行单元。 最终想要的效果是：在 RoboNIX 里能对无人机做到——  程序化飞控：起飞 &#x2F;">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://nbsheep.github.io/img/cover.svg">
 <meta property="article:published_time" content="2026-08-24T02:30:00.000Z">
-<meta property="article:modified_time" content="2026-08-24T02:42:42.629Z">
+<meta property="article:modified_time" content="2026-08-24T02:54:48.207Z">
 <meta property="article:author" content="nbsheep">
 <meta property="article:tag" content="DJI">
 <meta property="article:tag" content="M3E">
@@ -22,7 +22,7 @@
   "url": "https://nbsheep.github.io/2026/08/24/m3e-robonix-progress/",
   "image": "https://nbsheep.github.io/img/cover.svg",
   "datePublished": "2026-08-24T02:30:00.000Z",
-  "dateModified": "2026-08-24T02:42:42.629Z",
+  "dateModified": "2026-08-24T02:54:48.207Z",
   "author": [
     {
       "@type": "Person",
@@ -205,71 +205,251 @@
   isHighlightShrink: false,
   isToc: true,
   pageType: 'post'
-}</script><link rel="stylesheet" href="/css/custom.css"><meta name="generator" content="Hexo 8.1.2"></head><body><div class="bg-animation" id="web_bg" style="background: linear-gradient(135deg,;"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="https://github.com/nbsheep.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">12</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/cover.svg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">nbsheep 的技术博客</span></a><a class="nav-page-title" href="/"><span class="site-name">把大疆 M3E 无人机接进 RoboNIX：目前的进展</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">把大疆 M3E 无人机接进 RoboNIX：目前的进展</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-08-24T02:30:00.000Z" title="发表于 2026-08-24 10:30:00">2026-08-24</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-08-24T02:42:42.629Z" title="更新于 2026-08-24 10:42:42">2026-08-24</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%97%A0%E4%BA%BA%E6%9C%BA/">无人机</a></span></div><div class="meta-secondline"></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="想做什么"><a href="#想做什么" class="headerlink" title="想做什么"></a>想做什么</h2><p>把大疆 <strong>Mavic 3 Enterprise (M3E)</strong> 无人机接入 <strong>RoboNIX</strong>——一个面向具身智能的机器人操作系统。</p>
-<p>RoboNIX 目前已经接入了机械臂、灵巧手这类设备，但还没有无人机本体和对应的原语。所以这个方向算是「从零打通一条路」，把无人机变成 RoboNIX 能调度的一个执行单元。</p>
-<h2 id="硬件与总体思路"><a href="#硬件与总体思路" class="headerlink" title="硬件与总体思路"></a>硬件与总体思路</h2><ul>
-<li><strong>硬件</strong>：M3E 飞机 + DJI RC Pro (RM510B) 遥控器</li>
-<li><strong>两条 SDK 路线</strong>：MSDK（跑在 RC Pro 的 Android 上）和 PSDK（机载计算 + E-port）</li>
-<li>我选择<strong>先走 MSDK</strong>：自己写一个 Android APK 跑在 RC Pro 上，把飞控能力通过 HTTP 暴露出来，RoboNIX 侧再写一个桥接原语去调用。</li>
-</ul>
-<p>整体链路长这样：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">M3E → RC Pro（自研 APK，HTTP :8080）→ drone_bridge（Python 原语）→ Atlas → Executor → rbnx call / chat</span><br></pre></td></tr></table></figure>
-
-<h2 id="目前做到了哪一步"><a href="#目前做到了哪一步" class="headerlink" title="目前做到了哪一步"></a>目前做到了哪一步</h2><h3 id="1-自研-APK（Drone-test-→-UAVtest-v4-0）"><a href="#1-自研-APK（Drone-test-→-UAVtest-v4-0）" class="headerlink" title="1. 自研 APK（Drone_test → UAVtest v4.0）"></a>1. 自研 APK（Drone_test → UAVtest v4.0）</h3><p>APK 跑在 RC Pro 上，负责和飞机通信，主要能力：</p>
+}</script><link rel="stylesheet" href="/css/custom.css"><meta name="generator" content="Hexo 8.1.2"></head><body><div class="bg-animation" id="web_bg" style="background: linear-gradient(135deg,;"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="https://github.com/nbsheep.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">12</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/cover.svg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">nbsheep 的技术博客</span></a><a class="nav-page-title" href="/"><span class="site-name">把大疆 M3E 无人机接进 RoboNIX：目前的进展</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">把大疆 M3E 无人机接进 RoboNIX：目前的进展</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-08-24T02:30:00.000Z" title="发表于 2026-08-24 10:30:00">2026-08-24</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-08-24T02:54:48.207Z" title="更新于 2026-08-24 10:54:48">2026-08-24</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%97%A0%E4%BA%BA%E6%9C%BA/">无人机</a></span></div><div class="meta-secondline"></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="一、背景与目标"><a href="#一、背景与目标" class="headerlink" title="一、背景与目标"></a>一、背景与目标</h2><p>RoboNIX 是 syswonder 社区的一个面向<strong>具身智能</strong>的机器人操作系统，目前主要接入了机械臂、灵巧手这类设备。我最近在做的一件事，是把<strong>大疆 Mavic 3 Enterprise（M3E）无人机</strong>作为「首个无人机本体」接进去，让它成为 RoboNIX 能调度、能编程控制的一个执行单元。</p>
+<p>最终想要的效果是：在 RoboNIX 里能对无人机做到——</p>
 <ul>
-<li>飞控三模式：待命 &#x2F; 巡航 &#x2F; 手动</li>
-<li>内置 WebServer（:8080）：HTTP REST API + 网页仪表盘 + MJPEG 视频流</li>
-<li>最新版 v4.0 统一了相机、云台、GPS 拍照等接口，动作串和 Python 侧一一对齐</li>
+<li>程序化飞控：起飞 &#x2F; 降落 &#x2F; 巡航 &#x2F; 手动操控</li>
+<li>实时遥测：高度、GPS、飞行状态</li>
+<li>实时画面：网页端看 MJPEG 视频流</li>
+<li>自然语言控制：对着 <code>rbnx chat</code> 说「飞过去拍张照」</li>
 </ul>
-<h3 id="2-drone-bridge-原语"><a href="#2-drone-bridge-原语" class="headerlink" title="2. drone_bridge 原语"></a>2. drone_bridge 原语</h3><p>在 RoboNIX 侧写了一个 <code>drone_bridge</code> 包，目前精简成 <strong>11 个 MCP 原语</strong>：</p>
+<p>这篇文章记录一下到目前为止的进展和踩过的坑。</p>
+<h2 id="二、硬件与路线选择"><a href="#二、硬件与路线选择" class="headerlink" title="二、硬件与路线选择"></a>二、硬件与路线选择</h2><p>硬件是 <strong>M3E 飞机 + DJI RC Pro（RM510B）遥控器</strong>，RoboNIX 跑在一台 Linux（WSL2 Ubuntu 22.04）上。</p>
+<p>大疆给开发者开了两条路：</p>
 <table>
 <thead>
 <tr>
-<th>类别</th>
-<th>原语</th>
+<th>路线</th>
+<th>跑在哪</th>
+<th>特点</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>运动控制</td>
-<td><code>takeoff</code> &#x2F; <code>land</code> &#x2F; <code>hover</code> &#x2F; <code>rth</code> &#x2F; <code>move_velocity</code> &#x2F; <code>rotate_velocity</code></td>
+<td><strong>MSDK</strong></td>
+<td>RC Pro 的 Android 上</td>
+<td>用 App 控制飞机，开发快、适合先打通链路</td>
 </tr>
 <tr>
-<td>云台</td>
-<td><code>gimbal_velocity</code> &#x2F; <code>gimbal_reset</code></td>
-</tr>
-<tr>
-<td>相机</td>
-<td><code>camera_capture</code> &#x2F; <code>camera_video</code></td>
-</tr>
-<tr>
-<td>状态</td>
-<td><code>state</code></td>
+<td><strong>PSDK</strong></td>
+<td>机载计算 + E-port</td>
+<td>能力更强，但需要机载设备和扩展口</td>
 </tr>
 </tbody></table>
-<p>其中 <code>move_velocity</code> &#x2F; <code>gimbal_velocity</code> 是 6DOF &#x2F; 3DOF 的<strong>速度向量</strong>形式，符合 RoboNIX 里机械臂那种「下发速度指令」的习惯。</p>
-<h3 id="3-rbnx-call-子命令"><a href="#3-rbnx-call-子命令" class="headerlink" title="3. rbnx call 子命令"></a>3. <code>rbnx call</code> 子命令</h3><p>给 RoboNIX 加了 <code>rbnx call</code>，可以不经过 LLM、直接调一个原语，方便调试：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">rbnx call robonix/primitive/drone/takeoff --args <span class="string">&#x27;&#123;&quot;altitude&quot;:3.0&#125;&#x27;</span></span><br><span class="line">rbnx call robonix/primitive/drone/state</span><br><span class="line">rbnx call robonix/primitive/drone/camera_video</span><br></pre></td></tr></table></figure>
+<p>我选择<strong>先走 MSDK</strong>：自己写一个 Android APK 装到 RC Pro 上，把飞控能力用 HTTP 接口暴露出来；RoboNIX 侧再写一个桥接原语去调这些接口。这样先把「RoboNIX → 无人机」的链路整体跑通，PSDK 可以以后再说。</p>
+<h2 id="三、整体架构"><a href="#三、整体架构" class="headerlink" title="三、整体架构"></a>三、整体架构</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">┌────────────────────────────────────────────┐</span><br><span class="line">│              M3E 无人机                     │</span><br><span class="line">│        (DJI Mavic 3 Enterprise)            │</span><br><span class="line">└───────────────────┬────────────────────────┘</span><br><span class="line">                    │ OcuSync 私有链路</span><br><span class="line">                    ▼</span><br><span class="line">┌────────────────────────────────────────────┐</span><br><span class="line">│            DJI RC Pro (Android)            │</span><br><span class="line">│  ┌──────────────────────────────────────┐  │</span><br><span class="line">│  │  Drone_test APK (com.dji.wang.aircraft)│</span><br><span class="line">│  │  ┌──────────┐   ┌─────────────────┐  │  │</span><br><span class="line">│  │  │ MSDK v5  │   │ WebServer :8080 │  │  │</span><br><span class="line">│  │  │ 飞控SDK  │   │ /api/status ... │  │  │</span><br><span class="line">│  │  └──────────┘   └─────────────────┘  │  │</span><br><span class="line">│  └──────────────────────────────────────┘  │</span><br><span class="line">└───────────────────┬────────────────────────┘</span><br><span class="line">                    │ 同一局域网 WiFi</span><br><span class="line">                    │ HTTP REST + MJPEG</span><br><span class="line">                    ▼</span><br><span class="line">┌────────────────────────────────────────────┐</span><br><span class="line">│           PC / WSL2 Ubuntu 22.04           │</span><br><span class="line">│  ┌──────────────────────────────────────┐  │</span><br><span class="line">│  │   RoboNIX (rbnx boot)                │  │</span><br><span class="line">│  │   Atlas ─ Executor ─ Soma            │  │</span><br><span class="line">│  │        ┌───────────────────┐         │  │</span><br><span class="line">│  │        │  drone_bridge     │ ← 原语  │  │</span><br><span class="line">│  │        │  HTTP 客户端      │         │  │</span><br><span class="line">│  │        │  遥测轮询         │         │  │</span><br><span class="line">│  │        └───────────────────┘         │  │</span><br><span class="line">│  └──────────────────────────────────────┘  │</span><br><span class="line">└────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
 
-<h3 id="4-端到端跑通"><a href="#4-端到端跑通" class="headerlink" title="4. 端到端跑通"></a>4. 端到端跑通</h3><ul>
-<li><code>state</code>、<code>camera_video</code> 已经能从 <code>rbnx call</code> 一路走到 HTTP 层，链路（rbnx → executor → MCP → driver → HTTP）全通。</li>
-<li>测试时 <code>state</code> 内部返回 502，是因为当时 RC Pro 没开机、连不上，属于硬件连通性问题，不是链路问题。</li>
+<p>数据流四个方向：</p>
+<table>
+<thead>
+<tr>
+<th>方向</th>
+<th>路径</th>
+<th>协议</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PC → 无人机</td>
+<td>RoboNIX → drone_bridge → HTTP → RC Pro → MSDK → M3E</td>
+<td>HTTP&#x2F;JSON</td>
+</tr>
+<tr>
+<td>无人机 → PC</td>
+<td>M3E → MSDK → RC Pro → HTTP → drone_bridge → Atlas</td>
+<td>HTTP&#x2F;JSON</td>
+</tr>
+<tr>
+<td>视频流</td>
+<td>M3E → RC Pro → <code>/api/video</code> MJPEG → 浏览器</td>
+<td>HTTP MJPEG</td>
+</tr>
+<tr>
+<td>对话控制</td>
+<td>用户 → <code>rbnx chat</code> → Executor → drone_bridge → …</td>
+<td>MCP + HTTP</td>
+</tr>
+</tbody></table>
+<h2 id="四、两个软件主体"><a href="#四、两个软件主体" class="headerlink" title="四、两个软件主体"></a>四、两个软件主体</h2><h3 id="4-1-RC-Pro-端：自研-APK"><a href="#4-1-RC-Pro-端：自研-APK" class="headerlink" title="4.1 RC Pro 端：自研 APK"></a>4.1 RC Pro 端：自研 APK</h3><p>APK 跑在 RC Pro 上，负责跟飞机通信。核心能力：</p>
+<ul>
+<li><strong>飞控三模式</strong>：待命 &#x2F; 巡航 &#x2F; 手动</li>
+<li><strong>内置 WebServer（:8080）</strong>：HTTP REST API + 网页仪表盘 + MJPEG 视频流</li>
+<li>视频帧采集：NV21 → JPEG，640px，约 12fps</li>
 </ul>
-<h2 id="踩过的坑（简记）"><a href="#踩过的坑（简记）" class="headerlink" title="踩过的坑（简记）"></a>踩过的坑（简记）</h2><ol>
-<li><strong>executor 外部能力分发硬编码走 MCP</strong>——所以原语必须用 <code>@provider.mcp</code> 声明能力，否则 <code>rbnx call</code> 调不到。</li>
-<li><strong><code>mcp</code> 包版本要 <code>&lt; 2</code></strong>——2.0 把 <code>fastmcp</code> 移掉了，装了 2.x 会直接 import 报错。</li>
-<li><strong>Windows 改完代码要手动同步到 WSL</strong>——这个漏过好几次，导致 WSL 里跑的其实是旧代码。</li>
-<li><strong>组件进程名是 <code>robonix-*</code></strong>——只杀 <code>rbnx boot</code> 会留下孤儿组件占着端口，重新 boot 就报地址被占用。</li>
+<p>最新版是同事交付的 <strong>v4.0</strong>（包名 <code>com.dji.wang.aircraft</code>），统一了相机、云台、GPS 拍照等接口，动作串和 Python 侧完全对齐。</p>
+<h3 id="4-2-RoboNIX-端：drone-bridge-原语"><a href="#4-2-RoboNIX-端：drone-bridge-原语" class="headerlink" title="4.2 RoboNIX 端：drone_bridge 原语"></a>4.2 RoboNIX 端：drone_bridge 原语</h3><p>这是一个 Python 包，结构大致是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">drone_bridge/</span><br><span class="line">├── package_manifest.yaml   # RoboNIX 包元信息</span><br><span class="line">├── soma.yaml               # 机器人身体描述</span><br><span class="line">├── scripts/</span><br><span class="line">│   ├── build.sh            # rbnx codegen</span><br><span class="line">│   └── start.sh            # 启动入口</span><br><span class="line">├── drone_bridge/</span><br><span class="line">│   ├── driver.py           # 原语能力处理器（@drone.mcp）</span><br><span class="line">│   └── main.py             # HTTP 客户端 + 遥测 + 注册</span><br><span class="line">├── web/dashboard.html      # 网页控制台</span><br><span class="line">└── capabilities/           # 契约 .toml + .srv（ROS2 格式）</span><br></pre></td></tr></table></figure>
+
+<p><strong>一个关键点</strong>：这些原语声明为 <strong>MCP</strong>（<code>@drone.mcp(...)</code>）而不是 gRPC。原因是 RoboNIX 的 executor 在分发外部能力时硬编码走了 <code>Transport::Mcp</code>，<code>rbnx call</code> 只认 MCP 声明的能力。这个坑后面会细说。</p>
+<h2 id="五、11-个原语详解（核心）"><a href="#五、11-个原语详解（核心）" class="headerlink" title="五、11 个原语详解（核心）"></a>五、11 个原语详解（核心）</h2><p>经过多轮精简和与真实 API 对齐，最终确定了 <strong>11 个原语</strong>，命名空间统一为 <code>robonix/primitive/drone/*</code>。</p>
+<h3 id="5-1-无人机本体"><a href="#5-1-无人机本体" class="headerlink" title="5.1 无人机本体"></a>5.1 无人机本体</h3><table>
+<thead>
+<tr>
+<th>原语</th>
+<th>输入</th>
+<th>对应 HTTP</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>takeoff</code></td>
+<td><code>altitude</code>(m, 默认 3.0)</td>
+<td><code>POST /api/start</code></td>
+<td>起飞爬升至指定高度；前置 <code>IDLE</code> + SDK 已激活</td>
+</tr>
+<tr>
+<td><code>land</code></td>
+<td>无</td>
+<td>⚠️ 无端点</td>
+<td>API v4.0 没有 <code>/api/land</code>，当前固定返回失败</td>
+</tr>
+<tr>
+<td><code>move_velocity</code></td>
+<td><code>vy/vz/wz/vx/wx/wy/duration</code></td>
+<td><code>POST /api/manual</code></td>
+<td>机体系 6DOF 速度向量；只映射左右&#x2F;上下&#x2F;旋转，vx&#x2F;wx&#x2F;wy 忽略</td>
+</tr>
+<tr>
+<td><code>rotate_velocity</code></td>
+<td><code>direction/angular_velocity/duration</code></td>
+<td><code>POST /api/manual</code>(rotate)</td>
+<td>独立旋转；<code>direction=1</code> 右转 &#x2F; <code>-1</code> 左转</td>
+</tr>
+<tr>
+<td><code>hover</code></td>
+<td>无</td>
+<td><code>POST /api/stop</code></td>
+<td>紧急悬停</td>
+</tr>
+<tr>
+<td><code>rth</code></td>
+<td>无</td>
+<td><code>POST /api/gohome</code></td>
+<td>智能返航并降落；依赖 GPS</td>
+</tr>
+<tr>
+<td><code>state</code></td>
+<td>无</td>
+<td><code>GET /api/status</code> + <code>/api/capture_gps</code></td>
+<td>完整状态，含 GPS 坐标</td>
+</tr>
+</tbody></table>
+<h3 id="5-2-云台"><a href="#5-2-云台" class="headerlink" title="5.2 云台"></a>5.2 云台</h3><table>
+<thead>
+<tr>
+<th>原语</th>
+<th>输入</th>
+<th>对应 HTTP</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>gimbal_velocity</code></td>
+<td><code>vpitch/vyaw/vroll/duration</code></td>
+<td><code>POST /api/gimbal {action,step}</code></td>
+<td>3DOF 角速度向量；vroll 忽略</td>
+</tr>
+<tr>
+<td><code>gimbal_reset</code></td>
+<td>无</td>
+<td><code>POST /api/gimbal {action:&quot;level&quot;}</code></td>
+<td>云台回中</td>
+</tr>
+</tbody></table>
+<h3 id="5-3-相机"><a href="#5-3-相机" class="headerlink" title="5.3 相机"></a>5.3 相机</h3><table>
+<thead>
+<tr>
+<th>原语</th>
+<th>输入</th>
+<th>对应 HTTP</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>camera_capture</code></td>
+<td>无</td>
+<td><code>POST /api/camera {action:&quot;photo&quot;}</code></td>
+<td>拍照</td>
+</tr>
+<tr>
+<td><code>camera_video</code></td>
+<td>无</td>
+<td><code>GET /api/video</code></td>
+<td>返回视频流 URL（MJPEG，640px，12fps），调用方自行拉流</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>云台 &#x2F; 相机接口<strong>仅巡航进行中可用</strong>（<code>cruiseActive == true</code>）。</p>
+</blockquote>
+<h3 id="一个诚实的说明"><a href="#一个诚实的说明" class="headerlink" title="一个诚实的说明"></a>一个诚实的说明</h3><p><code>move_velocity</code> 和 <code>gimbal_velocity</code> 目前是「<strong>速度 → 位移&#x2F;角度</strong>」的<strong>离散近似</strong>：算出 <code>位移 = 速度 × 持续时间</code>，再一次性下发，并不是真正的连续速度控制。真连续需要 APK 端补 <code>/api/velocity</code>（MSDK 虚拟摇杆 <code>VirtualStickController</code>）和 <code>/api/gimbal/velocity</code>（<code>KeyGimbalSpeed</code>），这是下一步的重点。</p>
+<h2 id="六、使用方式"><a href="#六、使用方式" class="headerlink" title="六、使用方式"></a>六、使用方式</h2><p>打通之后，控制无人机有四种入口：</p>
+<p><strong>1. 网页控制台</strong> —— 浏览器打开 RC Pro 内置仪表盘（<code>http://&lt;RC_Pro_IP&gt;:8080</code>）或项目里的增强版 <code>dashboard.html</code>，实时视频 + 遥测 + 三模式切换 + 航点巡航。</p>
+<p><strong>2. <code>rbnx chat</code> 对话控制</strong> —— 理想形态：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">你: 起飞</span><br><span class="line">🤖: 好的，正在起飞并悬停...</span><br><span class="line">你: 前进 5 米</span><br><span class="line">🤖: 无人机向前移动 5 米...</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>目前 drone_bridge 提供的是底层能力 API，把自然语言映射到能力调用的 <strong>skill 层还需要另行开发</strong>。</p>
+</blockquote>
+<p><strong>3. Python 脚本直接调 HTTP</strong> —— 最直接：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">RC_PRO = <span class="string">&quot;http://192.168.x.x:8080&quot;</span></span><br><span class="line">status = requests.get(<span class="string">f&quot;<span class="subst">&#123;RC_PRO&#125;</span>/api/status&quot;</span>).json()</span><br><span class="line">requests.post(<span class="string">f&quot;<span class="subst">&#123;RC_PRO&#125;</span>/api/start&quot;</span>, json=&#123;<span class="string">&quot;climbHeight&quot;</span>: <span class="number">2.0</span>, <span class="string">&quot;moveDistance&quot;</span>: <span class="number">1.0</span>, <span class="string">&quot;yawAngle&quot;</span>: <span class="number">90</span>&#125;)</span><br></pre></td></tr></table></figure>
+
+<p><strong>4. <code>rbnx call</code> 直接调原语</strong> —— 我给 RoboNIX 加的子命令，绕开 LLM 直接命中一个原语，方便调试：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">rbnx call robonix/primitive/drone/takeoff --args <span class="string">&#x27;&#123;&quot;altitude&quot;:3.0&#125;&#x27;</span></span><br><span class="line">rbnx call robonix/primitive/drone/move_velocity --args <span class="string">&#x27;&#123;&quot;vz&quot;:1.0,&quot;duration&quot;:2.0&#125;&#x27;</span></span><br><span class="line">rbnx call robonix/primitive/drone/state</span><br><span class="line">rbnx call robonix/primitive/drone/camera_video</span><br></pre></td></tr></table></figure>
+
+<h2 id="七、部署流程（简述）"><a href="#七、部署流程（简述）" class="headerlink" title="七、部署流程（简述）"></a>七、部署流程（简述）</h2><ol>
+<li>RC Pro 开机连 WiFi，打开 APK，记下 Web 控制地址。</li>
+<li>WSL2 里确认 <code>rbnx</code> 已装好。</li>
+<li>把 <code>drone_bridge</code> 拷到 <code>~/my-robot/primitives/</code>。</li>
+<li>在 manifest 里配置 RC Pro 的 IP。</li>
+<li><code>bash scripts/build.sh</code>（codegen 生成 MCP dataclass）+ 装依赖。</li>
+<li><code>cd ~/my-robot &amp;&amp; rbnx boot</code>，看到 <code>atlas / executor / soma / drone_bridge</code> 都起来。</li>
 </ol>
-<h2 id="下一步"><a href="#下一步" class="headerlink" title="下一步"></a>下一步</h2><ul>
-<li>真正的<strong>连续速度控制</strong>：现在 <code>move_velocity</code> 还是「速度→位移」的离散近似，需要 APK 端补 <code>/api/velocity</code>，走 MSDK 的虚拟摇杆连续下发。</li>
-<li>云台速度模式（<code>/api/gimbal/velocity</code>）。</li>
-<li>更完整的遥测封装：GPS、电量、飞行模式等。</li>
-<li>自然语言飞控 Skill：「飞过去拍张照」这种一句话指令。</li>
-<li><strong>实飞验证</strong>——目前所有验证都还在软件&#x2F;链路层面，还没真正让飞机动起来。</li>
+<h2 id="八、端到端验证现状"><a href="#八、端到端验证现状" class="headerlink" title="八、端到端验证现状"></a>八、端到端验证现状</h2><ul>
+<li><code>rbnx call robonix/primitive/drone/state</code> → 返回 <code>[✓ state]</code>，链路 rbnx → executor → MCP → driver → HTTP 全通。</li>
+<li><code>rbnx call .../camera_video</code> → 返回 <code>{&quot;success&quot;:true,&quot;video_url&quot;:...}</code>，不依赖飞机连接也能正常返回。</li>
+<li>测试时 <code>state</code> 内部出现过 <code>HTTP 502</code>，是因为当时 RC Pro 没开机、连不上——属于<strong>硬件连通性</strong>，不是 RoboNIX 链路问题。</li>
 </ul>
+<p><strong>如实说：目前所有验证都还停留在软件 &#x2F; 链路层面，还没有真正让飞机动起来。</strong> 实飞是下一步的关键验证。</p>
+<h2 id="九、踩过的坑"><a href="#九、踩过的坑" class="headerlink" title="九、踩过的坑"></a>九、踩过的坑</h2><ol>
+<li><strong>executor 硬编码走 MCP</strong>：外部能力分发写死了 <code>Transport::Mcp</code>，所以原语必须 <code>@provider.mcp</code> 声明，否则 <code>rbnx call</code> 调不到。</li>
+<li><strong><code>mcp</code> 包版本要 <code>&lt; 2</code></strong>：mcp 2.0 把 <code>fastmcp</code> 移掉了，装了 2.x 直接 import 报错，<code>start.sh</code> 里固定成了 <code>mcp&gt;=1.0,&lt;2</code>。</li>
+<li><strong>Windows 改代码要手动同步到 WSL</strong>：WSL 里的 <code>~/my-robot/primitives/drone_bridge/</code> 不会自动更新，这个漏过好几次，导致 WSL 里跑的还是旧代码。</li>
+<li><strong>进程名是 <code>robonix-*</code></strong>：只杀 <code>rbnx boot</code> 会留下孤儿组件占着 50051&#x2F;50091 端口，重新 boot 就报「Address already in use」。</li>
+<li><strong>WSL2 默认 NAT 网络</strong>：可能访问不到 RC Pro，最简单是从 Windows 侧跑 bridge（standalone 模式）。</li>
+</ol>
+<h2 id="十、待办与下一步"><a href="#十、待办与下一步" class="headerlink" title="十、待办与下一步"></a>十、待办与下一步</h2><table>
+<thead>
+<tr>
+<th>待办</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>/api/land</code> 端点</td>
+<td>APK 侧还没实现原地降落，<code>land</code> 原语目前固定返回失败</td>
+</tr>
+<tr>
+<td><code>/api/velocity</code></td>
+<td>真连续速度控制，升级 <code>move_velocity</code></td>
+</tr>
+<tr>
+<td><code>/api/gimbal/velocity</code></td>
+<td>真连续云台，升级 <code>gimbal_velocity</code></td>
+</tr>
+<tr>
+<td>电池&#x2F;电压&#x2F;航向遥测</td>
+<td>当前 v4.0 <code>/api/status</code> 不返回这些字段</td>
+</tr>
+<tr>
+<td>自然语言 Skill</td>
+<td>让 <code>rbnx chat</code> 能一句话控制</td>
+</tr>
+<tr>
+<td>实飞验证</td>
+<td>让飞机真正动起来</td>
+</tr>
+</tbody></table>
 <hr>
-<p>这条路比想象中绕，但方向已经清楚了。后续每前进一点，就回来记一笔。</p>
-</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://nbsheep.github.io">nbsheep</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://nbsheep.github.io/2026/08/24/m3e-robonix-progress/">https://nbsheep.github.io/2026/08/24/m3e-robonix-progress/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://nbsheep.github.io" target="_blank">nbsheep 的技术博客</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/RoboNIX/">RoboNIX</a><a class="post-meta__tags" href="/tags/DJI/">DJI</a><a class="post-meta__tags" href="/tags/MSDK/">MSDK</a><a class="post-meta__tags" href="/tags/%E6%97%A0%E4%BA%BA%E6%9C%BA/">无人机</a><a class="post-meta__tags" href="/tags/M3E/">M3E</a></div><div class="post-share"><div class="social-share" data-image="/img/cover.svg" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/08/24/python-stdlib-local-audio-tool/" title="用纯 Python 标准库写一个本地音频处理工具"><img class="cover" src="/img/cover.svg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">用纯 Python 标准库写一个本地音频处理工具</div></div><div class="info-2"><div class="info-item-1">想做什么手头有一批不同格式的音频文件，想统一转成 mp3。不想装一堆依赖，也不想把文件传到任何在线服务——最好是双击一下、浏览器打开、拖进去就能转的本地小工具。 于是就有了这个项目：一个零第三方依赖的本地 Web 工具。后端只用 Python 标准库，前端纯原生 HTML&#x2F;JS，转码交给 ffmpeg。整个流程数据不出本机。 整体架构1234567浏览器（拖拽上传 / 展示 / 下载）        │  HTTP  (127.0.0.1:8000)        ▼本地 Python 服务（标准库 http.server）        │        ├─→ 核心库（解析文件、探测格式）        └─→ ffmpeg 子进程（转码成 mp3）  前端和后端通过几个简单的 HTTP 接口通信，后端跑在本机 127.0.0.1，只有自己能访问。 后端：只用标准库搭 HTTP 服务没装 Flask、没装 FastAPI，直接基于标准库的 http.server。 1. 一个 Handler 处理所有请求123456789import http.server, so...</div></div></div></a><a class="pagination-related" href="/2026/08/21/hello-world/" title="欢迎来到我的博客"><img class="cover" src="/img/cover.svg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">欢迎来到我的博客</div></div><div class="info-2"><div class="info-item-1">这是我的第一篇博客 🎉 这个博客用 Hexo + Butterfly 主题 搭建，托管在 GitHub Pages 上。 我打算在这里写什么 🛸 大疆 M3E 无人机接入 RoboNIX 的踩坑记录 🔌 STM32 与工控机的通讯方案（RS485 &#x2F; CAN） 📱 DJI MSDK Android 开发笔记 🤖 具身智能 &#x2F; 机器人学习心得  怎么写新文章在博客目录下执行： 1hexo new &quot;文章标题&quot;  然后编辑 source/_posts/ 下生成的文件，写完执行： 1hexo clean &amp;&amp; hexo generate &amp;&amp; hexo deploy  就能发布上线了。   千里之行，始于足下。第一篇先留个脚印。  </div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="https://github.com/nbsheep.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">nbsheep</div><div class="author-info-description">记录机器人、无人机、嵌入式开发的学习与踩坑笔记</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">12</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/nbsheep" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%83%B3%E5%81%9A%E4%BB%80%E4%B9%88"><span class="toc-number">1.</span> <span class="toc-text">想做什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A1%AC%E4%BB%B6%E4%B8%8E%E6%80%BB%E4%BD%93%E6%80%9D%E8%B7%AF"><span class="toc-number">2.</span> <span class="toc-text">硬件与总体思路</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%AE%E5%89%8D%E5%81%9A%E5%88%B0%E4%BA%86%E5%93%AA%E4%B8%80%E6%AD%A5"><span class="toc-number">3.</span> <span class="toc-text">目前做到了哪一步</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E8%87%AA%E7%A0%94-APK%EF%BC%88Drone-test-%E2%86%92-UAVtest-v4-0%EF%BC%89"><span class="toc-number">3.1.</span> <span class="toc-text">1. 自研 APK（Drone_test → UAVtest v4.0）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-drone-bridge-%E5%8E%9F%E8%AF%AD"><span class="toc-number">3.2.</span> <span class="toc-text">2. drone_bridge 原语</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-rbnx-call-%E5%AD%90%E5%91%BD%E4%BB%A4"><span class="toc-number">3.3.</span> <span class="toc-text">3. rbnx call 子命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E7%AB%AF%E5%88%B0%E7%AB%AF%E8%B7%91%E9%80%9A"><span class="toc-number">3.4.</span> <span class="toc-text">4. 端到端跑通</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B8%A9%E8%BF%87%E7%9A%84%E5%9D%91%EF%BC%88%E7%AE%80%E8%AE%B0%EF%BC%89"><span class="toc-number">4.</span> <span class="toc-text">踩过的坑（简记）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%8B%E4%B8%80%E6%AD%A5"><span class="toc-number">5.</span> <span class="toc-text">下一步</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/08/24/python-stdlib-local-audio-tool/" title="用纯 Python 标准库写一个本地音频处理工具"><img src="/img/cover.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="用纯 Python 标准库写一个本地音频处理工具"/></a><div class="content"><a class="title" href="/2026/08/24/python-stdlib-local-audio-tool/" title="用纯 Python 标准库写一个本地音频处理工具">用纯 Python 标准库写一个本地音频处理工具</a><time datetime="2026-08-24T06:30:00.000Z" title="发表于 2026-08-24 14:30:00">2026-08-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/24/m3e-robonix-progress/" title="把大疆 M3E 无人机接进 RoboNIX：目前的进展"><img src="/img/cover.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="把大疆 M3E 无人机接进 RoboNIX：目前的进展"/></a><div class="content"><a class="title" href="/2026/08/24/m3e-robonix-progress/" title="把大疆 M3E 无人机接进 RoboNIX：目前的进展">把大疆 M3E 无人机接进 RoboNIX：目前的进展</a><time datetime="2026-08-24T02:30:00.000Z" title="发表于 2026-08-24 10:30:00">2026-08-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/21/hello-world/" title="欢迎来到我的博客"><img src="/img/cover.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="欢迎来到我的博客"/></a><div class="content"><a class="title" href="/2026/08/21/hello-world/" title="欢迎来到我的博客">欢迎来到我的博客</a><time datetime="2026-08-21T06:00:00.000Z" title="发表于 2026-08-21 14:00:00">2026-08-21</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By nbsheep</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.7.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.7.0"></script><script src="/js/main.js?v=5.7.0"></script><div class="js-pjax"></div><script src="/js/custom.js"></script><audio id="bgm-player" loop preload="none"></audio><div id="music-tip"><div class="music-tip-box"><h3>♫ 背景音乐</h3><p class="sub">开启后选择你本地的 mp3 文件播放</p><div class="btns"><button class="yes" onclick="startMusic()">开启音乐</button><button class="no" onclick="closeMusicTip()">暂不开启</button></div></div></div><div id="music-btn" onclick="toggleMusic()" title="背景音乐">♫</div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/fireworks.min.js"></script><script id="canvas_nest" defer="defer" color="0,212,255" opacity="0.7" zIndex="-1" count="99" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/canvas-nest.min.js"></script><script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.min.js" defer="defer"></script><script>document.addEventListener('DOMContentLoaded', () => {
+<p>这条路的骨架已经搭起来了：<strong>RC Pro APK ✅ → HTTP API ✅ → MJPEG 视频 ✅ → drone_bridge ✅ → rbnx call ✅</strong>。剩下的是把「离散近似」换成「真连续控制」，以及走出软件层、做一次真正的实飞。后续每前进一点，我就回来记一笔。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://nbsheep.github.io">nbsheep</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://nbsheep.github.io/2026/08/24/m3e-robonix-progress/">https://nbsheep.github.io/2026/08/24/m3e-robonix-progress/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://nbsheep.github.io" target="_blank">nbsheep 的技术博客</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/RoboNIX/">RoboNIX</a><a class="post-meta__tags" href="/tags/DJI/">DJI</a><a class="post-meta__tags" href="/tags/MSDK/">MSDK</a><a class="post-meta__tags" href="/tags/%E6%97%A0%E4%BA%BA%E6%9C%BA/">无人机</a><a class="post-meta__tags" href="/tags/M3E/">M3E</a></div><div class="post-share"><div class="social-share" data-image="/img/cover.svg" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/08/24/python-stdlib-local-audio-tool/" title="用纯 Python 标准库写一个本地音频处理工具"><img class="cover" src="/img/cover.svg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">用纯 Python 标准库写一个本地音频处理工具</div></div><div class="info-2"><div class="info-item-1">想做什么手头有一批不同格式的音频文件，想统一转成 mp3。不想装一堆依赖，也不想把文件传到任何在线服务——最好是双击一下、浏览器打开、拖进去就能转的本地小工具。 于是就有了这个项目：一个零第三方依赖的本地 Web 工具。后端只用 Python 标准库，前端纯原生 HTML&#x2F;JS，转码交给 ffmpeg。整个流程数据不出本机。 整体架构1234567浏览器（拖拽上传 / 展示 / 下载）        │  HTTP  (127.0.0.1:8000)        ▼本地 Python 服务（标准库 http.server）        │        ├─→ 核心库（解析文件、探测格式）        └─→ ffmpeg 子进程（转码成 mp3）  前端和后端通过几个简单的 HTTP 接口通信，后端跑在本机 127.0.0.1，只有自己能访问。 后端：只用标准库搭 HTTP 服务没装 Flask、没装 FastAPI，直接基于标准库的 http.server。 1. 一个 Handler 处理所有请求123456789import http.server, so...</div></div></div></a><a class="pagination-related" href="/2026/08/21/hello-world/" title="欢迎来到我的博客"><img class="cover" src="/img/cover.svg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">欢迎来到我的博客</div></div><div class="info-2"><div class="info-item-1">这是我的第一篇博客 🎉 这个博客用 Hexo + Butterfly 主题 搭建，托管在 GitHub Pages 上。 我打算在这里写什么 🛸 大疆 M3E 无人机接入 RoboNIX 的踩坑记录 🔌 STM32 与工控机的通讯方案（RS485 &#x2F; CAN） 📱 DJI MSDK Android 开发笔记 🤖 具身智能 &#x2F; 机器人学习心得  怎么写新文章在博客目录下执行： 1hexo new &quot;文章标题&quot;  然后编辑 source/_posts/ 下生成的文件，写完执行： 1hexo clean &amp;&amp; hexo generate &amp;&amp; hexo deploy  就能发布上线了。   千里之行，始于足下。第一篇先留个脚印。  </div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="https://github.com/nbsheep.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">nbsheep</div><div class="author-info-description">记录机器人、无人机、嵌入式开发的学习与踩坑笔记</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">12</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/nbsheep" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E8%83%8C%E6%99%AF%E4%B8%8E%E7%9B%AE%E6%A0%87"><span class="toc-number">1.</span> <span class="toc-text">一、背景与目标</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E7%A1%AC%E4%BB%B6%E4%B8%8E%E8%B7%AF%E7%BA%BF%E9%80%89%E6%8B%A9"><span class="toc-number">2.</span> <span class="toc-text">二、硬件与路线选择</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84"><span class="toc-number">3.</span> <span class="toc-text">三、整体架构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E4%B8%A4%E4%B8%AA%E8%BD%AF%E4%BB%B6%E4%B8%BB%E4%BD%93"><span class="toc-number">4.</span> <span class="toc-text">四、两个软件主体</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-RC-Pro-%E7%AB%AF%EF%BC%9A%E8%87%AA%E7%A0%94-APK"><span class="toc-number">4.1.</span> <span class="toc-text">4.1 RC Pro 端：自研 APK</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-RoboNIX-%E7%AB%AF%EF%BC%9Adrone-bridge-%E5%8E%9F%E8%AF%AD"><span class="toc-number">4.2.</span> <span class="toc-text">4.2 RoboNIX 端：drone_bridge 原语</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%8111-%E4%B8%AA%E5%8E%9F%E8%AF%AD%E8%AF%A6%E8%A7%A3%EF%BC%88%E6%A0%B8%E5%BF%83%EF%BC%89"><span class="toc-number">5.</span> <span class="toc-text">五、11 个原语详解（核心）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-%E6%97%A0%E4%BA%BA%E6%9C%BA%E6%9C%AC%E4%BD%93"><span class="toc-number">5.1.</span> <span class="toc-text">5.1 无人机本体</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-%E4%BA%91%E5%8F%B0"><span class="toc-number">5.2.</span> <span class="toc-text">5.2 云台</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-%E7%9B%B8%E6%9C%BA"><span class="toc-number">5.3.</span> <span class="toc-text">5.3 相机</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA%E8%AF%9A%E5%AE%9E%E7%9A%84%E8%AF%B4%E6%98%8E"><span class="toc-number">5.4.</span> <span class="toc-text">一个诚实的说明</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F"><span class="toc-number">6.</span> <span class="toc-text">六、使用方式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E9%83%A8%E7%BD%B2%E6%B5%81%E7%A8%8B%EF%BC%88%E7%AE%80%E8%BF%B0%EF%BC%89"><span class="toc-number">7.</span> <span class="toc-text">七、部署流程（简述）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E7%AB%AF%E5%88%B0%E7%AB%AF%E9%AA%8C%E8%AF%81%E7%8E%B0%E7%8A%B6"><span class="toc-number">8.</span> <span class="toc-text">八、端到端验证现状</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E8%B8%A9%E8%BF%87%E7%9A%84%E5%9D%91"><span class="toc-number">9.</span> <span class="toc-text">九、踩过的坑</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E3%80%81%E5%BE%85%E5%8A%9E%E4%B8%8E%E4%B8%8B%E4%B8%80%E6%AD%A5"><span class="toc-number">10.</span> <span class="toc-text">十、待办与下一步</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/08/24/python-stdlib-local-audio-tool/" title="用纯 Python 标准库写一个本地音频处理工具"><img src="/img/cover.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="用纯 Python 标准库写一个本地音频处理工具"/></a><div class="content"><a class="title" href="/2026/08/24/python-stdlib-local-audio-tool/" title="用纯 Python 标准库写一个本地音频处理工具">用纯 Python 标准库写一个本地音频处理工具</a><time datetime="2026-08-24T06:30:00.000Z" title="发表于 2026-08-24 14:30:00">2026-08-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/24/m3e-robonix-progress/" title="把大疆 M3E 无人机接进 RoboNIX：目前的进展"><img src="/img/cover.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="把大疆 M3E 无人机接进 RoboNIX：目前的进展"/></a><div class="content"><a class="title" href="/2026/08/24/m3e-robonix-progress/" title="把大疆 M3E 无人机接进 RoboNIX：目前的进展">把大疆 M3E 无人机接进 RoboNIX：目前的进展</a><time datetime="2026-08-24T02:30:00.000Z" title="发表于 2026-08-24 10:30:00">2026-08-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/21/hello-world/" title="欢迎来到我的博客"><img src="/img/cover.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="欢迎来到我的博客"/></a><div class="content"><a class="title" href="/2026/08/21/hello-world/" title="欢迎来到我的博客">欢迎来到我的博客</a><time datetime="2026-08-21T06:00:00.000Z" title="发表于 2026-08-21 14:00:00">2026-08-21</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By nbsheep</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.7.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.7.0"></script><script src="/js/main.js?v=5.7.0"></script><div class="js-pjax"></div><script src="/js/custom.js"></script><audio id="bgm-player" loop preload="none"></audio><div id="music-tip"><div class="music-tip-box"><h3>♫ 背景音乐</h3><p class="sub">开启后选择你本地的 mp3 文件播放</p><div class="btns"><button class="yes" onclick="startMusic()">开启音乐</button><button class="no" onclick="closeMusicTip()">暂不开启</button></div></div></div><div id="music-btn" onclick="toggleMusic()" title="背景音乐">♫</div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/fireworks.min.js"></script><script id="canvas_nest" defer="defer" color="0,212,255" opacity="0.7" zIndex="-1" count="99" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/canvas-nest.min.js"></script><script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.min.js" defer="defer"></script><script>document.addEventListener('DOMContentLoaded', () => {
   const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
 
   window.pjax = new Pjax({
