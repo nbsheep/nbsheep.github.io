@@ -116,6 +116,14 @@
   --font-color: alpha(#FFFFFF, .92);
   --light-grey: alpha(#FFFFFF, .86);
   --white: #ffffff;
+  /* 日期/作者/分类 等次要文字从灰提亮 */
+  --card-meta: rgba(255, 255, 255, .8);
+}
+
+/* 文章卡片摘要文字提亮 */
+.recent-post-info > .content,
+.recent-post-item > .recent-post-info .content {
+  color: rgba(255, 255, 255, .9);
 }
 #page-header.full_page #site-subtitle {
   letter-spacing: 1px;
