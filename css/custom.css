@@ -103,6 +103,12 @@
   opacity: .95;
 }
 
+/* ============ footer：去掉主题默认的亮蓝色背景 ============ */
+#footer {
+  background-color: transparent;
+  background-image: none;
+}
+
 /* 让首页标题/副标题浮在星野之上，不被盖住 */
 #page-header.full_page #site-info,
 #page-header.full_page #site-title,
