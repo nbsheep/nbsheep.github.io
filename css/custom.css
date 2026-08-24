@@ -120,10 +120,18 @@
   --card-meta: rgba(255, 255, 255, .8);
 }
 
-/* 文章卡片摘要文字提亮 */
+/* 文章卡片：标题/摘要/日期 全部白色，放在深蓝卡片上非常清楚 */
 .recent-post-info > .content,
 .recent-post-item > .recent-post-info .content {
-  color: rgba(255, 255, 255, .9);
+  color: rgba(255, 255, 255, .92);
+}
+.recent-post-info .article-title,
+.recent-post-item > .recent-post-info .article-title {
+  color: #ffffff;
+}
+.recent-post-info .article-meta-wrap,
+.recent-post-item > .recent-post-info .article-meta-wrap {
+  color: rgba(255, 255, 255, .82);
 }
 
 /* 侧边栏作者卡：名字/描述/统计数字强制白色 */
