@@ -225,3 +225,41 @@
   // PJAX 跳转后若 header 被重渲染，再补一次
   document.addEventListener('pjax:complete', addHeroParticles);
 })();
+
+// 首页主题卡片（参考 everoot 的 intro-cards）
+(function () {
+  var CARDS = [
+    { icon: '🛸', title: '无人机', desc: '大疆 M3E 接入 RoboNIX 的进展与踩坑' },
+    { icon: '🤖', title: '机器人', desc: '具身智能 / RoboNIX 的学习折腾记录' },
+    { icon: '🔌', title: '嵌入式', desc: 'STM32 与工控机的通讯方案笔记' }
+  ];
+  function addIntroCards() {
+    var target = document.getElementById('recent-posts');
+    if (!target) return;                       // 只在首页（有文章列表）注入
+    if (document.querySelector('.intro-cards')) return; // 避免重复
+    var wrap = document.createElement('div');
+    wrap.className = 'intro-cards';
+    CARDS.forEach(function (c) {
+      var card = document.createElement('div');
+      card.className = 'intro-card';
+      var icon = document.createElement('div');
+      icon.className = 'icon';
+      icon.textContent = c.icon;
+      var h = document.createElement('h3');
+      h.textContent = c.title;
+      var p = document.createElement('p');
+      p.textContent = c.desc;
+      card.appendChild(icon);
+      card.appendChild(h);
+      card.appendChild(p);
+      wrap.appendChild(card);
+    });
+    target.parentNode.insertBefore(wrap, target);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', addIntroCards);
+  } else {
+    addIntroCards();
+  }
+  document.addEventListener('pjax:complete', addIntroCards);
+})();

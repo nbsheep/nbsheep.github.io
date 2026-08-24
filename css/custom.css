@@ -138,3 +138,54 @@
   80%  { opacity: .9; }
   100% { opacity: 0; transform: translateY(-120px); }
 }
+
+/* ============ 参考 everoot 风格：打字机光标 + 首页主题卡片 ============ */
+
+/* 打字机光标：白色闪烁竖线 */
+#site-subtitle .typed-cursor {
+  color: #fff;
+  margin-left: 3px;
+  animation: typedBlink 1s step-end infinite;
+}
+@keyframes typedBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* 首页主题卡片区 */
+.intro-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+.intro-card {
+  flex: 1 1 220px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(0, 212, 255, 0.18);
+  border-radius: 14px;
+  padding: 24px 20px;
+  text-align: center;
+  transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+}
+.intro-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(0, 212, 255, 0.5);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+.intro-card .icon {
+  font-size: 34px;
+  line-height: 1;
+  margin-bottom: 12px;
+}
+.intro-card h3 {
+  margin: 0 0 8px;
+  font-size: 17px;
+  color: #e6edf3;
+}
+.intro-card p {
+  margin: 0;
+  font-size: 13px;
+  color: #8b949e;
+  line-height: 1.6;
+}
