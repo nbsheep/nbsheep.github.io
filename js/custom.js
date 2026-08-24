@@ -235,7 +235,7 @@
     if (document.querySelector('.meteor-wrap')) return; // 避免重复，fixed 层只建一次
     var wrap = document.createElement('div');
     wrap.className = 'meteor-wrap';
-    var COUNT = 8; // 两侧共 8 颗
+    var COUNT = 20; // 两侧共 20 颗
     for (var i = 0; i < COUNT; i++) {
       var m = document.createElement('div');
       m.className = 'meteor';
@@ -244,8 +244,8 @@
       m.style.left = onLeft
         ? (1 + Math.random() * 12).toFixed(1) + '%'   // 左空白带
         : (87 + Math.random() * 11).toFixed(1) + '%'; // 右空白带
-      m.style.setProperty('--dur', (4.5 + Math.random() * 4).toFixed(1) + 's');
-      m.style.setProperty('--delay', (Math.random() * 6).toFixed(1) + 's');
+      m.style.setProperty('--dur', (3.5 + Math.random() * 3).toFixed(1) + 's');
+      m.style.setProperty('--delay', (Math.random() * 5).toFixed(1) + 's');
       var line = document.createElement('i');
       line.className = 'line';
       // 右侧流星往左下方划，翻转一下方向更像
