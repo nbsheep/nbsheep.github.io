@@ -195,3 +195,33 @@
     init();
   }
 })();
+
+// 首页顶部 hero 浮动光点（淡淡的光点向上飘）
+(function () {
+  function addHeroParticles() {
+    var header = document.getElementById('page-header');
+    if (!header || !header.classList.contains('full_page')) return;
+    if (header.querySelector('.hero-particles')) return; // 避免重复注入
+    var wrap = document.createElement('div');
+    wrap.className = 'hero-particles';
+    for (var i = 0; i < 14; i++) {
+      var dot = document.createElement('span');
+      var s = 2 + Math.random() * 3;
+      dot.style.left = (Math.random() * 100).toFixed(2) + '%';
+      dot.style.top = (30 + Math.random() * 70).toFixed(2) + '%';
+      dot.style.width = s.toFixed(1) + 'px';
+      dot.style.height = s.toFixed(1) + 'px';
+      dot.style.animationDuration = (6 + Math.random() * 8).toFixed(1) + 's';
+      dot.style.animationDelay = (-Math.random() * 8).toFixed(1) + 's';
+      wrap.appendChild(dot);
+    }
+    header.appendChild(wrap);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', addHeroParticles);
+  } else {
+    addHeroParticles();
+  }
+  // PJAX 跳转后若 header 被重渲染，再补一次
+  document.addEventListener('pjax:complete', addHeroParticles);
+})();

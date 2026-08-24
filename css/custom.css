@@ -76,3 +76,65 @@
   from { opacity: 0; transform: scale(.9); }
   to   { opacity: 1; transform: scale(1); }
 }
+
+/* ============ 首页顶部 hero 美化 ============ */
+
+#page-header.full_page { position: relative; }
+
+/* 让标题区浮在光晕之上 */
+#page-header.full_page #site-info {
+  position: relative;
+  z-index: 2;
+}
+
+/* 缓慢流动的光晕背景 */
+#page-header.full_page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(560px 380px at 18% 22%, rgba(0, 212, 255, 0.18), transparent 62%),
+    radial-gradient(680px 480px at 82% 72%, rgba(0, 128, 255, 0.20), transparent 62%),
+    radial-gradient(460px 380px at 58% 12%, rgba(0, 255, 213, 0.12), transparent 60%);
+  animation: heroGlow 16s ease-in-out infinite alternate;
+  z-index: 0;
+}
+@keyframes heroGlow {
+  0%   { opacity: .75; transform: translate(0, 0) scale(1); }
+  100% { opacity: 1; transform: translate(26px, -18px) scale(1.06); }
+}
+
+/* 标题排版更精致 */
+#page-header.full_page #site-title {
+  letter-spacing: 2px;
+  text-shadow: 0 0 30px rgba(0, 212, 255, 0.45), 0 2px 12px rgba(0, 0, 0, 0.5);
+}
+
+/* 副标题排版 */
+#page-header.full_page #site-subtitle {
+  letter-spacing: 1px;
+  opacity: .92;
+}
+
+/* 浮动光点容器 */
+.hero-particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+.hero-particles span {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(0, 212, 255, 0.55);
+  box-shadow: 0 0 8px rgba(0, 212, 255, 0.8);
+  animation: heroFloat linear infinite;
+  opacity: 0;
+}
+@keyframes heroFloat {
+  0%   { opacity: 0; transform: translateY(0); }
+  20%  { opacity: .9; }
+  80%  { opacity: .9; }
+  100% { opacity: 0; transform: translateY(-120px); }
+}
