@@ -1,0 +1,339 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>用纯 Python 标准库写一个本地音频处理工具 | nbsheep 的技术博客</title><meta name="author" content="nbsheep"><meta name="copyright" content="nbsheep"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#0d0d0d"><meta name="description" content="想做什么手头有一批不同格式的音频文件，想统一转成 mp3。不想装一堆依赖，也不想把文件传到任何在线服务——最好是双击一下、浏览器打开、拖进去就能转的本地小工具。 于是就有了这个项目：一个零第三方依赖的本地 Web 工具。后端只用 Python 标准库，前端纯原生 HTML&#x2F;JS，转码交给 ffmpeg。整个流程数据不出本机。 整体架构1234567浏览器（拖拽上传 &#x2F; 展示 &#x2F; 下载）">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用纯 Python 标准库写一个本地音频处理工具">
+<meta property="og:url" content="https://nbsheep.github.io/2026/08/24/python-stdlib-local-audio-tool/index.html">
+<meta property="og:site_name" content="nbsheep 的技术博客">
+<meta property="og:description" content="想做什么手头有一批不同格式的音频文件，想统一转成 mp3。不想装一堆依赖，也不想把文件传到任何在线服务——最好是双击一下、浏览器打开、拖进去就能转的本地小工具。 于是就有了这个项目：一个零第三方依赖的本地 Web 工具。后端只用 Python 标准库，前端纯原生 HTML&#x2F;JS，转码交给 ffmpeg。整个流程数据不出本机。 整体架构1234567浏览器（拖拽上传 &#x2F; 展示 &#x2F; 下载）">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://nbsheep.github.io/img/cover.svg">
+<meta property="article:published_time" content="2026-08-24T06:30:00.000Z">
+<meta property="article:modified_time" content="2026-08-24T02:48:55.345Z">
+<meta property="article:author" content="nbsheep">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="ffmpeg">
+<meta property="article:tag" content="前端">
+<meta property="article:tag" content="本地工具">
+<meta property="article:tag" content="标准库">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nbsheep.github.io/img/cover.svg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "用纯 Python 标准库写一个本地音频处理工具",
+  "url": "https://nbsheep.github.io/2026/08/24/python-stdlib-local-audio-tool/",
+  "image": "https://nbsheep.github.io/img/cover.svg",
+  "datePublished": "2026-08-24T06:30:00.000Z",
+  "dateModified": "2026-08-24T02:48:55.345Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "nbsheep",
+      "url": "https://nbsheep.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://nbsheep.github.io/2026/08/24/python-stdlib-local-audio-tool/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css?v=5.7.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.3.1/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        const data = { value }
+
+        if (ttl != null) {
+          data.expiry = Date.now() + ttl * 86400000
+        }
+
+        localStorage.setItem(key, JSON.stringify(data))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return
+
+        try {
+          const data = JSON.parse(itemStr)
+
+          if (data.expiry && Date.now() > data.expiry) {
+            localStorage.removeItem(key)
+            return
+          }
+
+          return data.value
+        } catch {
+          localStorage.removeItem(key)
+        }
+      }
+    }
+
+    const scriptCache = new Map()
+    const cssCache = new Map()
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => {
+        if (scriptCache.has(url)) {
+          return scriptCache.get(url)
+        }
+
+        const promise = new Promise((resolve, reject) => {
+          const script = document.createElement('script')
+
+          script.src = url
+          script.async = true
+
+          for (const key in attr) {
+            script.setAttribute(key, attr[key])
+          }
+
+          script.onload = resolve
+          script.onerror = reject
+
+          document.head.appendChild(script)
+        })
+
+        scriptCache.set(url, promise)
+
+        return promise
+      },
+      getCSS: (url, id) => {
+        if (cssCache.has(url)) {
+          return cssCache.get(url)
+        }
+
+        const promise = new Promise((resolve, reject) => {
+          const link = document.createElement('link')
+
+          link.rel = 'stylesheet'
+          link.href = url
+
+          if (id) {
+            link.id = id
+          }
+
+          link.onload = resolve
+          link.onerror = reject
+
+          document.head.appendChild(link)
+        })
+
+        cssCache.set(url, promise)
+
+        return promise
+      },
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const metaThemeColor = document.querySelector('meta[name="theme-color"]')
+      const activateDarkMode = () => {
+        document.documentElement.dataset.theme = 'dark'
+        if (metaThemeColor !== null) {
+          metaThemeColor.setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.dataset.theme = 'light'
+        if (metaThemeColor !== null) {
+          metaThemeColor.setAttribute('content', '0d1117')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '用纯 Python 标准库写一个本地音频处理工具',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/custom.css"><meta name="generator" content="Hexo 8.1.2"></head><body><div class="bg-animation" id="web_bg" style="background: linear-gradient(135deg,;"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="https://github.com/nbsheep.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">12</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/cover.svg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">nbsheep 的技术博客</span></a><a class="nav-page-title" href="/"><span class="site-name">用纯 Python 标准库写一个本地音频处理工具</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">用纯 Python 标准库写一个本地音频处理工具</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-08-24T06:30:00.000Z" title="发表于 2026-08-24 14:30:00">2026-08-24</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-08-24T02:48:55.345Z" title="更新于 2026-08-24 10:48:55">2026-08-24</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%BC%96%E7%A8%8B/">编程</a></span></div><div class="meta-secondline"></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="想做什么"><a href="#想做什么" class="headerlink" title="想做什么"></a>想做什么</h2><p>手头有一批不同格式的音频文件，想统一转成 mp3。不想装一堆依赖，也不想把文件传到任何在线服务——最好是双击一下、浏览器打开、拖进去就能转的本地小工具。</p>
+<p>于是就有了这个项目：<strong>一个零第三方依赖的本地 Web 工具</strong>。后端只用 Python 标准库，前端纯原生 HTML&#x2F;JS，转码交给 ffmpeg。整个流程数据不出本机。</p>
+<h2 id="整体架构"><a href="#整体架构" class="headerlink" title="整体架构"></a>整体架构</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">浏览器（拖拽上传 / 展示 / 下载）</span><br><span class="line">        │  HTTP  (127.0.0.1:8000)</span><br><span class="line">        ▼</span><br><span class="line">本地 Python 服务（标准库 http.server）</span><br><span class="line">        │</span><br><span class="line">        ├─→ 核心库（解析文件、探测格式）</span><br><span class="line">        └─→ ffmpeg 子进程（转码成 mp3）</span><br></pre></td></tr></table></figure>
+
+<p>前端和后端通过几个简单的 HTTP 接口通信，后端跑在本机 <code>127.0.0.1</code>，只有自己能访问。</p>
+<h2 id="后端：只用标准库搭-HTTP-服务"><a href="#后端：只用标准库搭-HTTP-服务" class="headerlink" title="后端：只用标准库搭 HTTP 服务"></a>后端：只用标准库搭 HTTP 服务</h2><p>没装 Flask、没装 FastAPI，直接基于标准库的 <code>http.server</code>。</p>
+<h3 id="1-一个-Handler-处理所有请求"><a href="#1-一个-Handler-处理所有请求" class="headerlink" title="1. 一个 Handler 处理所有请求"></a>1. 一个 Handler 处理所有请求</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> http.server, socketserver</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Handler</span>(http.server.BaseHTTPRequestHandler):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">do_GET</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="comment"># 处理静态页面 + 查询接口</span></span><br><span class="line">        ...</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">do_POST</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="comment"># 处理文件上传（转换）</span></span><br><span class="line">        ...</span><br></pre></td></tr></table></figure>
+
+<p>启动时用多线程版本，并允许端口复用，方便重启：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">socketserver.ThreadingTCPServer.allow_reuse_address = <span class="literal">True</span></span><br><span class="line"><span class="keyword">with</span> socketserver.ThreadingTCPServer((<span class="string">&quot;127.0.0.1&quot;</span>, <span class="number">8000</span>), Handler) <span class="keyword">as</span> httpd:</span><br><span class="line">    httpd.serve_forever()</span><br></pre></td></tr></table></figure>
+
+<p><code>ThreadingTCPServer</code> 让每个请求跑在独立线程里，多文件转换不会互相阻塞；<code>allow_reuse_address</code> 让你重启服务时不会因为端口还占着而报错。</p>
+<h3 id="2-静态文件服务-目录穿越防护"><a href="#2-静态文件服务-目录穿越防护" class="headerlink" title="2. 静态文件服务 + 目录穿越防护"></a>2. 静态文件服务 + 目录穿越防护</h3><p>前端页面就是几个静态文件，直接读出来返回。但<strong>不能</strong>直接把用户传来的路径拼上去，否则 <code>/../../etc/passwd</code> 这种目录穿越就能读到任意文件：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">target = (WEB_DIR / path.lstrip(<span class="string">&quot;/&quot;</span>)).resolve()</span><br><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> <span class="built_in">str</span>(target).startswith(<span class="built_in">str</span>(WEB_DIR.resolve())) <span class="keyword">or</span> <span class="keyword">not</span> target.is_file():</span><br><span class="line">    <span class="variable language_">self</span>.send_error(<span class="number">404</span>, <span class="string">&quot;Not Found&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span></span><br></pre></td></tr></table></figure>
+
+<p><code>resolve()</code> 把路径规范化成绝对路径，再校验它确实落在 <code>WEB_DIR</code> 目录内，越界就 404。</p>
+<h3 id="3-按-Content-Length-精确读上传体"><a href="#3-按-Content-Length-精确读上传体" class="headerlink" title="3. 按 Content-Length 精确读上传体"></a>3. 按 Content-Length 精确读上传体</h3><p>接收上传的文件时，先读请求头里的 <code>Content-Length</code>，再精确读那么多字节，而不是一直读到超时：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">length = <span class="built_in">int</span>(<span class="variable language_">self</span>.headers.get(<span class="string">&quot;Content-Length&quot;</span>, <span class="string">&quot;0&quot;</span>))</span><br><span class="line"><span class="keyword">if</span> length &gt; <span class="number">512</span> * <span class="number">1024</span> * <span class="number">1024</span>:      <span class="comment"># 上限 512MB，防止恶意超大请求</span></span><br><span class="line">    <span class="variable language_">self</span>.send_error(<span class="number">413</span>, <span class="string">&quot;文件过大&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">data = <span class="variable language_">self</span>.rfile.read(length)</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-中文文件名的正确姿势"><a href="#4-中文文件名的正确姿势" class="headerlink" title="4. 中文文件名的正确姿势"></a>4. 中文文件名的正确姿势</h3><p>文件名通过自定义请求头 <code>X-Filename</code> 传过来（前端用 <code>encodeURIComponent</code> 编码过）。服务端解码后，再用 <code>pathlib.Path(name).name</code> 把可能的路径部分剥掉，避免文件名里夹带路径：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">raw_name = urllib.parse.unquote(<span class="variable language_">self</span>.headers.get(<span class="string">&quot;X-Filename&quot;</span>, <span class="string">&quot;input.mflac&quot;</span>))</span><br><span class="line">safe_name = pathlib.Path(raw_name).name</span><br></pre></td></tr></table></figure>
+
+<p>返回 mp3 时，用 RFC 5987 的方式编码中文文件名，否则浏览器会拿到一串乱码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">disp = <span class="string">f&quot;attachment; filename*=UTF-8&#x27;&#x27;<span class="subst">&#123;urllib.parse.quote(out_file.name)&#125;</span>&quot;</span></span><br><span class="line"><span class="variable language_">self</span>.send_header(<span class="string">&quot;Content-Disposition&quot;</span>, disp)</span><br></pre></td></tr></table></figure>
+
+<h2 id="前端：拖拽上传-批量-下载"><a href="#前端：拖拽上传-批量-下载" class="headerlink" title="前端：拖拽上传 + 批量 + 下载"></a>前端：拖拽上传 + 批量 + 下载</h2><p>前端没用任何框架，就原生 DOM + <code>fetch</code>。</p>
+<h3 id="拖拽上传"><a href="#拖拽上传" class="headerlink" title="拖拽上传"></a>拖拽上传</h3><p>监听 <code>drop</code> 事件拿到文件列表，过滤出想要的扩展名，再逐个处理：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">dropzone.<span class="title function_">addEventListener</span>(<span class="string">&quot;drop&quot;</span>, <span class="function">(<span class="params">e</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> files = e.<span class="property">dataTransfer</span>.<span class="property">files</span>;</span><br><span class="line">  <span class="keyword">if</span> (files.<span class="property">length</span>) <span class="title function_">handleFiles</span>(files);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h3 id="逐个上传-进度"><a href="#逐个上传-进度" class="headerlink" title="逐个上传 + 进度"></a>逐个上传 + 进度</h3><p>批量时按顺序一个个转，避免同时打爆后端：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; files.<span class="property">length</span>; i++) &#123;</span><br><span class="line">  statusText.<span class="property">textContent</span> = <span class="string">`正在转换 <span class="subst">$&#123;i + <span class="number">1</span>&#125;</span>/<span class="subst">$&#123;files.length&#125;</span>：<span class="subst">$&#123;files[i].name&#125;</span>`</span>;</span><br><span class="line">  <span class="keyword">const</span> blob = <span class="keyword">await</span> <span class="title function_">convertOne</span>(files[i]);</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>单个文件用 <code>fetch</code> POST，请求体直接就是文件本身，文件名放 <code>X-Filename</code> 头：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> resp = <span class="keyword">await</span> <span class="title function_">fetch</span>(<span class="string">&quot;/api/convert&quot;</span>, &#123;</span><br><span class="line">  <span class="attr">method</span>: <span class="string">&quot;POST&quot;</span>,</span><br><span class="line">  <span class="attr">headers</span>: &#123; <span class="string">&quot;X-Filename&quot;</span>: <span class="built_in">encodeURIComponent</span>(file.<span class="property">name</span>) &#125;,</span><br><span class="line">  <span class="attr">body</span>: file,</span><br><span class="line">&#125;);</span><br><span class="line"><span class="keyword">return</span> <span class="keyword">await</span> resp.<span class="title function_">blob</span>();</span><br></pre></td></tr></table></figure>
+
+<h3 id="把响应存成文件下载"><a href="#把响应存成文件下载" class="headerlink" title="把响应存成文件下载"></a>把响应存成文件下载</h3><p>后端返回的是 mp3 二进制，用 <code>Blob</code> 包一层，再借一个临时 <code>&lt;a&gt;</code> 标签触发下载：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">downloadBlob</span>(<span class="params">name, blob</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> url = <span class="variable constant_">URL</span>.<span class="title function_">createObjectURL</span>(blob);</span><br><span class="line">  <span class="keyword">const</span> a = <span class="variable language_">document</span>.<span class="title function_">createElement</span>(<span class="string">&quot;a&quot;</span>);</span><br><span class="line">  a.<span class="property">href</span> = url;</span><br><span class="line">  a.<span class="property">download</span> = name;</span><br><span class="line">  <span class="variable language_">document</span>.<span class="property">body</span>.<span class="title function_">appendChild</span>(a);</span><br><span class="line">  a.<span class="title function_">click</span>();</span><br><span class="line">  <span class="variable language_">document</span>.<span class="property">body</span>.<span class="title function_">removeChild</span>(a);</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> <span class="variable constant_">URL</span>.<span class="title function_">revokeObjectURL</span>(url), <span class="number">5000</span>);  <span class="comment">// 用完释放</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>URL.revokeObjectURL</code> 那一步很重要——<code>createObjectURL</code> 会占住内存，不释放的话批量下多了会越占越多。</p>
+<h3 id="选整个文件夹"><a href="#选整个文件夹" class="headerlink" title="选整个文件夹"></a>选整个文件夹</h3><p>给 <code>&lt;input type=&quot;file&quot;&gt;</code> 加上 <code>webkitdirectory</code>，就能让用户直接选一整个文件夹：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;file&quot;</span> <span class="attr">id</span>=<span class="string">&quot;folderInput&quot;</span> <span class="attr">webkitdirectory</span> <span class="attr">multiple</span> <span class="attr">hidden</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="音频处理管道"><a href="#音频处理管道" class="headerlink" title="音频处理管道"></a>音频处理管道</h2><p>核心库负责两件事：<strong>探测容器格式</strong> 和 <strong>调 ffmpeg 转码</strong>。</p>
+<h3 id="探测格式：读文件头的魔数"><a href="#探测格式：读文件头的魔数" class="headerlink" title="探测格式：读文件头的魔数"></a>探测格式：读文件头的魔数</h3><p>不同音频容器的开头有几个固定的「魔数」字节，读一下就知道是什么格式，不用靠扩展名猜：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">with</span> path.<span class="built_in">open</span>(<span class="string">&quot;rb&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    head = f.read(<span class="number">64</span>)</span><br><span class="line"><span class="keyword">if</span> head.startswith(<span class="string">b&quot;fLaC&quot;</span>):</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;flac&quot;</span></span><br><span class="line"><span class="keyword">if</span> head.startswith(<span class="string">b&quot;OggS&quot;</span>):</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;ogg&quot;</span></span><br><span class="line"><span class="keyword">if</span> head.startswith(<span class="string">b&quot;ID3&quot;</span>):</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;mp3&quot;</span></span><br><span class="line"><span class="keyword">if</span> <span class="built_in">len</span>(head) &gt;= <span class="number">2</span> <span class="keyword">and</span> head[<span class="number">0</span>] == <span class="number">0xFF</span> <span class="keyword">and</span> head[<span class="number">1</span>] <span class="keyword">in</span> (<span class="number">0xFB</span>, <span class="number">0xF3</span>, <span class="number">0xF2</span>):</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;mp3&quot;</span></span><br><span class="line"><span class="keyword">if</span> <span class="built_in">len</span>(head) &gt;= <span class="number">12</span> <span class="keyword">and</span> head[<span class="number">4</span>:<span class="number">8</span>] == <span class="string">b&quot;ftyp&quot;</span>:</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;m4a&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="交给-ffmpeg-转码"><a href="#交给-ffmpeg-转码" class="headerlink" title="交给 ffmpeg 转码"></a>交给 ffmpeg 转码</h3><p>转码用子进程调 ffmpeg，输出 320k 的 mp3：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">cmd = [</span><br><span class="line">    ffmpeg, <span class="string">&quot;-y&quot;</span>, <span class="string">&quot;-hide_banner&quot;</span>, <span class="string">&quot;-loglevel&quot;</span>, <span class="string">&quot;error&quot;</span>,</span><br><span class="line">    <span class="string">&quot;-i&quot;</span>, <span class="built_in">str</span>(input_path),</span><br><span class="line">    <span class="string">&quot;-map&quot;</span>, <span class="string">&quot;0:a:0&quot;</span>, <span class="string">&quot;-vn&quot;</span>, <span class="string">&quot;-sn&quot;</span>, <span class="string">&quot;-dn&quot;</span>,</span><br><span class="line">    <span class="string">&quot;-codec:a&quot;</span>, <span class="string">&quot;libmp3lame&quot;</span>, <span class="string">&quot;-b:a&quot;</span>, <span class="string">f&quot;<span class="subst">&#123;bitrate&#125;</span>k&quot;</span>,</span><br><span class="line">    <span class="built_in">str</span>(output_path),</span><br><span class="line">]</span><br><span class="line">subprocess.run(cmd, capture_output=<span class="literal">True</span>, ...)</span><br></pre></td></tr></table></figure>
+
+<p>几个值得说的参数：</p>
+<ul>
+<li><code>-map 0:a:0 -vn -sn -dn</code>：只取第一条音频流，丢掉视频、字幕、附件，转纯音频。</li>
+<li><code>-codec:a libmp3lame</code>：指定用 LAME 编码器出 mp3。</li>
+<li><code>-b:a 320k</code>：目标码率。</li>
+</ul>
+<p>ffmpeg 是个独立的二进制，单独放一个 <code>bin/</code> 目录，程序启动时按「显式路径 → 项目自带 → PATH」的优先级自动找，找不到就给出友好提示。</p>
+<p>还有个 Windows 小细节：用 <code>subprocess</code> 调 ffmpeg 时，如果不处理会闪一下黑色控制台窗口。加两行 <code>STARTUPINFO</code> 就没了：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">startupinfo = subprocess.STARTUPINFO()</span><br><span class="line">startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW</span><br><span class="line">subprocess.run(cmd, capture_output=<span class="literal">True</span>, startupinfo=startupinfo)</span><br></pre></td></tr></table></figure>
+
+<h2 id="踩过的坑"><a href="#踩过的坑" class="headerlink" title="踩过的坑"></a>踩过的坑</h2><ol>
+<li><strong>Windows 控制台打不了 <code>✓</code></strong>——默认 GBK 编码，一 print emoji 就 <code>UnicodeEncodeError</code>。解决：<code>sys.stdout.reconfigure(errors=&quot;replace&quot;)</code>，打不出来的字符自动替换成 <code>?</code>，不崩了。</li>
+<li><strong>中文文件名下载变乱码</strong>——要用 RFC 5987 的 <code>filename*=UTF-8&#39;&#39;...</code>，而不是老的 <code>filename=</code>。</li>
+<li><strong>忘了做目录穿越防护</strong>——静态文件路径必须 <code>resolve()</code> 后校验范围，否则能被读到任意文件。</li>
+<li><strong><code>createObjectURL</code> 忘了释放</strong>——批量下载会内存泄漏，记得 <code>revokeObjectURL</code>。</li>
+<li><strong>文件名带路径</strong>——上传文件名要 <code>pathlib.Path(name).name</code> 剥干净，否则写临时文件时可能写到别的目录去。</li>
+</ol>
+<h2 id="下一步"><a href="#下一步" class="headerlink" title="下一步"></a>下一步</h2><ul>
+<li>用 PyInstaller 打包成单个 <code>.exe</code>，双击就用，不依赖 Python 环境。</li>
+<li>前端加个并发上限（比如同时最多 2 个），大批量时更快又不压垮本机。</li>
+<li>加个任务队列，转换中关页面也不丢进度。</li>
+</ul>
+<hr>
+<p>这次最大的收获是：<strong>不装任何框架，光靠标准库也能搭出一个体面的本地 Web 工具</strong>。<code>http.server</code> 加 <code>socketserver</code> 完全够用，剩下的就是几个边界细节（路径、编码、文件名）磨平。工具全程跑在本机，处理的是自己本地的文件，数据不出一台电脑。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://nbsheep.github.io">nbsheep</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://nbsheep.github.io/2026/08/24/python-stdlib-local-audio-tool/">https://nbsheep.github.io/2026/08/24/python-stdlib-local-audio-tool/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://nbsheep.github.io" target="_blank">nbsheep 的技术博客</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Python/">Python</a><a class="post-meta__tags" href="/tags/%E6%A0%87%E5%87%86%E5%BA%93/">标准库</a><a class="post-meta__tags" href="/tags/%E5%89%8D%E7%AB%AF/">前端</a><a class="post-meta__tags" href="/tags/ffmpeg/">ffmpeg</a><a class="post-meta__tags" href="/tags/%E6%9C%AC%E5%9C%B0%E5%B7%A5%E5%85%B7/">本地工具</a></div><div class="post-share"><div class="social-share" data-image="/img/cover.svg" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2026/08/24/m3e-robonix-progress/" title="把大疆 M3E 无人机接进 RoboNIX：目前的进展"><img class="cover" src="/img/cover.svg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">把大疆 M3E 无人机接进 RoboNIX：目前的进展</div></div><div class="info-2"><div class="info-item-1">想做什么把大疆 Mavic 3 Enterprise (M3E) 无人机接入 RoboNIX——一个面向具身智能的机器人操作系统。 RoboNIX 目前已经接入了机械臂、灵巧手这类设备，但还没有无人机本体和对应的原语。所以这个方向算是「从零打通一条路」，把无人机变成 RoboNIX 能调度的一个执行单元。 硬件与总体思路 硬件：M3E 飞机 + DJI RC Pro (RM510B) 遥控器 两条 SDK 路线：MSDK（跑在 RC Pro 的 Android 上）和 PSDK（机载计算 + E-port） 我选择先走 MSDK：自己写一个 Android APK 跑在 RC Pro 上，把飞控能力通过 HTTP 暴露出来，RoboNIX 侧再写一个桥接原语去调用。  整体链路长这样： 1M3E → RC Pro（自研 APK，HTTP :8080）→ drone_bridge（Python 原语）→ Atlas → Executor → rbnx call / chat  目前做到了哪一步1. 自研 APK（Drone_test → UAVtest v4.0）APK 跑在 RC...</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="https://github.com/nbsheep.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">nbsheep</div><div class="author-info-description">记录机器人、无人机、嵌入式开发的学习与踩坑笔记</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">12</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/nbsheep" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%83%B3%E5%81%9A%E4%BB%80%E4%B9%88"><span class="toc-number">1.</span> <span class="toc-text">想做什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84"><span class="toc-number">2.</span> <span class="toc-text">整体架构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%8E%E7%AB%AF%EF%BC%9A%E5%8F%AA%E7%94%A8%E6%A0%87%E5%87%86%E5%BA%93%E6%90%AD-HTTP-%E6%9C%8D%E5%8A%A1"><span class="toc-number">3.</span> <span class="toc-text">后端：只用标准库搭 HTTP 服务</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E4%B8%80%E4%B8%AA-Handler-%E5%A4%84%E7%90%86%E6%89%80%E6%9C%89%E8%AF%B7%E6%B1%82"><span class="toc-number">3.1.</span> <span class="toc-text">1. 一个 Handler 处理所有请求</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E9%9D%99%E6%80%81%E6%96%87%E4%BB%B6%E6%9C%8D%E5%8A%A1-%E7%9B%AE%E5%BD%95%E7%A9%BF%E8%B6%8A%E9%98%B2%E6%8A%A4"><span class="toc-number">3.2.</span> <span class="toc-text">2. 静态文件服务 + 目录穿越防护</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%8C%89-Content-Length-%E7%B2%BE%E7%A1%AE%E8%AF%BB%E4%B8%8A%E4%BC%A0%E4%BD%93"><span class="toc-number">3.3.</span> <span class="toc-text">3. 按 Content-Length 精确读上传体</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E4%B8%AD%E6%96%87%E6%96%87%E4%BB%B6%E5%90%8D%E7%9A%84%E6%AD%A3%E7%A1%AE%E5%A7%BF%E5%8A%BF"><span class="toc-number">3.4.</span> <span class="toc-text">4. 中文文件名的正确姿势</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E7%AB%AF%EF%BC%9A%E6%8B%96%E6%8B%BD%E4%B8%8A%E4%BC%A0-%E6%89%B9%E9%87%8F-%E4%B8%8B%E8%BD%BD"><span class="toc-number">4.</span> <span class="toc-text">前端：拖拽上传 + 批量 + 下载</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8B%96%E6%8B%BD%E4%B8%8A%E4%BC%A0"><span class="toc-number">4.1.</span> <span class="toc-text">拖拽上传</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%90%E4%B8%AA%E4%B8%8A%E4%BC%A0-%E8%BF%9B%E5%BA%A6"><span class="toc-number">4.2.</span> <span class="toc-text">逐个上传 + 进度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8A%8A%E5%93%8D%E5%BA%94%E5%AD%98%E6%88%90%E6%96%87%E4%BB%B6%E4%B8%8B%E8%BD%BD"><span class="toc-number">4.3.</span> <span class="toc-text">把响应存成文件下载</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%89%E6%95%B4%E4%B8%AA%E6%96%87%E4%BB%B6%E5%A4%B9"><span class="toc-number">4.4.</span> <span class="toc-text">选整个文件夹</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9F%B3%E9%A2%91%E5%A4%84%E7%90%86%E7%AE%A1%E9%81%93"><span class="toc-number">5.</span> <span class="toc-text">音频处理管道</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%A2%E6%B5%8B%E6%A0%BC%E5%BC%8F%EF%BC%9A%E8%AF%BB%E6%96%87%E4%BB%B6%E5%A4%B4%E7%9A%84%E9%AD%94%E6%95%B0"><span class="toc-number">5.1.</span> <span class="toc-text">探测格式：读文件头的魔数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%A4%E7%BB%99-ffmpeg-%E8%BD%AC%E7%A0%81"><span class="toc-number">5.2.</span> <span class="toc-text">交给 ffmpeg 转码</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B8%A9%E8%BF%87%E7%9A%84%E5%9D%91"><span class="toc-number">6.</span> <span class="toc-text">踩过的坑</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%8B%E4%B8%80%E6%AD%A5"><span class="toc-number">7.</span> <span class="toc-text">下一步</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/08/24/python-stdlib-local-audio-tool/" title="用纯 Python 标准库写一个本地音频处理工具"><img src="/img/cover.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="用纯 Python 标准库写一个本地音频处理工具"/></a><div class="content"><a class="title" href="/2026/08/24/python-stdlib-local-audio-tool/" title="用纯 Python 标准库写一个本地音频处理工具">用纯 Python 标准库写一个本地音频处理工具</a><time datetime="2026-08-24T06:30:00.000Z" title="发表于 2026-08-24 14:30:00">2026-08-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/24/m3e-robonix-progress/" title="把大疆 M3E 无人机接进 RoboNIX：目前的进展"><img src="/img/cover.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="把大疆 M3E 无人机接进 RoboNIX：目前的进展"/></a><div class="content"><a class="title" href="/2026/08/24/m3e-robonix-progress/" title="把大疆 M3E 无人机接进 RoboNIX：目前的进展">把大疆 M3E 无人机接进 RoboNIX：目前的进展</a><time datetime="2026-08-24T02:30:00.000Z" title="发表于 2026-08-24 10:30:00">2026-08-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/21/hello-world/" title="欢迎来到我的博客"><img src="/img/cover.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="欢迎来到我的博客"/></a><div class="content"><a class="title" href="/2026/08/21/hello-world/" title="欢迎来到我的博客">欢迎来到我的博客</a><time datetime="2026-08-21T06:00:00.000Z" title="发表于 2026-08-21 14:00:00">2026-08-21</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By nbsheep</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.7.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.7.0"></script><script src="/js/main.js?v=5.7.0"></script><div class="js-pjax"></div><script src="/js/custom.js"></script><audio id="bgm-player" loop preload="none"></audio><div id="music-tip"><div class="music-tip-box"><h3>♫ 背景音乐</h3><p class="sub">开启后选择你本地的 mp3 文件播放</p><div class="btns"><button class="yes" onclick="startMusic()">开启音乐</button><button class="no" onclick="closeMusicTip()">暂不开启</button></div></div></div><div id="music-btn" onclick="toggleMusic()" title="背景音乐">♫</div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/fireworks.min.js"></script><script id="canvas_nest" defer="defer" color="0,212,255" opacity="0.7" zIndex="-1" count="99" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/canvas-nest.min.js"></script><script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.min.js" defer="defer"></script><script>document.addEventListener('DOMContentLoaded', () => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"]):not([data-fancybox])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: false,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => {
+      try {
+        fn()
+      } catch (err) {
+        console.debug('Pjax callback failed:', err)
+      }
+    })
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      if (!item.parentNode) return
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || ''
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    const responseURL = e.request && e.request.responseURL
+    if (e.request && e.request.status === 404) {
+      false
+        ? pjax.loadUrl('/404.html')
+        : responseURL && (window.location.href = responseURL)
+    } else if (responseURL) {
+      window.location.href = responseURL
+    }
+  })
+})</script></div></body></html>
