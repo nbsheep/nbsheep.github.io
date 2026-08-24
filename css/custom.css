@@ -165,6 +165,11 @@
 [data-theme='dark'] #aside-content .card-widget .archive-list-date {
   color: rgba(255, 255, 255, .92) !important;
 }
+/* 侧边栏组件标题的小图标（喇叭/时钟/文件夹/标签/归档/折线）也一并变白 */
+[data-theme='dark'] #aside-content .card-widget .item-headline i,
+[data-theme='dark'] #aside-content .card-widget .item-headline svg {
+  color: #ffffff !important;
+}
 #page-header.full_page #site-subtitle {
   letter-spacing: 1px;
   opacity: .95;
