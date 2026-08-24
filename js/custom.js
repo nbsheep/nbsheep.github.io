@@ -228,3 +228,36 @@
   }
   document.addEventListener('pjax:complete', addStars);
 })();
+
+// 页面两侧的流星划过特效：只在内容区两边的空白处生成，错开时间缓缓划过
+(function () {
+  function addMeteors() {
+    if (document.querySelector('.meteor-wrap')) return; // 避免重复，fixed 层只建一次
+    var wrap = document.createElement('div');
+    wrap.className = 'meteor-wrap';
+    var COUNT = 8; // 两侧共 8 颗
+    for (var i = 0; i < COUNT; i++) {
+      var m = document.createElement('div');
+      m.className = 'meteor';
+      // 左半区放左边空白，右半区放右边空白
+      var onLeft = i % 2 === 0;
+      m.style.left = onLeft
+        ? (1 + Math.random() * 12).toFixed(1) + '%'   // 左空白带
+        : (87 + Math.random() * 11).toFixed(1) + '%'; // 右空白带
+      m.style.setProperty('--dur', (4.5 + Math.random() * 4).toFixed(1) + 's');
+      m.style.setProperty('--delay', (Math.random() * 6).toFixed(1) + 's');
+      var line = document.createElement('i');
+      line.className = 'line';
+      // 右侧流星往左下方划，翻转一下方向更像
+      if (!onLeft) line.style.transform = 'rotate(135deg)';
+      m.appendChild(line);
+      wrap.appendChild(m);
+    }
+    document.body.appendChild(wrap);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', addMeteors);
+  } else {
+    addMeteors();
+  }
+})();

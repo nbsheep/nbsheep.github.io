@@ -150,3 +150,33 @@
   60%  { opacity: .7; }
   100% { opacity: 0; }
 }
+
+/* ============ 页面两侧的流星划过特效 ============ */
+.meteor-wrap {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+.meteor {
+  position: absolute;
+  top: -6%;
+  opacity: 0;
+  animation: meteor-fall var(--dur, 5s) linear var(--delay, 0s) infinite;
+}
+.meteor .line {
+  display: block;
+  width: 150px;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent 0%, rgba(0, 212, 255, 0.55) 55%, #ffffff 100%);
+  transform: rotate(45deg);
+  transform-origin: right center;
+  filter: drop-shadow(0 0 4px rgba(0, 212, 255, 0.7));
+}
+@keyframes meteor-fall {
+  0%   { opacity: 0; transform: translate(0, 0); }
+  10%  { opacity: .9; }
+  100% { opacity: 0; transform: translate(46vw, 62vh); }
+}
