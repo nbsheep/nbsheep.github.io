@@ -108,12 +108,14 @@
 
 /* ============ 提亮正文：卡片略亮 + 文字更清晰 ============ */
 [data-theme='dark'] {
-  --card-bg: #1c2433;
-  --sidebar-bg: #1c2433;
-  --global-bg: #12161f;
-  --font-color: alpha(#FFFFFF, .86);
-  --light-grey: alpha(#FFFFFF, .8);
-  --white: alpha(#FFFFFF, .92);
+  /* 卡片明显比底色亮，让卡片"浮"出来，不再一坨暗 */
+  --card-bg: #232c40;
+  --sidebar-bg: #232c40;
+  --global-bg: #141927;
+  /* 文字接近纯白，提高可读性 */
+  --font-color: alpha(#FFFFFF, .92);
+  --light-grey: alpha(#FFFFFF, .86);
+  --white: #ffffff;
 }
 #page-header.full_page #site-subtitle {
   letter-spacing: 1px;
