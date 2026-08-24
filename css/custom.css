@@ -76,3 +76,29 @@
   from { opacity: 0; transform: scale(.9); }
   to   { opacity: 1; transform: scale(1); }
 }
+
+/* ============ 首页 hero 深色星空化 + 打字机闪烁光标 ============ */
+
+/* 打字机末尾的闪烁光标 */
+#subtitle .typed-cursor,
+.site-subtitle .typed-cursor,
+.typed-cursor {
+  color: #fff;
+  margin-left: 3px;
+  animation: typed-blink 1s step-end infinite;
+}
+@keyframes typed-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* 首页 hero 标题排版（深色背景上更清晰） */
+#page-header.full_page #site-title {
+  letter-spacing: 2px;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.55);
+  color: #e8eef7;
+}
+#page-header.full_page #site-subtitle {
+  letter-spacing: 1px;
+  opacity: .95;
+}
