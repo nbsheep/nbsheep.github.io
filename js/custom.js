@@ -195,3 +195,36 @@
     init();
   }
 })();
+
+// 首页 hero 星野背景：生成大量闪烁的小星星，填满顶部空白
+(function () {
+  function addStars() {
+    var header = document.getElementById('page-header');
+    if (!header || !header.classList.contains('full_page')) return;
+    if (header.querySelector('.hero-stars')) return; // 避免重复
+    var wrap = document.createElement('div');
+    wrap.className = 'hero-stars';
+    for (var i = 0; i < 90; i++) {
+      var s = document.createElement('span');
+      var size = (0.8 + Math.random() * 2.2).toFixed(1);
+      s.style.left = (Math.random() * 100).toFixed(2) + '%';
+      s.style.top = (Math.random() * 100).toFixed(2) + '%';
+      s.style.width = size + 'px';
+      s.style.height = size + 'px';
+      s.style.animationDuration = (2.5 + Math.random() * 4).toFixed(1) + 's';
+      s.style.animationDelay = (-Math.random() * 6).toFixed(1) + 's';
+      // 少量星星带淡淡颜色（暖黄 / 冷蓝），更接近真实星野
+      var r = Math.random();
+      if (r > 0.85) s.style.background = 'rgba(240, 200, 140, 0.9)';
+      else if (r > 0.7) s.style.background = 'rgba(150, 200, 255, 0.9)';
+      wrap.appendChild(s);
+    }
+    header.appendChild(wrap);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', addStars);
+  } else {
+    addStars();
+  }
+  document.addEventListener('pjax:complete', addStars);
+})();

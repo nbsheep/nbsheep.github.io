@@ -102,3 +102,33 @@
   letter-spacing: 1px;
   opacity: .95;
 }
+
+/* 让首页标题/副标题浮在星野之上，不被盖住 */
+#page-header.full_page #site-info,
+#page-header.full_page #site-title,
+#page-header.full_page #site-subtitle {
+  position: relative;
+  z-index: 3;
+}
+
+/* 星野容器：铺满 hero，位于内容之下 */
+.hero-stars {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+.hero-stars span {
+  position: absolute;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0;
+  animation: starTwinkle linear infinite;
+}
+@keyframes starTwinkle {
+  0%   { opacity: 0; }
+  40%  { opacity: .9; }
+  60%  { opacity: .7; }
+  100% { opacity: 0; }
+}
