@@ -125,6 +125,19 @@
 .recent-post-item > .recent-post-info .content {
   color: rgba(255, 255, 255, .9);
 }
+
+/* 侧边栏作者卡：名字/描述/统计数字强制白色 */
+[data-theme='dark'] .card-info .author-info-name,
+[data-theme='dark'] .card-info .author-info-description {
+  color: #ffffff;
+}
+[data-theme='dark'] .card-info .site-data .headline,
+[data-theme='dark'] .card-info .site-data .length-num {
+  color: #ffffff;
+}
+[data-theme='dark'] .card-info .site-data .headline {
+  opacity: .8;
+}
 #page-header.full_page #site-subtitle {
   letter-spacing: 1px;
   opacity: .95;
