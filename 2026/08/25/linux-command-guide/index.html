@@ -1,0 +1,494 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Linux 命令行入门学习手册 | shameless 的技术博客</title><meta name="author" content="shameless"><meta name="copyright" content="shameless"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#0d0d0d"><meta name="description" content="面向初学者的 Linux 常用命令速查 + 学习路径：每个命令给一个最常用的示例，先会用、再深入。 和 Windows 版（Windows CMD 命令入门学习手册）互为对照，很多概念其实是相通的。 目录 基础概念 获取帮助 文件与目录 查看文件内容 搜索与查找 符号链接与通配符 权限管理 用户与提权 环境变量与别名 进程管理 磁盘与内存 网络 压缩与打包 管道与重定向 文本处理 包管理（apt）">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux 命令行入门学习手册">
+<meta property="og:url" content="https://nbsheep.github.io/2026/08/25/linux-command-guide/index.html">
+<meta property="og:site_name" content="shameless 的技术博客">
+<meta property="og:description" content="面向初学者的 Linux 常用命令速查 + 学习路径：每个命令给一个最常用的示例，先会用、再深入。 和 Windows 版（Windows CMD 命令入门学习手册）互为对照，很多概念其实是相通的。 目录 基础概念 获取帮助 文件与目录 查看文件内容 搜索与查找 符号链接与通配符 权限管理 用户与提权 环境变量与别名 进程管理 磁盘与内存 网络 压缩与打包 管道与重定向 文本处理 包管理（apt）">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://nbsheep.github.io/img/cover-linux.svg">
+<meta property="article:published_time" content="2026-08-25T01:30:00.000Z">
+<meta property="article:modified_time" content="2026-08-25T06:16:05.740Z">
+<meta property="article:author" content="shameless">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="Shell">
+<meta property="article:tag" content="命令行">
+<meta property="article:tag" content="教程">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nbsheep.github.io/img/cover-linux.svg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Linux 命令行入门学习手册",
+  "url": "https://nbsheep.github.io/2026/08/25/linux-command-guide/",
+  "image": "https://nbsheep.github.io/img/cover-linux.svg",
+  "datePublished": "2026-08-25T01:30:00.000Z",
+  "dateModified": "2026-08-25T06:16:05.740Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "shameless",
+      "url": "https://nbsheep.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://nbsheep.github.io/2026/08/25/linux-command-guide/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css?v=5.7.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.3.1/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        const data = { value }
+
+        if (ttl != null) {
+          data.expiry = Date.now() + ttl * 86400000
+        }
+
+        localStorage.setItem(key, JSON.stringify(data))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return
+
+        try {
+          const data = JSON.parse(itemStr)
+
+          if (data.expiry && Date.now() > data.expiry) {
+            localStorage.removeItem(key)
+            return
+          }
+
+          return data.value
+        } catch {
+          localStorage.removeItem(key)
+        }
+      }
+    }
+
+    const scriptCache = new Map()
+    const cssCache = new Map()
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => {
+        if (scriptCache.has(url)) {
+          return scriptCache.get(url)
+        }
+
+        const promise = new Promise((resolve, reject) => {
+          const script = document.createElement('script')
+
+          script.src = url
+          script.async = true
+
+          for (const key in attr) {
+            script.setAttribute(key, attr[key])
+          }
+
+          script.onload = resolve
+          script.onerror = reject
+
+          document.head.appendChild(script)
+        })
+
+        scriptCache.set(url, promise)
+
+        return promise
+      },
+      getCSS: (url, id) => {
+        if (cssCache.has(url)) {
+          return cssCache.get(url)
+        }
+
+        const promise = new Promise((resolve, reject) => {
+          const link = document.createElement('link')
+
+          link.rel = 'stylesheet'
+          link.href = url
+
+          if (id) {
+            link.id = id
+          }
+
+          link.onload = resolve
+          link.onerror = reject
+
+          document.head.appendChild(link)
+        })
+
+        cssCache.set(url, promise)
+
+        return promise
+      },
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const metaThemeColor = document.querySelector('meta[name="theme-color"]')
+      const activateDarkMode = () => {
+        document.documentElement.dataset.theme = 'dark'
+        if (metaThemeColor !== null) {
+          metaThemeColor.setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.dataset.theme = 'light'
+        if (metaThemeColor !== null) {
+          metaThemeColor.setAttribute('content', '0d1117')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Linux 命令行入门学习手册',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/custom.css?v=16"><meta name="generator" content="Hexo 8.1.2"></head><body><div class="bg-animation" id="web_bg" style="background: linear-gradient(135deg,;"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="https://github.com/nbsheep.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">6</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">23</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/top_img.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">shameless 的技术博客</span></a><a class="nav-page-title" href="/"><span class="site-name">Linux 命令行入门学习手册</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">Linux 命令行入门学习手册</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-08-25T01:30:00.000Z" title="发表于 2026-08-25 09:30:00">2026-08-25</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-08-25T06:16:05.740Z" title="更新于 2026-08-25 14:16:05">2026-08-25</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%AD%A6%E4%B9%A0/">学习</a></span></div><div class="meta-secondline"></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>面向初学者的 Linux 常用命令速查 + 学习路径：每个命令给一个最常用的示例，先会用、再深入。</p>
+<p>和 Windows 版（<a href="/2026/08/25/windows-cmd-guide/">Windows CMD 命令入门学习手册</a>）互为对照，很多概念其实是相通的。</p>
+<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><ol>
+<li><a href="#1-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5">基础概念</a></li>
+<li><a href="#2-%E8%8E%B7%E5%8F%96%E5%B8%AE%E5%8A%A9">获取帮助</a></li>
+<li><a href="#3-%E6%96%87%E4%BB%B6%E4%B8%8E%E7%9B%AE%E5%BD%95">文件与目录</a></li>
+<li><a href="#4-%E6%9F%A5%E7%9C%8B%E6%96%87%E4%BB%B6%E5%86%85%E5%AE%B9">查看文件内容</a></li>
+<li><a href="#5-%E6%90%9C%E7%B4%A2%E4%B8%8E%E6%9F%A5%E6%89%BE">搜索与查找</a></li>
+<li><a href="#6-%E7%AC%A6%E5%8F%B7%E9%93%BE%E6%8E%A5%E4%B8%8E%E9%80%9A%E9%85%8D%E7%AC%A6">符号链接与通配符</a></li>
+<li><a href="#7-%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86">权限管理</a></li>
+<li><a href="#8-%E7%94%A8%E6%88%B7%E4%B8%8E%E6%8F%90%E6%9D%83">用户与提权</a></li>
+<li><a href="#9-%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E4%B8%8E%E5%88%AB%E5%90%8D">环境变量与别名</a></li>
+<li><a href="#10-%E8%BF%9B%E7%A8%8B%E7%AE%A1%E7%90%86">进程管理</a></li>
+<li><a href="#11-%E7%A3%81%E7%9B%98%E4%B8%8E%E5%86%85%E5%AD%98">磁盘与内存</a></li>
+<li><a href="#12-%E7%BD%91%E7%BB%9C">网络</a></li>
+<li><a href="#13-%E5%8E%8B%E7%BC%A9%E4%B8%8E%E6%89%93%E5%8C%85">压缩与打包</a></li>
+<li><a href="#14-%E7%AE%A1%E9%81%93%E4%B8%8E%E9%87%8D%E5%AE%9A%E5%90%91">管道与重定向</a></li>
+<li><a href="#15-%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86">文本处理</a></li>
+<li><a href="#16-%E5%8C%85%E7%AE%A1%E7%90%86apt">包管理（apt）</a></li>
+<li><a href="#17-%E7%B3%BB%E7%BB%9F%E4%BF%A1%E6%81%AF">系统信息</a></li>
+<li><a href="#18-%E7%BC%96%E8%BE%91%E5%99%A8%E5%85%A5%E9%97%A8">编辑器入门</a></li>
+<li><a href="#19-shell-%E8%84%9A%E6%9C%AC%E5%85%A5%E9%97%A8">Shell 脚本入门</a></li>
+<li><a href="#20-%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1">定时任务</a></li>
+<li><a href="#21-%E6%9C%8D%E5%8A%A1%E7%AE%A1%E7%90%86">服务管理</a></li>
+<li><a href="#22-%E5%85%B6%E4%BB%96%E5%AE%9E%E7%94%A8%E5%91%BD%E4%BB%A4">其他实用命令</a></li>
+<li><a href="#23-%E5%BF%AB%E6%8D%B7%E9%94%AE%E4%B8%8E%E6%8A%80%E5%B7%A7">快捷键与技巧</a></li>
+<li><a href="#24-%E6%8E%A8%E8%8D%90%E5%AD%A6%E4%B9%A0%E8%B7%AF%E7%BA%BF">推荐学习路线</a></li>
+</ol>
+<hr>
+<h2 id="1-基础概念"><a href="#1-基础概念" class="headerlink" title="1. 基础概念"></a>1. 基础概念</h2><ul>
+<li><strong>Shell</strong>：你敲命令、和系统交互的程序（常见 <code>bash</code>、<code>zsh</code>）。</li>
+<li><strong>提示符</strong>：<code>user@host:~$</code> —— <code>user</code> 用户名、<code>host</code> 主机名、<code>~</code> 当前目录（家目录）、<code>$</code> 普通用户（<code>#</code> 是 root）。</li>
+<li><strong>命令结构</strong>：<code>命令 [选项] [参数]</code>，例如 <code>ls -l /home</code>（<code>-l</code> 是选项，<code>/home</code> 是参数）。</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">pwd</span>            <span class="comment"># 打印当前所在目录（print working directory）</span></span><br><span class="line"><span class="built_in">whoami</span>         <span class="comment"># 当前登录的用户名</span></span><br><span class="line"><span class="built_in">echo</span> hello     <span class="comment"># 输出字符串</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="2-获取帮助"><a href="#2-获取帮助" class="headerlink" title="2. 获取帮助"></a>2. 获取帮助</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ls</span> --<span class="built_in">help</span>          <span class="comment"># 查看命令的简要用法（大多数命令支持）</span></span><br><span class="line">man <span class="built_in">ls</span>             <span class="comment"># 查看详细手册页，按 q 退出</span></span><br><span class="line"><span class="built_in">which</span> python       <span class="comment"># 查看命令的实际路径</span></span><br><span class="line"><span class="built_in">type</span> <span class="built_in">ls</span>            <span class="comment"># 判断是内建命令还是外部程序</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="3-文件与目录"><a href="#3-文件与目录" class="headerlink" title="3. 文件与目录"></a>3. 文件与目录</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ls</span>                 <span class="comment"># 列出当前目录</span></span><br><span class="line"><span class="built_in">ls</span> -l              <span class="comment"># 详细信息（权限、大小、时间）</span></span><br><span class="line"><span class="built_in">ls</span> -a              <span class="comment"># 含隐藏文件（. 开头）</span></span><br><span class="line"><span class="built_in">ls</span> -lh             <span class="comment"># 人类可读的大小（K/M/G）</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">cd</span> /tmp            <span class="comment"># 切换目录</span></span><br><span class="line"><span class="built_in">cd</span> ~               <span class="comment"># 回家目录</span></span><br><span class="line"><span class="built_in">cd</span> ..              <span class="comment"># 上一级</span></span><br><span class="line"><span class="built_in">cd</span> -               <span class="comment"># 回上一个目录</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">mkdir</span> mydir        <span class="comment"># 新建目录</span></span><br><span class="line"><span class="built_in">mkdir</span> -p a/b/c     <span class="comment"># 递归创建多级目录</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">touch</span> file.txt     <span class="comment"># 新建空文件（或更新时间戳）</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">cp</span> a.txt b.txt     <span class="comment"># 复制文件</span></span><br><span class="line"><span class="built_in">cp</span> -r dir1 dir2    <span class="comment"># 递归复制目录</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">mv</span> a.txt b.txt     <span class="comment"># 移动 / 重命名</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">rm</span> file.txt        <span class="comment"># 删除文件</span></span><br><span class="line"><span class="built_in">rm</span> -r <span class="built_in">dir</span>          <span class="comment"># 递归删除目录</span></span><br><span class="line"><span class="built_in">rm</span> -rf <span class="built_in">dir</span>         <span class="comment"># 强制递归删除（危险！删前想清楚）</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>⚠️ <code>rm -rf</code> 没有回收站，误删不可恢复。</p>
+</blockquote>
+<hr>
+<h2 id="4-查看文件内容"><a href="#4-查看文件内容" class="headerlink" title="4. 查看文件内容"></a>4. 查看文件内容</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> file.txt       <span class="comment"># 一次性打印整个文件</span></span><br><span class="line">less file.txt      <span class="comment"># 分页查看（j/k 或方向键翻页，q 退出，/ 搜索）</span></span><br><span class="line"><span class="built_in">head</span> file.txt      <span class="comment"># 前 10 行</span></span><br><span class="line"><span class="built_in">head</span> -n 20 file    <span class="comment"># 前 20 行</span></span><br><span class="line"><span class="built_in">tail</span> file.txt      <span class="comment"># 后 10 行</span></span><br><span class="line"><span class="built_in">tail</span> -f log.txt    <span class="comment"># 实时跟踪日志（Ctrl+C 退出，看日志神器）</span></span><br><span class="line"><span class="built_in">wc</span> -l file.txt     <span class="comment"># 统计行数（-w 单词数、-c 字节数）</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="5-搜索与查找"><a href="#5-搜索与查找" class="headerlink" title="5. 搜索与查找"></a>5. 搜索与查找</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">grep <span class="string">&quot;关键词&quot;</span> file.txt         <span class="comment"># 在文件里搜关键词</span></span><br><span class="line">grep -r <span class="string">&quot;关键词&quot;</span> ./dir         <span class="comment"># 递归搜目录</span></span><br><span class="line">grep -i <span class="string">&quot;hello&quot;</span> file           <span class="comment"># 忽略大小写</span></span><br><span class="line">grep -n <span class="string">&quot;hello&quot;</span> file           <span class="comment"># 显示行号</span></span><br><span class="line"></span><br><span class="line">find . -name <span class="string">&quot;*.txt&quot;</span>           <span class="comment"># 按名字查找文件</span></span><br><span class="line">find /home -<span class="built_in">type</span> d -name <span class="string">&quot;my*&quot;</span> <span class="comment"># 查目录</span></span><br><span class="line">find . -mtime -7               <span class="comment"># 近 7 天修改过的文件</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><code>grep</code> 常配合管道用（见第 14 节），是日常最高频的命令之一。</p>
+</blockquote>
+<hr>
+<h2 id="6-符号链接与通配符"><a href="#6-符号链接与通配符" class="headerlink" title="6. 符号链接与通配符"></a>6. 符号链接与通配符</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 符号链接（类似 Windows 快捷方式）</span></span><br><span class="line"><span class="built_in">ln</span> -s /原始/路径 linkname      <span class="comment"># 创建软链接</span></span><br><span class="line"><span class="built_in">ln</span> -s /opt/app/bin/app ~/bin/app   <span class="comment"># 常见用法：把程序链接到 PATH 目录</span></span><br><span class="line"><span class="built_in">readlink</span> linkname              <span class="comment"># 查看链接指向哪里</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 通配符</span></span><br><span class="line"><span class="built_in">ls</span> *.txt           <span class="comment"># * 匹配任意多个字符</span></span><br><span class="line"><span class="built_in">ls</span> file?.txt       <span class="comment"># ? 匹配单个字符</span></span><br><span class="line"><span class="built_in">ls</span> file[1-3].txt   <span class="comment"># [] 匹配字符集合</span></span><br><span class="line"><span class="built_in">cp</span> -r &#123;a,b,c&#125; dest <span class="comment"># &#123;&#125; 展开成多个参数</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="7-权限管理"><a href="#7-权限管理" class="headerlink" title="7. 权限管理"></a>7. 权限管理</h2><p><code>ls -l</code> 第一列形如 <code>-rwxr-xr--</code>，含义：</p>
+<table>
+<thead>
+<tr>
+<th>部分</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>第 1 位</td>
+<td>类型（<code>-</code> 文件、<code>d</code> 目录、<code>l</code> 链接）</td>
+</tr>
+<tr>
+<td>第 2-4 位</td>
+<td>属主（user）权限</td>
+</tr>
+<tr>
+<td>第 5-7 位</td>
+<td>属组（group）权限</td>
+</tr>
+<tr>
+<td>第 8-10 位</td>
+<td>其他人（other）权限</td>
+</tr>
+</tbody></table>
+<p><code>r</code>&#x3D;读(4) <code>w</code>&#x3D;写(2) <code>x</code>&#x3D;执行(1)。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">chmod</span> +x script.sh        <span class="comment"># 给所有人加执行权限</span></span><br><span class="line"><span class="built_in">chmod</span> 755 script.sh       <span class="comment"># 数字法：rwx r-x r-x</span></span><br><span class="line"><span class="built_in">chmod</span> u+x script.sh       <span class="comment"># 只给属主加执行权</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">chown</span> user:group file     <span class="comment"># 改属主和属组（通常要 sudo）</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="8-用户与提权"><a href="#8-用户与提权" class="headerlink" title="8. 用户与提权"></a>8. 用户与提权</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt update           <span class="comment"># 用管理员权限执行命令（输自己的密码）</span></span><br><span class="line"><span class="built_in">sudo</span> -i                   <span class="comment"># 切换成 root 用户</span></span><br><span class="line"><span class="built_in">id</span>                        <span class="comment"># 查看自己的 uid/gid 和所属组</span></span><br><span class="line">adduser 新用户名           <span class="comment"># 新建用户（Debian/Ubuntu）</span></span><br><span class="line">passwd                    <span class="comment"># 改当前用户密码</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="9-环境变量与别名"><a href="#9-环境变量与别名" class="headerlink" title="9. 环境变量与别名"></a>9. 环境变量与别名</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="variable">$PATH</span>           <span class="comment"># 查看 PATH（命令搜索路径，按 : 分隔）</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$HOME</span>           <span class="comment"># 家目录</span></span><br><span class="line"><span class="built_in">env</span>                  <span class="comment"># 查看所有环境变量</span></span><br><span class="line"><span class="built_in">export</span> NAME=value    <span class="comment"># 设置环境变量（仅当前会话生效）</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">alias</span> ll=<span class="string">&#x27;ls -lh&#x27;</span>    <span class="comment"># 设置别名</span></span><br><span class="line"><span class="built_in">unalias</span> ll           <span class="comment"># 取消别名</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 想永久生效：写进 ~/.bashrc，再 source 重新加载</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&#x27;alias ll=&quot;ls -lh&quot;&#x27;</span> &gt;&gt; ~/.bashrc</span><br><span class="line"><span class="built_in">source</span> ~/.bashrc</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>装完一个命令行工具发现「命令找不到」，十有八九是它的目录不在 <code>$PATH</code> 里。</p>
+</blockquote>
+<hr>
+<h2 id="10-进程管理"><a href="#10-进程管理" class="headerlink" title="10. 进程管理"></a>10. 进程管理</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">ps aux                     <span class="comment"># 查看所有进程</span></span><br><span class="line">ps aux | grep python       <span class="comment"># 找特定进程</span></span><br><span class="line">top                        <span class="comment"># 实时看 CPU/内存（q 退出）</span></span><br><span class="line">htop                       <span class="comment"># 更好看的 top（需安装）</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">kill</span> 1234                  <span class="comment"># 结束 PID 为 1234 的进程</span></span><br><span class="line"><span class="built_in">kill</span> -9 1234               <span class="comment"># 强制结束</span></span><br><span class="line">pkill -f <span class="string">&quot;关键词&quot;</span>           <span class="comment"># 按名字批量结束</span></span><br><span class="line"></span><br><span class="line">命令 &amp;                      <span class="comment"># 后台运行</span></span><br><span class="line"><span class="built_in">jobs</span>                       <span class="comment"># 看后台任务</span></span><br><span class="line"><span class="built_in">fg</span>                         <span class="comment"># 把后台任务调到前台</span></span><br><span class="line">Ctrl+Z                     <span class="comment"># 暂停当前前台任务</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="11-磁盘与内存"><a href="#11-磁盘与内存" class="headerlink" title="11. 磁盘与内存"></a>11. 磁盘与内存</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">df</span> -h                      <span class="comment"># 各分区磁盘使用情况（-h 人类可读）</span></span><br><span class="line"><span class="built_in">du</span> -sh ./dir               <span class="comment"># 某个目录总共多大</span></span><br><span class="line"><span class="built_in">du</span> -sh *                   <span class="comment"># 当前目录每个文件/子目录多大</span></span><br><span class="line">free -h                    <span class="comment"># 内存/交换分区使用情况</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="12-网络"><a href="#12-网络" class="headerlink" title="12. 网络"></a>12. 网络</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">ping baidu.com             <span class="comment"># 测连通性（Ctrl+C 停）</span></span><br><span class="line">ip addr                    <span class="comment"># 查看本机 IP</span></span><br><span class="line">ss -ltnp                   <span class="comment"># 查看监听端口和对应进程</span></span><br><span class="line"></span><br><span class="line">curl http://example.com    <span class="comment"># 发 HTTP 请求，打印响应</span></span><br><span class="line">curl -o file.html URL      <span class="comment"># 下载保存</span></span><br><span class="line">wget URL                   <span class="comment"># 下载文件</span></span><br><span class="line"></span><br><span class="line">ssh user@1.2.3.4           <span class="comment"># 远程登录</span></span><br><span class="line">scp file user@host:/path   <span class="comment"># 拷贝文件到远程</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="13-压缩与打包"><a href="#13-压缩与打包" class="headerlink" title="13. 压缩与打包"></a>13. 压缩与打包</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">tar -czf a.tar.gz <span class="built_in">dir</span>/     <span class="comment"># 打包+压缩成 .tar.gz</span></span><br><span class="line">tar -xzf a.tar.gz          <span class="comment"># 解压 .tar.gz</span></span><br><span class="line">tar -xzf a.tar.gz -C /tmp  <span class="comment"># 解压到指定目录</span></span><br><span class="line"></span><br><span class="line">zip -r a.zip <span class="built_in">dir</span>/          <span class="comment"># 打成 zip</span></span><br><span class="line">unzip a.zip                <span class="comment"># 解压 zip</span></span><br><span class="line">gzip file                  <span class="comment"># 压缩单个文件（生成 file.gz）</span></span><br><span class="line">gunzip file.gz             <span class="comment"># 解压</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="14-管道与重定向"><a href="#14-管道与重定向" class="headerlink" title="14. 管道与重定向"></a>14. 管道与重定向</h2><p>这是 Linux 最强大的组合拳：<strong>把上一个命令的输出接到下一个命令</strong>。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 管道 |</span></span><br><span class="line">ps aux | grep python | less        <span class="comment"># 层层过滤</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 重定向</span></span><br><span class="line">命令 &gt; file.txt      <span class="comment"># 覆盖写入</span></span><br><span class="line">命令 &gt;&gt; file.txt     <span class="comment"># 追加写入</span></span><br><span class="line">命令 &lt; input.txt     <span class="comment"># 从文件读入</span></span><br><span class="line">命令 2&gt; err.txt      <span class="comment"># 只重定向错误输出</span></span><br><span class="line">命令 &amp;&gt; all.txt      <span class="comment"># 标准输出+错误一起</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 组合符</span></span><br><span class="line">cmd1 &amp;&amp; cmd2         <span class="comment"># cmd1 成功才执行 cmd2</span></span><br><span class="line">cmd1 || cmd2         <span class="comment"># cmd1 失败才执行 cmd2</span></span><br><span class="line">cmd1 ; cmd2          <span class="comment"># 顺序执行，不管成败</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="15-文本处理"><a href="#15-文本处理" class="headerlink" title="15. 文本处理"></a>15. 文本处理</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cut</span> -d: -f1 /etc/passwd       <span class="comment"># 按 : 分割取第 1 列</span></span><br><span class="line"><span class="built_in">sort</span> file.txt                 <span class="comment"># 排序</span></span><br><span class="line"><span class="built_in">sort</span> -n file.txt              <span class="comment"># 按数字排序</span></span><br><span class="line"><span class="built_in">uniq</span>                          <span class="comment"># 去重（常跟在 sort 后）</span></span><br><span class="line"><span class="built_in">tr</span> <span class="string">&#x27;a-z&#x27;</span> <span class="string">&#x27;A-Z&#x27;</span> &lt; file         <span class="comment"># 大小写转换</span></span><br><span class="line">sed <span class="string">&#x27;s/old/new/g&#x27;</span> file        <span class="comment"># 替换文本</span></span><br><span class="line">awk <span class="string">&#x27;&#123;print $1&#125;&#x27;</span> file         <span class="comment"># 打印第 1 列（按空白分割）</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>进阶：<code>sed</code>、<code>awk</code> 是两大文本处理神器，先会用 <code>grep</code> + <code>cut</code> + <code>sort</code> + <code>uniq</code> 就够了。</p>
+</blockquote>
+<hr>
+<h2 id="16-包管理（apt）"><a href="#16-包管理（apt）" class="headerlink" title="16. 包管理（apt）"></a>16. 包管理（apt）</h2><p>Debian &#x2F; Ubuntu 系（WSL2 默认也是）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt update               <span class="comment"># 更新软件源索引（装东西前先跑）</span></span><br><span class="line"><span class="built_in">sudo</span> apt upgrade              <span class="comment"># 升级已装的包</span></span><br><span class="line"><span class="built_in">sudo</span> apt install vim          <span class="comment"># 安装</span></span><br><span class="line"><span class="built_in">sudo</span> apt remove vim           <span class="comment"># 卸载</span></span><br><span class="line"><span class="built_in">sudo</span> apt search 关键词         <span class="comment"># 搜索包</span></span><br><span class="line">apt list --installed          <span class="comment"># 看已装的包</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="17-系统信息"><a href="#17-系统信息" class="headerlink" title="17. 系统信息"></a>17. 系统信息</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">uname</span> -a              <span class="comment"># 内核版本</span></span><br><span class="line">lsb_release -a        <span class="comment"># 发行版版本</span></span><br><span class="line">hostname              <span class="comment"># 主机名</span></span><br><span class="line"><span class="built_in">date</span>                  <span class="comment"># 当前时间</span></span><br><span class="line"><span class="built_in">uptime</span>                <span class="comment"># 开机时长 / 负载</span></span><br><span class="line"><span class="built_in">history</span>               <span class="comment"># 命令历史</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="18-编辑器入门"><a href="#18-编辑器入门" class="headerlink" title="18. 编辑器入门"></a>18. 编辑器入门</h2><p><strong>nano</strong>（简单友好，适合新手）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">nano file.txt</span><br><span class="line"><span class="comment"># 直接打字；Ctrl+O 保存，Ctrl+X 退出</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>vim</strong>（强大但学习曲线陡）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">vim file.txt</span><br><span class="line"><span class="comment"># 刚进入是「命令模式」，按 i 进入「编辑模式」开始打字</span></span><br><span class="line"><span class="comment"># 编辑完按 Esc 回到命令模式，然后：</span></span><br><span class="line"><span class="comment">#   :w   保存</span></span><br><span class="line"><span class="comment">#   :q   退出</span></span><br><span class="line"><span class="comment">#   :wq  保存并退出</span></span><br><span class="line"><span class="comment">#   :q!  不保存强制退出</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>一开始用 <code>nano</code> 就能干活；<code>vim</code> 值得后面花时间学（会了效率翻倍）。</p>
+</blockquote>
+<hr>
+<h2 id="19-Shell-脚本入门"><a href="#19-Shell-脚本入门" class="headerlink" title="19. Shell 脚本入门"></a>19. Shell 脚本入门</h2><p>把一串命令写进 <code>.sh</code> 文件，一次执行——自动化&#x2F;部署全靠它。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash                 # 第一行 shebang，指定解释器</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 变量</span></span><br><span class="line">name=<span class="string">&quot;world&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;hello <span class="variable">$name</span>&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 循环</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> 1 2 3; <span class="keyword">do</span></span><br><span class="line">  <span class="built_in">echo</span> <span class="string">&quot;第 <span class="variable">$i</span> 次&quot;</span></span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 判断</span></span><br><span class="line"><span class="keyword">if</span> [ -f file.txt ]; <span class="keyword">then</span></span><br><span class="line">  <span class="built_in">echo</span> <span class="string">&quot;文件存在&quot;</span></span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">  <span class="built_in">echo</span> <span class="string">&quot;文件不存在&quot;</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 函数</span></span><br><span class="line"><span class="function"><span class="title">greet</span></span>() &#123;</span><br><span class="line">  <span class="built_in">echo</span> <span class="string">&quot;hi, <span class="variable">$1</span>&quot;</span>            <span class="comment"># $1 是第一个参数</span></span><br><span class="line">&#125;</span><br><span class="line">greet <span class="string">&quot;小明&quot;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">chmod</span> +x script.sh   <span class="comment"># 加执行权限</span></span><br><span class="line">./script.sh          <span class="comment"># 运行</span></span><br><span class="line">bash script.sh       <span class="comment"># 或直接用 bash 跑（不需要执行权限）</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>变量、<code>$1</code>、<code>if</code>、<code>for</code> 这几个会了，就能读懂和写大部分脚本。</p>
+</blockquote>
+<hr>
+<h2 id="20-定时任务"><a href="#20-定时任务" class="headerlink" title="20. 定时任务"></a>20. 定时任务</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">crontab -e           <span class="comment"># 编辑定时任务</span></span><br><span class="line">crontab -l           <span class="comment"># 查看已设置的定时任务</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 格式：分 时 日 月 周 命令</span></span><br><span class="line">0 9 * * * /path/script.sh        <span class="comment"># 每天 9:00 执行</span></span><br><span class="line">*/5 * * * * <span class="built_in">echo</span> hi &gt;&gt; log.txt   <span class="comment"># 每 5 分钟执行</span></span><br><span class="line">30 22 * * 1 tar -czf backup.tar.gz /data   <span class="comment"># 每周一 22:30 备份</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="21-服务管理"><a href="#21-服务管理" class="headerlink" title="21. 服务管理"></a>21. 服务管理</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">systemctl status ssh    <span class="comment"># 查看服务状态</span></span><br><span class="line">systemctl start ssh     <span class="comment"># 启动</span></span><br><span class="line">systemctl stop ssh      <span class="comment"># 停止</span></span><br><span class="line">systemctl restart ssh   <span class="comment"># 重启</span></span><br><span class="line">systemctl <span class="built_in">enable</span> ssh    <span class="comment"># 开机自启</span></span><br><span class="line">systemctl <span class="built_in">disable</span> ssh   <span class="comment"># 取消自启</span></span><br><span class="line">journalctl -u ssh -f    <span class="comment"># 实时看该服务的日志</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>现代 Ubuntu 用 <code>systemctl</code>；老系统（如 WSL1 或旧容器）可能要用 <code>service ssh start</code>。</p>
+</blockquote>
+<hr>
+<h2 id="22-其他实用命令"><a href="#22-其他实用命令" class="headerlink" title="22. 其他实用命令"></a>22. 其他实用命令</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">file a.txt             <span class="comment"># 判断文件类型</span></span><br><span class="line"><span class="built_in">stat</span> a.txt             <span class="comment"># 查看文件详细属性</span></span><br><span class="line">diff a.txt b.txt       <span class="comment"># 对比两个文件差异</span></span><br><span class="line"><span class="built_in">tee</span> out.txt            <span class="comment"># 输出到屏幕的同时写进文件（常配合管道）</span></span><br><span class="line">watch -n1 <span class="built_in">df</span> -h        <span class="comment"># 每 1 秒重复执行一次，实时监控</span></span><br><span class="line"><span class="built_in">nohup</span> 命令 &amp;           <span class="comment"># 关掉终端后命令仍在后台继续跑</span></span><br><span class="line">xargs                  <span class="comment"># 把前一命令的输出转成参数</span></span><br><span class="line"><span class="built_in">echo</span> a b c | xargs <span class="built_in">mkdir</span>      <span class="comment"># 等价于 mkdir a b c</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="23-快捷键与技巧"><a href="#23-快捷键与技巧" class="headerlink" title="23. 快捷键与技巧"></a>23. 快捷键与技巧</h2><table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Tab</code></td>
+<td>自动补全文件名&#x2F;命令</td>
+</tr>
+<tr>
+<td><code>Ctrl+C</code></td>
+<td>中断当前命令</td>
+</tr>
+<tr>
+<td><code>Ctrl+Z</code></td>
+<td>暂停当前命令</td>
+</tr>
+<tr>
+<td><code>Ctrl+D</code></td>
+<td>退出终端 &#x2F; 发送 EOF</td>
+</tr>
+<tr>
+<td><code>Ctrl+L</code></td>
+<td>清屏</td>
+</tr>
+<tr>
+<td><code>Ctrl+R</code></td>
+<td>反向搜索历史命令</td>
+</tr>
+<tr>
+<td><code>Ctrl+A</code> &#x2F; <code>Ctrl+E</code></td>
+<td>光标跳到行首 &#x2F; 行尾</td>
+</tr>
+<tr>
+<td><code>Ctrl+U</code></td>
+<td>删除光标前整行</td>
+</tr>
+<tr>
+<td><code>↑</code> &#x2F; <code>↓</code></td>
+<td>上下翻历史命令</td>
+</tr>
+<tr>
+<td><code>!!</code></td>
+<td>重复上一条命令</td>
+</tr>
+<tr>
+<td><code>!$</code></td>
+<td>上一条命令的最后一个参数</td>
+</tr>
+</tbody></table>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 小技巧</span></span><br><span class="line"><span class="built_in">cd</span> -               <span class="comment"># 回上一个目录</span></span><br><span class="line"><span class="built_in">history</span> | grep apt <span class="comment"># 从历史里搜命令</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="24-推荐学习路线"><a href="#24-推荐学习路线" class="headerlink" title="24. 推荐学习路线"></a>24. 推荐学习路线</h2><ol>
+<li><p><strong>先练熟高频 20 个</strong>：<code>ls / cd / pwd / mkdir / cp / mv / rm / cat / less / head / tail / grep / find / chmod / sudo / ps / kill / df / free / ping</code>。</p>
+</li>
+<li><p><strong>搞懂管道和重定向</strong>（<code>|</code> <code>&gt;</code> <code>&gt;&gt;</code>），这是理解 Linux 的关键。</p>
+</li>
+<li><p><strong>学会看日志</strong>：<code>tail -f</code> + <code>grep</code>。</p>
+</li>
+<li><p><strong>装一个 <code>tldr</code></strong> 看命令的简洁示例（比 <code>man</code> 更友好）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt install tldr</span><br><span class="line">tldr tar</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>学点 Shell 脚本</strong>（第 19 章），自动化、部署都靠它。</p>
+</li>
+<li><p><strong>做做练习</strong>：上 <a target="_blank" rel="noopener" href="https://linuxsurvival.com/">linuxsurvival.com</a> 或 OverTheWire 的 <code>bandit</code> 闯关。</p>
+</li>
+</ol>
+<blockquote>
+<p>学习原则：<strong>不要死记，多用 <code>--help</code> &#x2F; <code>man</code> 查</strong>；命令看不懂就 <code>man 命令</code>，记不住就 <code>history | grep</code> 找回来。</p>
+</blockquote>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://nbsheep.github.io">shameless</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://nbsheep.github.io/2026/08/25/linux-command-guide/">https://nbsheep.github.io/2026/08/25/linux-command-guide/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://nbsheep.github.io" target="_blank">shameless 的技术博客</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E6%95%99%E7%A8%8B/">教程</a><a class="post-meta__tags" href="/tags/Linux/">Linux</a><a class="post-meta__tags" href="/tags/%E5%91%BD%E4%BB%A4%E8%A1%8C/">命令行</a><a class="post-meta__tags" href="/tags/Shell/">Shell</a></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/08/25/windows-cmd-guide/" title="Windows 命令入门学习手册"><img class="cover" src="/img/cover-windows.svg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">Windows 命令入门学习手册</div></div><div class="info-2"><div class="info-item-1">面向初学者的 Windows 常用命令速查 + 学习路径。和 Linux 版（Linux 命令行入门学习手册）互为对照——很多命令其实是同一个思想，学会了其中一套，另一套上手极快。  Windows 现在有两套命令行：CMD（旧，默认，黑窗口）和 PowerShell（新，更强，powershell 或 pwsh）。本文以 CMD 为主，PowerShell 的地方单独标注。  目录 基础概念 获取帮助 文件与目录 查看文件内容 搜索与查找 通配符 属性与权限 用户与提权 环境变量 进程管理 磁盘 网络 压缩与打包 管道与重定向 文本处理 包管理（winget） 系统信息 编辑器 批处理与 PowerShell 脚本入门 定时任务 服务管理 其他实用命令 快捷键与技巧 推荐学习路线   1. 基础概念 CMD：Windows 自带的命令行解释器（Command ），就是你按 Win+R → 输 cmd → 回车出来的黑窗口。 提示符：C:\Users\你&gt;  —— 前面是当前所在路径，&gt; 就相当于 Linux 的 $。 命令结构：命令 [选项] [参数]，例如 dir...</div></div></div></a><a class="pagination-related" href="/2026/08/24/python-stdlib-local-audio-tool/" title="用纯 Python 标准库写一个本地音频处理工具"><img class="cover" src="/img/cover-python.svg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">用纯 Python 标准库写一个本地音频处理工具</div></div><div class="info-2"><div class="info-item-1">想做什么手头有一批不同格式的音频文件，想统一转成 mp3。不想装一堆依赖，也不想把文件传到任何在线服务——最好是双击一下、浏览器打开、拖进去就能转的本地小工具。 于是就有了这个项目：一个零第三方依赖的本地 Web 工具。后端只用 Python 标准库，前端纯原生 HTML&#x2F;JS，转码交给 ffmpeg。整个流程数据不出本机。 整体架构1234567浏览器（拖拽上传 / 展示 / 下载）        │  HTTP  (127.0.0.1:8000)        ▼本地 Python 服务（标准库 http.server）        │        ├─→ 核心库（解析文件、探测格式）        └─→ ffmpeg 子进程（转码成 mp3）  前端和后端通过几个简单的 HTTP 接口通信，后端跑在本机 127.0.0.1，只有自己能访问。 后端：只用标准库搭 HTTP 服务没装 Flask、没装 FastAPI，直接基于标准库的 http.server。 1. 一个 Handler 处理所有请求123456789import http.server, so...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/08/25/git-complete-guide/" title="Git 操作完全指南：从增量下载到团队协作"><img class="cover" src="/img/cover-git.svg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-08-25</div><div class="info-item-2">Git 操作完全指南：从增量下载到团队协作</div></div><div class="info-2"><div class="info-item-1">Git 是每个程序员绕不开的工具。它管的不只是「代码备份」，而是怎么记录每一次改动、怎么追回错误、怎么和别人协作。这篇文章尽量讲透它，从最基础的日常操作，到别人改了代码你怎么只拿增量部分（以及怎么避免第一次克隆超大仓库），再到团队里怎么合代码、怎么救回误删的东西。 全程有命令示例和解释，当手册随查随用也成。 一、先搞懂 Git 的三个区和一个链很多人被 Git 绕晕，是因为分不清「文件到底在哪」。记住三个区域就清晰了： 12345678910工作区（你正在编辑的文件）   │  git add   ▼暂存区（本次要提交的清单，staging）   │  git commit   ▼本地仓库（Committed 历史，一串 commit 串成链）   │  git push   ▼远程仓库（GitHub / GitLab 上的那个）   工作区：你电脑上真实能看到的文件。改完不会自动进 Git。 暂存区：git add 把「要提交哪些改动」先放进待办清单。 本地仓库：git commit 把暂存区的清单正式记成一条历史记录（commit）。 远程仓库：git push 把本地的提交...</div></div></div></a><a class="pagination-related" href="/2026/08/25/windows-cmd-guide/" title="Windows 命令入门学习手册"><img class="cover" src="/img/cover-windows.svg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-08-25</div><div class="info-item-2">Windows 命令入门学习手册</div></div><div class="info-2"><div class="info-item-1">面向初学者的 Windows 常用命令速查 + 学习路径。和 Linux 版（Linux 命令行入门学习手册）互为对照——很多命令其实是同一个思想，学会了其中一套，另一套上手极快。  Windows 现在有两套命令行：CMD（旧，默认，黑窗口）和 PowerShell（新，更强，powershell 或 pwsh）。本文以 CMD 为主，PowerShell 的地方单独标注。  目录 基础概念 获取帮助 文件与目录 查看文件内容 搜索与查找 通配符 属性与权限 用户与提权 环境变量 进程管理 磁盘 网络 压缩与打包 管道与重定向 文本处理 包管理（winget） 系统信息 编辑器 批处理与 PowerShell 脚本入门 定时任务 服务管理 其他实用命令 快捷键与技巧 推荐学习路线   1. 基础概念 CMD：Windows 自带的命令行解释器（Command ），就是你按 Win+R → 输 cmd → 回车出来的黑窗口。 提示符：C:\Users\你&gt;  —— 前面是当前所在路径，&gt; 就相当于 Linux 的 $。 命令结构：命令 [选项] [参数]，例如 dir...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="https://github.com/nbsheep.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">shameless</div><div class="author-info-description">记录机器人、无人机、嵌入式开发的学习与踩坑笔记</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">6</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">23</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/nbsheep"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/nbsheep" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%AE%E5%BD%95"><span class="toc-number">1.</span> <span class="toc-text">目录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5"><span class="toc-number">2.</span> <span class="toc-text">1. 基础概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E8%8E%B7%E5%8F%96%E5%B8%AE%E5%8A%A9"><span class="toc-number">3.</span> <span class="toc-text">2. 获取帮助</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%96%87%E4%BB%B6%E4%B8%8E%E7%9B%AE%E5%BD%95"><span class="toc-number">4.</span> <span class="toc-text">3. 文件与目录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E6%9F%A5%E7%9C%8B%E6%96%87%E4%BB%B6%E5%86%85%E5%AE%B9"><span class="toc-number">5.</span> <span class="toc-text">4. 查看文件内容</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E6%90%9C%E7%B4%A2%E4%B8%8E%E6%9F%A5%E6%89%BE"><span class="toc-number">6.</span> <span class="toc-text">5. 搜索与查找</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E7%AC%A6%E5%8F%B7%E9%93%BE%E6%8E%A5%E4%B8%8E%E9%80%9A%E9%85%8D%E7%AC%A6"><span class="toc-number">7.</span> <span class="toc-text">6. 符号链接与通配符</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86"><span class="toc-number">8.</span> <span class="toc-text">7. 权限管理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-%E7%94%A8%E6%88%B7%E4%B8%8E%E6%8F%90%E6%9D%83"><span class="toc-number">9.</span> <span class="toc-text">8. 用户与提权</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E4%B8%8E%E5%88%AB%E5%90%8D"><span class="toc-number">10.</span> <span class="toc-text">9. 环境变量与别名</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-%E8%BF%9B%E7%A8%8B%E7%AE%A1%E7%90%86"><span class="toc-number">11.</span> <span class="toc-text">10. 进程管理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11-%E7%A3%81%E7%9B%98%E4%B8%8E%E5%86%85%E5%AD%98"><span class="toc-number">12.</span> <span class="toc-text">11. 磁盘与内存</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12-%E7%BD%91%E7%BB%9C"><span class="toc-number">13.</span> <span class="toc-text">12. 网络</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#13-%E5%8E%8B%E7%BC%A9%E4%B8%8E%E6%89%93%E5%8C%85"><span class="toc-number">14.</span> <span class="toc-text">13. 压缩与打包</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#14-%E7%AE%A1%E9%81%93%E4%B8%8E%E9%87%8D%E5%AE%9A%E5%90%91"><span class="toc-number">15.</span> <span class="toc-text">14. 管道与重定向</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#15-%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86"><span class="toc-number">16.</span> <span class="toc-text">15. 文本处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#16-%E5%8C%85%E7%AE%A1%E7%90%86%EF%BC%88apt%EF%BC%89"><span class="toc-number">17.</span> <span class="toc-text">16. 包管理（apt）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#17-%E7%B3%BB%E7%BB%9F%E4%BF%A1%E6%81%AF"><span class="toc-number">18.</span> <span class="toc-text">17. 系统信息</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#18-%E7%BC%96%E8%BE%91%E5%99%A8%E5%85%A5%E9%97%A8"><span class="toc-number">19.</span> <span class="toc-text">18. 编辑器入门</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#19-Shell-%E8%84%9A%E6%9C%AC%E5%85%A5%E9%97%A8"><span class="toc-number">20.</span> <span class="toc-text">19. Shell 脚本入门</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#20-%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1"><span class="toc-number">21.</span> <span class="toc-text">20. 定时任务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#21-%E6%9C%8D%E5%8A%A1%E7%AE%A1%E7%90%86"><span class="toc-number">22.</span> <span class="toc-text">21. 服务管理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#22-%E5%85%B6%E4%BB%96%E5%AE%9E%E7%94%A8%E5%91%BD%E4%BB%A4"><span class="toc-number">23.</span> <span class="toc-text">22. 其他实用命令</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#23-%E5%BF%AB%E6%8D%B7%E9%94%AE%E4%B8%8E%E6%8A%80%E5%B7%A7"><span class="toc-number">24.</span> <span class="toc-text">23. 快捷键与技巧</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#24-%E6%8E%A8%E8%8D%90%E5%AD%A6%E4%B9%A0%E8%B7%AF%E7%BA%BF"><span class="toc-number">25.</span> <span class="toc-text">24. 推荐学习路线</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/08/25/git-complete-guide/" title="Git 操作完全指南：从增量下载到团队协作"><img src="/img/cover-git.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Git 操作完全指南：从增量下载到团队协作"/></a><div class="content"><a class="title" href="/2026/08/25/git-complete-guide/" title="Git 操作完全指南：从增量下载到团队协作">Git 操作完全指南：从增量下载到团队协作</a><time datetime="2026-08-25T07:00:00.000Z" title="发表于 2026-08-25 15:00:00">2026-08-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/25/linux-command-guide/" title="Linux 命令行入门学习手册"><img src="/img/cover-linux.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Linux 命令行入门学习手册"/></a><div class="content"><a class="title" href="/2026/08/25/linux-command-guide/" title="Linux 命令行入门学习手册">Linux 命令行入门学习手册</a><time datetime="2026-08-25T01:30:00.000Z" title="发表于 2026-08-25 09:30:00">2026-08-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/25/windows-cmd-guide/" title="Windows 命令入门学习手册"><img src="/img/cover-windows.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Windows 命令入门学习手册"/></a><div class="content"><a class="title" href="/2026/08/25/windows-cmd-guide/" title="Windows 命令入门学习手册">Windows 命令入门学习手册</a><time datetime="2026-08-25T01:30:00.000Z" title="发表于 2026-08-25 09:30:00">2026-08-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/24/python-stdlib-local-audio-tool/" title="用纯 Python 标准库写一个本地音频处理工具"><img src="/img/cover-python.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="用纯 Python 标准库写一个本地音频处理工具"/></a><div class="content"><a class="title" href="/2026/08/24/python-stdlib-local-audio-tool/" title="用纯 Python 标准库写一个本地音频处理工具">用纯 Python 标准库写一个本地音频处理工具</a><time datetime="2026-08-24T06:30:00.000Z" title="发表于 2026-08-24 14:30:00">2026-08-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/24/m3e-robonix-progress/" title="把大疆 M3E 无人机接进 RoboNIX：目前的进展"><img src="/img/cover-drone.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="把大疆 M3E 无人机接进 RoboNIX：目前的进展"/></a><div class="content"><a class="title" href="/2026/08/24/m3e-robonix-progress/" title="把大疆 M3E 无人机接进 RoboNIX：目前的进展">把大疆 M3E 无人机接进 RoboNIX：目前的进展</a><time datetime="2026-08-24T02:30:00.000Z" title="发表于 2026-08-24 10:30:00">2026-08-24</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By shameless</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.7.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.7.0"></script><script src="/js/main.js?v=5.7.0"></script><div class="js-pjax"></div><script src="/js/i18n.js?v=16"></script><script src="/js/custom.js?v=16"></script><audio id="bgm-player" loop preload="none"></audio><div id="music-tip"><div class="music-tip-box"><h3>♫ 背景音乐</h3><p class="sub">开启后选择你本地的 mp3 文件播放</p><div class="btns"><button class="yes" onclick="startMusic()">开启音乐</button><button class="no" onclick="closeMusicTip()">暂不开启</button></div></div></div><div id="music-btn" onclick="toggleMusic()" title="背景音乐">♫</div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/fireworks.min.js"></script><script id="canvas_nest" defer="defer" color="0,212,255" opacity="0.7" zIndex="-1" count="99" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/canvas-nest.min.js"></script><script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.min.js" defer="defer"></script><script>document.addEventListener('DOMContentLoaded', () => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"]):not([data-fancybox])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: false,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => {
+      try {
+        fn()
+      } catch (err) {
+        console.debug('Pjax callback failed:', err)
+      }
+    })
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      if (!item.parentNode) return
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || ''
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    const responseURL = e.request && e.request.responseURL
+    if (e.request && e.request.status === 404) {
+      false
+        ? pjax.loadUrl('/404.html')
+        : responseURL && (window.location.href = responseURL)
+    } else if (responseURL) {
+      window.location.href = responseURL
+    }
+  })
+})</script></div></body></html>
