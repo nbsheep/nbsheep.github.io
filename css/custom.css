@@ -200,6 +200,17 @@
   color: #ffffff !important;
 }
 
+/* 文章底部版权声明卡：标签/内容/链接全部强制白色（独立于 .post-content） */
+[data-theme='dark'] .post-copyright,
+[data-theme='dark'] .post-copyright-meta,
+[data-theme='dark'] .post-copyright-info,
+[data-theme='dark'] .post-copyright-info a {
+  color: rgba(255, 255, 255, .92) !important;
+}
+[data-theme='dark'] .post-copyright-meta i {
+  color: rgba(255, 255, 255, .92) !important;
+}
+
 /* ============ 中英文语言切换（右下角悬浮，音乐按钮上方） ============ */
 .lang-switch {
   position: fixed;
