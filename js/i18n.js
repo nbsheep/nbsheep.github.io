@@ -5,5 +5,6 @@ window.I18N = {"框架":"Framework","主题":"Theme","复制成功":"Copy Succes
 window.I18N_TITLES = {
   "欢迎来到我的博客": "Welcome to My Blog",
   "把大疆 M3E 无人机接进 RoboNIX：目前的进展": "Integrating the DJI M3E Drone into RoboNIX: Current Progress",
-  "用纯 Python 标准库写一个本地音频处理工具": "Building a Local Audio Tool with Pure Python's Standard Library"
+  "用纯 Python 标准库写一个本地音频处理工具": "Building a Local Audio Tool with Pure Python's Standard Library",
+  "Git 操作完全指南：从增量下载到团队协作": "A Complete Guide to Git: From Incremental Downloads to Team Collaboration"
 };
