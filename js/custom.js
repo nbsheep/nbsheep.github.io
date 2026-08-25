@@ -229,7 +229,7 @@
   document.addEventListener('pjax:complete', addStars);
 })();
 
-// 页面两侧的流星划过特效：只在内容区两边的空白处生成，错开时间缓缓划过
+// 全屏流星特效：统一从左往右飞，从左侧屏幕外进场，散布在全屏任意高度
 (function () {
   function addMeteors() {
     if (document.querySelector('.meteor-wrap')) return; // 避免重复，fixed 层只建一次
@@ -239,17 +239,12 @@
     for (var i = 0; i < COUNT; i++) {
       var m = document.createElement('div');
       m.className = 'meteor';
-      // 全屏随机分布：横向 0~96% 任意位置，起始高度也错开，不再只贴两边
-      m.style.left = (Math.random() * 96).toFixed(1) + '%';
-      m.style.top = (-10 + Math.random() * 9).toFixed(1) + '%';
-      // 随机下落方向：一半往右下、一半往左下，横穿整个屏幕
-      var toRight = Math.random() > 0.5;
-      m.style.setProperty('--dir-x', toRight ? '46vw' : '-46vw');
-      m.style.setProperty('--dur', (3 + Math.random() * 4).toFixed(1) + 's');
-      m.style.setProperty('--delay', (Math.random() * 6).toFixed(1) + 's');
+      // 全屏任意高度出现（不再只从顶端往下），统一往右飞
+      m.style.top = (Math.random() * 90).toFixed(1) + '%';
+      m.style.setProperty('--dur', (3.5 + Math.random() * 5).toFixed(1) + 's');
+      m.style.setProperty('--delay', (Math.random() * 8).toFixed(1) + 's');
       var line = document.createElement('i');
       line.className = 'line';
-      line.style.transform = toRight ? 'rotate(45deg)' : 'rotate(135deg)';
       m.appendChild(line);
       wrap.appendChild(m);
     }
