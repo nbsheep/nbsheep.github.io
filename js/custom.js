@@ -297,8 +297,32 @@
         node.nodeValue = t.replace(key, source[key]);
       }
     }
+    applyTitles(lang);
     updateToggle(lang);
     document.documentElement.setAttribute('lang', lang === 'en' ? 'en' : 'zh-CN');
+  }
+
+  // 只替换首页卡片 + 侧边栏“最新文章”里的标题，文章页标题与正文保持中文
+  function applyTitles(lang) {
+    var t = window.I18N_TITLES || {};
+    if (lang !== 'en') {
+      var rev = {};
+      for (var k in t) rev[t[k]] = k;
+      t = rev;
+    }
+    var scopes = document.querySelectorAll('.recent-post-info .article-title, .card-recent-post .content a.title');
+    for (var i = 0; i < scopes.length; i++) {
+      var el = scopes[i];
+      var w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false);
+      var nodes = [];
+      var n;
+      while ((n = w.nextNode())) nodes.push(n);
+      for (var j = 0; j < nodes.length; j++) {
+        var node = nodes[j];
+        var key = node.nodeValue.trim();
+        if (key && t[key] !== undefined) node.nodeValue = node.nodeValue.replace(key, t[key]);
+      }
+    }
   }
 
   function updateToggle(lang) {
