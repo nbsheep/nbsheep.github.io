@@ -352,6 +352,30 @@ body::after {
   color: rgba(255, 255, 255, .92) !important;
 }
 
+/* ============ 手机端导航 & 汉堡抽屉菜单：文字一律白色 ============
+   手机上汉堡展开后，导航项（首页/Archives/Category/Tag/关于）在 #sidebar-menus 抽屉里，
+   之前只写了 #nav a，没覆盖到它，导致黑字。这里把顶部导航与侧边抽屉全部提白。 */
+[data-theme='dark'] #nav .site-page,
+[data-theme='dark'] #nav .menus_item a,
+[data-theme='dark'] #nav .menus_items .menus_item a,
+[data-theme='dark'] #nav .site-page i,
+[data-theme='dark'] #nav #toggle-menu .site-page,
+[data-theme='dark'] #nav #toggle-menu .site-page i,
+[data-theme='dark'] #nav #search-button .site-page i,
+[data-theme='dark'] #sidebar,
+[data-theme='dark'] #sidebar #sidebar-menus,
+[data-theme='dark'] #sidebar #sidebar-menus .site-page,
+[data-theme='dark'] #sidebar #sidebar-menus .menus_item a,
+[data-theme='dark'] #sidebar #sidebar-menus .menus_items .menus_item a,
+[data-theme='dark'] #sidebar #sidebar-menus .menus_item a.site-page,
+[data-theme='dark'] #sidebar #sidebar-menus .menus_item a.site-page i,
+[data-theme='dark'] #sidebar #sidebar-menus .site-page i,
+[data-theme='dark'] #sidebar #sidebar-menus .site-data a,
+[data-theme='dark'] #sidebar #sidebar-menus .site-data .headline,
+[data-theme='dark'] #sidebar #sidebar-menus .site-data .length-num {
+  color: rgba(255, 255, 255, .92) !important;
+}
+
 /* ============ 中英文语言切换（右下角悬浮，音乐按钮上方） ============ */
 .lang-switch {
   position: fixed;

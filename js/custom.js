@@ -364,3 +364,52 @@
   else init();
   document.addEventListener('pjax:complete', init);
 })();
+
+// ============ 目录平滑滚动：点击目录项，约 0.3s 快速下滑到对应标题，而非瞬间跳转 ============
+(function () {
+  function navHeight() {
+    var nav = document.querySelector('#nav');
+    if (!nav) return 0;
+    var pos = getComputedStyle(nav).position;
+    if (pos === 'fixed' || pos === 'sticky') return nav.offsetHeight;
+    return 0;
+  }
+  function targetTop(el) {
+    // 减去固定导航高度 + 留一点空隙，标题不会被导航盖住
+    return el.getBoundingClientRect().top + window.pageYOffset - navHeight() - 16;
+  }
+  function smoothScrollTo(targetY, duration) {
+    var startY = window.pageYOffset;
+    var diff = targetY - startY;
+    if (Math.abs(diff) < 2) return;
+    var t0 = null;
+    function step(ts) {
+      if (t0 === null) t0 = ts;
+      var p = Math.min((ts - t0) / duration, 1);
+      var eased = p * (2 - p); // easeOutQuad：起步快、收尾缓
+      window.scrollTo(0, startY + diff * eased);
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  function onTocClick(e) {
+    var href = this.getAttribute('href') || '';
+    if (href.charAt(0) !== '#') return;
+    var el = document.getElementById(decodeURIComponent(href.slice(1)));
+    if (!el) return;
+    e.preventDefault();
+    smoothScrollTo(targetTop(el), 300);
+    if (history.pushState) history.pushState(null, '', href);
+  }
+  function bind() {
+    var links = document.querySelectorAll('.toc a.toc-link, #card-toc .toc-link, #toc .toc-link');
+    for (var i = 0; i < links.length; i++) {
+      if (links[i].__smoothBound) continue;
+      links[i].__smoothBound = true;
+      links[i].addEventListener('click', onTocClick);
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
+  else bind();
+  document.addEventListener('pjax:complete', bind);
+})();
