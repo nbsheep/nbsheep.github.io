@@ -106,12 +106,37 @@
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9), 0 1px 12px rgba(0, 0, 0, 0.7);
 }
 
+/* ============ 宇航员图片：整站固定背景，无论怎么滚动都垫在内容后面 ============ */
+html {
+  background: #141927 !important;
+}
+body {
+  position: relative;
+  background: transparent !important;
+}
+/* 宇航员图固定铺满全屏，垫在最底层 */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: #141927 url('/img/top_img.jpg') center / cover no-repeat;
+}
+/* 深色压暗层，盖在宇航员图上、内容之下，保证文字可读 */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: rgba(8, 12, 24, 0.42);
+}
+
 /* ============ 提亮正文：卡片略亮 + 文字更清晰 ============ */
 [data-theme='dark'] {
-  /* 卡片明显比底色亮，让卡片"浮"出来，不再一坨暗 */
-  --card-bg: #232c40;
-  --sidebar-bg: #232c40;
-  --global-bg: #141927;
+  /* 卡片半透明，透出背后的宇航员图；仍略亮于底色，保证可读 */
+  --card-bg: rgba(20, 27, 46, 0.75);
+  --sidebar-bg: rgba(20, 27, 46, 0.75);
+  --global-bg: transparent;
   /* 文字接近纯白，提高可读性 */
   --font-color: alpha(#FFFFFF, .92);
   --light-grey: alpha(#FFFFFF, .86);

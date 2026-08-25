@@ -247,7 +247,7 @@
         m.style.left = (Math.random() * 95).toFixed(1) + '%';          // 顶部任意横向位置
         m.style.top = (-(8 + Math.random() * 7)).toFixed(1) + '%';     // 屏幕上方出现
       }
-      m.style.setProperty('--dur', (3 + Math.random() * 4).toFixed(1) + 's');
+      m.style.setProperty('--dur', (5 + Math.random() * 5).toFixed(1) + 's'); // 慢一些
       m.style.setProperty('--delay', (Math.random() * 6).toFixed(1) + 's');
       var line = document.createElement('i');
       line.className = 'line';
