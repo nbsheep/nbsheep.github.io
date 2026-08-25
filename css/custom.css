@@ -197,16 +197,17 @@
 }
 
 /* ============ 文章页顶部 banner 的 meta（日期/分类）：主题用 #78818a 深灰蓝=黑，强制白 ============
-   注意容器是 id="post-meta"（无 class），之前的 .post-meta 规则命中不了，必须按 #post > #post-info 精确写 */
-[data-theme='dark'] #post > #post-info #post-meta,
-[data-theme='dark'] #post > #post-info #post-meta a,
-[data-theme='dark'] #post > #post-info #post-meta .post-meta-label,
-[data-theme='dark'] #post > #post-info #post-meta .post-meta-date,
-[data-theme='dark'] #post > #post-info #post-meta .post-meta-separator,
-[data-theme='dark'] #post > #post-info #post-meta .post-meta-icon,
-[data-theme='dark'] #post > #post-info #post-meta time,
-[data-theme='dark'] #post > #post-info #post-meta .post-meta__tag-list,
-[data-theme='dark'] #post > #post-info #post-meta .post-meta__tags {
+   注意：有封面图的文章 #post-info 挂在 #page-header 下、不在 #post 里，因此必须用更通用的
+   #post-info #post-meta（post-meta 永远是 post-info 的子孙），才能两种情形都命中 */
+[data-theme='dark'] #post-info #post-meta,
+[data-theme='dark'] #post-info #post-meta a,
+[data-theme='dark'] #post-info #post-meta .post-meta-label,
+[data-theme='dark'] #post-info #post-meta .post-meta-date,
+[data-theme='dark'] #post-info #post-meta .post-meta-separator,
+[data-theme='dark'] #post-info #post-meta .post-meta-icon,
+[data-theme='dark'] #post-info #post-meta time,
+[data-theme='dark'] #post-info #post-meta .post-meta__tag-list,
+[data-theme='dark'] #post-info #post-meta .post-meta__tags {
   color: rgba(255, 255, 255, .95) !important;
 }
 
