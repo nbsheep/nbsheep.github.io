@@ -235,21 +235,21 @@
     if (document.querySelector('.meteor-wrap')) return; // 避免重复，fixed 层只建一次
     var wrap = document.createElement('div');
     wrap.className = 'meteor-wrap';
-    var COUNT = 20; // 两侧共 20 颗
+    var COUNT = 22;
     for (var i = 0; i < COUNT; i++) {
       var m = document.createElement('div');
       m.className = 'meteor';
-      // 左半区放左边空白，右半区放右边空白
-      var onLeft = i % 2 === 0;
-      m.style.left = onLeft
-        ? (1 + Math.random() * 12).toFixed(1) + '%'   // 左空白带
-        : (87 + Math.random() * 11).toFixed(1) + '%'; // 右空白带
-      m.style.setProperty('--dur', (3.5 + Math.random() * 3).toFixed(1) + 's');
-      m.style.setProperty('--delay', (Math.random() * 5).toFixed(1) + 's');
+      // 全屏随机分布：横向 0~96% 任意位置，起始高度也错开，不再只贴两边
+      m.style.left = (Math.random() * 96).toFixed(1) + '%';
+      m.style.top = (-10 + Math.random() * 9).toFixed(1) + '%';
+      // 随机下落方向：一半往右下、一半往左下，横穿整个屏幕
+      var toRight = Math.random() > 0.5;
+      m.style.setProperty('--dir-x', toRight ? '46vw' : '-46vw');
+      m.style.setProperty('--dur', (3 + Math.random() * 4).toFixed(1) + 's');
+      m.style.setProperty('--delay', (Math.random() * 6).toFixed(1) + 's');
       var line = document.createElement('i');
       line.className = 'line';
-      // 右侧流星往左下方划，翻转一下方向更像
-      if (!onLeft) line.style.transform = 'rotate(135deg)';
+      line.style.transform = toRight ? 'rotate(45deg)' : 'rotate(135deg)';
       m.appendChild(line);
       wrap.appendChild(m);
     }

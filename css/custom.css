@@ -238,5 +238,5 @@
 @keyframes meteor-fall {
   0%   { opacity: 0; transform: translate(0, 0); }
   10%  { opacity: .9; }
-  100% { opacity: 0; transform: translate(46vw, 62vh); }
+  100% { opacity: 0; transform: translate(var(--dir-x, 46vw), 62vh); }
 }
