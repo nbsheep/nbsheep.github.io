@@ -391,7 +391,7 @@
   100% { opacity: 0; }
 }
 
-/* ============ 全屏流星特效：统一从左往右飞，从左侧屏幕外进场 ============ */
+/* ============ 全屏流星特效：仍是往右下落，但进场位置在「顶部」和「左侧」之间随机 ============ */
 .meteor-wrap {
   position: fixed;
   inset: 0;
@@ -401,11 +401,11 @@
 }
 .meteor {
   position: absolute;
-  left: -18%;           /* 从左侧屏幕外出发 */
   top: 0;
+  left: 0;
   opacity: 0;
   will-change: transform, opacity;
-  animation: meteor-fly var(--dur, 5s) linear var(--delay, 0s) infinite;
+  animation: meteor-fall var(--dur, 5s) linear var(--delay, 0s) infinite;
 }
 .meteor .line {
   display: block;
@@ -413,12 +413,12 @@
   height: 2px;
   border-radius: 999px;
   background: linear-gradient(90deg, transparent 0%, rgba(0, 212, 255, 0.55) 55%, #ffffff 100%);
-  transform: rotate(38deg);   /* 统一方向：亮头朝右下，往右飞 */
+  transform: rotate(45deg);   /* 统一方向：亮头朝右下，往右下坠落 */
   transform-origin: right center;
   filter: drop-shadow(0 0 4px rgba(0, 212, 255, 0.7));
 }
-@keyframes meteor-fly {
-  0%   { opacity: 0; transform: translateX(-10vw); }
+@keyframes meteor-fall {
+  0%   { opacity: 0; transform: translate(0, 0); }
   8%   { opacity: .9; }
-  100% { opacity: 0; transform: translateX(125vw); }
+  100% { opacity: 0; transform: translate(120vw, 95vh); }
 }
