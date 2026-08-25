@@ -154,8 +154,9 @@
   color: #ffffff;
 }
 [data-theme='dark'] .card-info .site-data .headline,
-[data-theme='dark'] .card-info .site-data .length-num {
-  color: #ffffff;
+[data-theme='dark'] .card-info .site-data .length-num,
+[data-theme='dark'] .card-info .site-data > a {
+  color: #ffffff !important;
 }
 [data-theme='dark'] .card-info .site-data .headline {
   opacity: .8;
@@ -193,6 +194,20 @@
 [data-theme='dark'] #aside-content .card-info-social-icons .social-icon,
 [data-theme='dark'] #aside-content .card-info-social-icons .social-icon i {
   color: rgba(255, 255, 255, .92) !important;
+}
+
+/* ============ 文章页顶部 banner 的 meta（日期/分类）：主题用 #78818a 深灰蓝=黑，强制白 ============
+   注意容器是 id="post-meta"（无 class），之前的 .post-meta 规则命中不了，必须按 #post > #post-info 精确写 */
+[data-theme='dark'] #post > #post-info #post-meta,
+[data-theme='dark'] #post > #post-info #post-meta a,
+[data-theme='dark'] #post > #post-info #post-meta .post-meta-label,
+[data-theme='dark'] #post > #post-info #post-meta .post-meta-date,
+[data-theme='dark'] #post > #post-info #post-meta .post-meta-separator,
+[data-theme='dark'] #post > #post-info #post-meta .post-meta-icon,
+[data-theme='dark'] #post > #post-info #post-meta time,
+[data-theme='dark'] #post > #post-info #post-meta .post-meta__tag-list,
+[data-theme='dark'] #post > #post-info #post-meta .post-meta__tags {
+  color: rgba(255, 255, 255, .95) !important;
 }
 
 /* ============ 文章正文：所有文字强制白色（段落/标题/列表/表格），代码块与行内代码除外 ============ */
