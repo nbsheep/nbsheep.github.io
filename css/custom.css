@@ -189,6 +189,11 @@
 [data-theme='dark'] #aside-content #card-info-btn i {
   color: #ffffff !important;
 }
+/* Follow Me 按钮下方的社交图标：配置里给的是近黑 #24292e，压成白色以免看不见 */
+[data-theme='dark'] #aside-content .card-info-social-icons .social-icon,
+[data-theme='dark'] #aside-content .card-info-social-icons .social-icon i {
+  color: rgba(255, 255, 255, .92) !important;
+}
 
 /* ============ 文章正文：所有文字强制白色（段落/标题/列表/表格），代码块与行内代码除外 ============ */
 [data-theme='dark'] .post-content,
