@@ -118,6 +118,20 @@
   --white: #ffffff;
   /* 日期/作者/分类 等次要文字从灰提亮 */
   --card-meta: rgba(255, 255, 255, .8);
+  /* --- 以下覆盖主题 darkmode 中被压暗/偏灰的变量，一律提到白，杜绝黑字 --- */
+  --dark-grey: alpha(#FFFFFF, .78);          /* 次要元信息不再暗灰 */
+  --gray: alpha(#FFFFFF, .8);                /* meta 灰色信息 */
+  --text-highlight-color: alpha(#FFFFFF, .94);
+  --btn-color: #ffffff;                      /* 实心按钮文字 */
+  --btn-default-color: alpha(#FFFFFF, .88);  /* 描边按钮文字 */
+  --btn-hover-color: alpha(#FFFFFF, .95);
+  --toc-link-color: alpha(#FFFFFF, .82);     /* 目录链接 */
+  --blockquote-color: alpha(#FFFFFF, .92);
+  --hr-border: alpha(#FFFFFF, .32);
+  --hr-before-color: alpha(#FFFFFF, .8);
+  --search-input-color: alpha(#FFFFFF, .92);
+  --search-a-color: alpha(#FFFFFF, .92);
+  --preloader-color: alpha(#FFFFFF, .92);
 }
 
 /* 文章卡片：标题/摘要/日期 全部白色，放在深蓝卡片上非常清楚 */
@@ -208,6 +222,75 @@
   color: rgba(255, 255, 255, .92) !important;
 }
 [data-theme='dark'] .post-copyright-meta i {
+  color: rgba(255, 255, 255, .92) !important;
+}
+
+/* ============ 兜底：全页文字/图标一律不出现黑字（代码块与彩色标签除外） ============ */
+[data-theme='dark'] #nav,
+[data-theme='dark'] #nav a,
+[data-theme='dark'] #nav i,
+[data-theme='dark'] #nav .menus-item a,
+[data-theme='dark'] #nav .navButton,
+[data-theme='dark'] #nav .site-name,
+[data-theme='dark'] #nav .back-home,
+[data-theme='dark'] .post-title,
+[data-theme='dark'] .post-title a,
+[data-theme='dark'] .post-meta,
+[data-theme='dark'] .post-meta i,
+[data-theme='dark'] .post-meta a,
+[data-theme='dark'] .post-meta .post-meta__item,
+[data-theme='dark'] .post-meta .post-meta__separator,
+[data-theme='dark'] .recent-post-item,
+[data-theme='dark'] .recent-post-item .article-meta-wrap,
+[data-theme='dark'] .recent-post-item a,
+[data-theme='dark'] .relatedPosts a,
+[data-theme='dark'] .relatedPosts .relatedPosts-item-title,
+[data-theme='dark'] .relatedPosts .relatedPosts-item-title i,
+[data-theme='dark'] .pagination,
+[data-theme='dark'] .pagination a,
+[data-theme='dark'] .pagination .page-number,
+[data-theme='dark'] .pagination .prev,
+[data-theme='dark'] .pagination .next,
+[data-theme='dark'] .pagination .space,
+[data-theme='dark'] .pagination i,
+[data-theme='dark'] #footer,
+[data-theme='dark'] #footer a,
+[data-theme='dark'] #footer i,
+[data-theme='dark'] #footer .social-icons a,
+[data-theme='dark'] #footer .social-icons i,
+[data-theme='dark'] #footer .copyright,
+[data-theme='dark'] .wv,
+[data-theme='dark'] .wv i,
+[data-theme='dark'] .post-reward,
+[data-theme='dark'] .post-reward .reward-button,
+[data-theme='dark'] .post-reward .reward-pop,
+[data-theme='dark'] .post-reward .reward-pop a,
+[data-theme='dark'] .post-reward .reward-pop i,
+[data-theme='dark'] .post-reward .reward-pop-up,
+[data-theme='dark'] .tag_share,
+[data-theme='dark'] .tag_share .post-share,
+[data-theme='dark'] .tag_share .post-share a,
+[data-theme='dark'] .tag_share .post-share i,
+[data-theme='dark'] .tag_share .post-share .share-icon,
+[data-theme='dark'] #card-toc .toc,
+[data-theme='dark'] #card-toc .toc a,
+[data-theme='dark'] #card-toc .toc .toc-item,
+[data-theme='dark'] #card-toc .toc .toc-link,
+[data-theme='dark'] #rightside,
+[data-theme='dark'] #rightside a,
+[data-theme='dark'] #rightside i,
+[data-theme='dark'] #rightside .rightside-item,
+[data-theme='dark'] .btn,
+[data-theme='dark'] .btn a,
+[data-theme='dark'] .btn i,
+[data-theme='dark'] .wv-btn,
+[data-theme='dark'] .wv-btn i,
+[data-theme='dark'] .tabs .tab-button,
+[data-theme='dark'] .tabs .nav-tabs,
+[data-theme='dark'] .tabs .tab-tab,
+[data-theme='dark'] .card-widget .headline,
+[data-theme='dark'] .card-info .author-info-name,
+[data-theme='dark'] .card-info .author-info-description {
   color: rgba(255, 255, 255, .92) !important;
 }
 
