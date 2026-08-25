@@ -261,3 +261,81 @@
     addMeteors();
   }
 })();
+
+// ============ 中英界面切换：默认英文，可一键切换，localStorage 记忆 ============
+(function () {
+  var LANG_KEY = 'site-lang';
+
+  function getMap() { return window.I18N || {}; }
+  function getLang() {
+    try { return localStorage.getItem(LANG_KEY) || 'en'; } catch (e) { return 'en'; }
+  }
+  function setLang(v) { try { localStorage.setItem(LANG_KEY, v); } catch (e) {} }
+
+  // 只会把"整段就是一个标签"的文本节点替换成目标语言；
+  // 文章正文是整句，不会命中，因此正文保持中文不变。
+  function applyLang(lang) {
+    var map = getMap();
+    var source;
+    if (lang === 'en') {
+      source = map;               // 中文 -> 英文
+    } else {
+      source = {};                // 英文 -> 中文
+      for (var k in map) source[map[k]] = k;
+    }
+    if (!document.body) return;
+    var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+    var nodes = [];
+    var n;
+    while ((n = walker.nextNode())) nodes.push(n);
+    for (var i = 0; i < nodes.length; i++) {
+      var node = nodes[i];
+      var t = node.nodeValue;
+      if (!t || !t.trim()) continue;
+      var key = t.trim();
+      if (source[key] !== undefined) {
+        node.nodeValue = t.replace(key, source[key]);
+      }
+    }
+    updateToggle(lang);
+    document.documentElement.setAttribute('lang', lang === 'en' ? 'en' : 'zh-CN');
+  }
+
+  function updateToggle(lang) {
+    var btns = document.querySelectorAll('.lang-switch .lang-opt');
+    for (var i = 0; i < btns.length; i++) {
+      if (btns[i].getAttribute('data-lang') === lang) btns[i].classList.add('active');
+      else btns[i].classList.remove('active');
+    }
+  }
+
+  window.switchLang = function (lang) {
+    setLang(lang);
+    applyLang(lang);
+  };
+
+  function ensureToggle() {
+    if (document.querySelector('.lang-switch')) return;
+    var wrap = document.createElement('div');
+    wrap.className = 'lang-switch';
+    [['en', 'EN'], ['zh-CN', '中文']].forEach(function (o) {
+      var b = document.createElement('button');
+      b.className = 'lang-opt';
+      b.type = 'button';
+      b.setAttribute('data-lang', o[0]);
+      b.textContent = o[1];
+      b.addEventListener('click', function () { window.switchLang(o[0]); });
+      wrap.appendChild(b);
+    });
+    document.body.appendChild(wrap);
+  }
+
+  function init() {
+    ensureToggle();
+    applyLang(getLang());
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+  document.addEventListener('pjax:complete', init);
+})();

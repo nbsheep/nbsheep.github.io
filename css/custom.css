@@ -175,6 +175,42 @@
 [data-theme='dark'] #aside-content #card-info-btn i {
   color: #ffffff !important;
 }
+
+/* ============ 中英文语言切换（右下角悬浮，音乐按钮上方） ============ */
+.lang-switch {
+  position: fixed;
+  bottom: 150px;
+  right: 18px;
+  z-index: 9997;
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.12);
+}
+.lang-switch .lang-opt {
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  user-select: none;
+}
+.lang-switch .lang-opt:hover { color: #ffffff; }
+.lang-switch .lang-opt.active {
+  color: #0d1117;
+  background: #ffffff;
+  font-weight: 600;
+}
+.lang-switch .lang-opt.active:hover { color: #0d1117; }
 #page-header.full_page #site-subtitle {
   letter-spacing: 1px;
   opacity: .95;
