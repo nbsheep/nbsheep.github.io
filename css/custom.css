@@ -170,6 +170,11 @@
 [data-theme='dark'] #aside-content .card-widget .item-headline svg {
   color: #ffffff !important;
 }
+/* Follow Me 按钮里的 GitHub 图标及文字改成白色 */
+[data-theme='dark'] #aside-content #card-info-btn,
+[data-theme='dark'] #aside-content #card-info-btn i {
+  color: #ffffff !important;
+}
 #page-header.full_page #site-subtitle {
   letter-spacing: 1px;
   opacity: .95;
