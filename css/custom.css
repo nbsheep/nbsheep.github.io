@@ -176,6 +176,30 @@
   color: #ffffff !important;
 }
 
+/* ============ 文章正文：所有文字强制白色（段落/标题/列表/表格），代码块与行内代码除外 ============ */
+[data-theme='dark'] .post-content,
+[data-theme='dark'] .post-content p,
+[data-theme='dark'] .post-content li,
+[data-theme='dark'] .post-content td,
+[data-theme='dark'] .post-content th,
+[data-theme='dark'] .post-content strong,
+[data-theme='dark'] .post-content em,
+[data-theme='dark'] .post-content a,
+[data-theme='dark'] .post-content blockquote,
+[data-theme='dark'] .post-content blockquote p,
+[data-theme='dark'] .post-content .tabs,
+[data-theme='dark'] .post-content .note {
+  color: rgba(255, 255, 255, .92) !important;
+}
+[data-theme='dark'] .post-content h1,
+[data-theme='dark'] .post-content h2,
+[data-theme='dark'] .post-content h3,
+[data-theme='dark'] .post-content h4,
+[data-theme='dark'] .post-content h5,
+[data-theme='dark'] .post-content h6 {
+  color: #ffffff !important;
+}
+
 /* ============ 中英文语言切换（右下角悬浮，音乐按钮上方） ============ */
 .lang-switch {
   position: fixed;
