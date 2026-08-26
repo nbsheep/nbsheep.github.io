@@ -376,6 +376,42 @@ body::after {
   color: rgba(255, 255, 255, .92) !important;
 }
 
+/* ============ 整站文字默认白（兜底：正文类元素一律提白，代码/彩色标签除外） ============ */
+[data-theme='dark'] #body-wrap :is(p, li, h1, h2, h3, h4, h5, h6, strong, em, td, th, time, blockquote, del) {
+  color: rgba(255, 255, 255, .92) !important;
+}
+
+/* ============ 漏网链接类文字（归档/分类/标签/关于页 里的链接与统计数字） ============ */
+[data-theme='dark'] .article-sort,
+[data-theme='dark'] .article-sort-item,
+[data-theme='dark'] .article-sort-item-title,
+[data-theme='dark'] .article-sort-item-title a,
+[data-theme='dark'] .article-sort-item-info,
+[data-theme='dark'] .article-sort-item-info a,
+[data-theme='dark'] .article-sort-item-time a,
+[data-theme='dark'] .article-sort .year,
+[data-theme='dark'] #archive,
+[data-theme='dark'] #archive .post-title,
+[data-theme='dark'] #archive .post-title a,
+[data-theme='dark'] #archive .post-meta,
+[data-theme='dark'] #archive .post-meta a,
+[data-theme='dark'] .category-list,
+[data-theme='dark'] .category-list-link,
+[data-theme='dark'] .category-list-count,
+[data-theme='dark'] .category-list-name,
+[data-theme='dark'] .category-list-item a,
+[data-theme='dark'] .tag-list,
+[data-theme='dark'] .tag-list-link,
+[data-theme='dark'] .tag-list-count,
+[data-theme='dark'] .tag-list-name,
+[data-theme='dark'] .page-content,
+[data-theme='dark'] .page-content a,
+[data-theme='dark'] .page-content p a,
+[data-theme='dark'] .page-card,
+[data-theme='dark'] .page-card a {
+  color: rgba(255, 255, 255, .92) !important;
+}
+
 /* ============ 中英文语言切换（右下角悬浮，音乐按钮上方） ============ */
 .lang-switch {
   position: fixed;
