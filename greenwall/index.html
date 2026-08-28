@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>绿墙鉴定器 · 你的 GitHub 贡献图有多少水分？</title>
+<style>
+  :root {
+    --bg: #141927;
+    --card: rgba(20, 27, 46, 0.85);
+    --line: rgba(255, 255, 255, 0.10);
+    --txt: rgba(255, 255, 255, 0.92);
+    --sub: rgba(255, 255, 255, 0.62);
+    --cyan: #00d4ff;
+    --green: #2ea043;
+    --green2: #39d353;
+    --red: #f85149;
+    --amber: #d29922;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; background: var(--bg); color: var(--txt);
+    font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+    padding: 32px 16px 80px;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; }
+  h1 { font-size: 26px; margin: 0 0 6px; }
+  h1 .accent { color: var(--cyan); }
+  .desc { color: var(--sub); font-size: 14px; line-height: 1.7; margin: 0 0 24px; }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 18px;
+  }
+  .inputrow { display: flex; gap: 10px; flex-wrap: wrap; }
+  .inputrow input[type=text] {
+    flex: 1; min-width: 220px; background: rgba(255,255,255,0.06); color: var(--txt);
+    border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; font-size: 15px; outline: none;
+  }
+  .inputrow input:focus { border-color: var(--cyan); }
+  button {
+    background: var(--cyan); color: #08111c; font-weight: 700; font-size: 15px;
+    border: 0; border-radius: 8px; padding: 10px 22px; cursor: pointer;
+  }
+  button:disabled { opacity: 0.5; cursor: wait; }
+  button.ghost { background: transparent; color: var(--sub); border: 1px solid var(--line); font-weight: 400; padding: 8px 14px; }
+  .tokentoggle { margin-top: 10px; font-size: 13px; color: var(--sub); }
+  .tokenrow { display: none; margin-top: 10px; }
+  .tokenrow.show { display: flex; }
+  .tokenrow input { flex: 1; background: rgba(255,255,255,0.06); color: var(--txt); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; font-size: 13px; outline: none; }
+  .hint { font-size: 12px; color: var(--sub); margin-top: 8px; line-height: 1.6; }
+  #status { margin-top: 14px; font-size: 13px; color: var(--sub); min-height: 18px; white-space: pre-line; }
+  .hidden { display: none; }
+
+  .verdict-head { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .score-ring {
+    width: 96px; height: 96px; border-radius: 50%; flex: 0 0 auto;
+    display: flex; align-items: center; justify-content: center; flex-direction: column;
+    border: 4px solid var(--green); font-weight: 800;
+  }
+  .score-ring .num { font-size: 30px; line-height: 1; }
+  .score-ring .unit { font-size: 11px; color: var(--sub); }
+  .verdict-title { font-size: 20px; font-weight: 800; }
+  .verdict-sub { color: var(--sub); font-size: 13px; margin-top: 4px; line-height: 1.7; }
+  .statline { display: flex; gap: 22px; flex-wrap: wrap; margin-top: 14px; font-size: 13px; color: var(--sub); }
+  .statline b { color: var(--txt); font-size: 16px; display: block; }
+  .findings { margin: 10px 0 0; padding-left: 18px; font-size: 13px; line-height: 1.9; }
+  .findings li.bad { color: #ffb4ae; }
+  .findings li.ok { color: var(--sub); }
+
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: var(--sub); margin-bottom: 10px; }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .legend i { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
+  #grid { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, 12px); gap: 3px; overflow-x: auto; padding-bottom: 6px; }
+  #grid .cell { width: 12px; height: 12px; border-radius: 3px; background: rgba(255,255,255,0.06); cursor: default; }
+  .months { display: flex; font-size: 11px; color: var(--sub); gap: 0; margin-bottom: 4px; overflow: hidden; height: 14px; }
+
+  table.days { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.days th { text-align: left; color: var(--sub); font-weight: 500; padding: 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  table.days td { padding: 7px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: top; }
+  table.days td.num { white-space: nowrap; }
+  .pill { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; white-space: nowrap; }
+  .pill.real { background: rgba(46,160,67,0.18); color: #7ee787; }
+  .pill.susp { background: rgba(210,153,34,0.18); color: #e3b341; }
+  .pill.fake { background: rgba(248,81,73,0.20); color: #ff7b72; }
+  .evi { color: var(--sub); font-size: 12px; margin-top: 3px; line-height: 1.6; }
+  footer { color: rgba(255,255,255,0.40); font-size: 12px; line-height: 1.8; margin-top: 26px; }
+  a { color: var(--cyan); text-decoration: none; }
+  .err { color: #ff7b72; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🧪 绿墙<span class="accent">鉴定器</span></h1>
+  <p class="desc">输入任意 GitHub 用户名，用公开数据给 TA 的 contribution 绿墙做一次测谎：<b>哪一天刷的、刷了几条、证据是什么</b>。启发式鉴定，仅供娱乐与自省。</p>
+
+  <div class="card">
+    <div class="inputrow">
+      <input type="text" id="login" placeholder="GitHub 用户名，例如 nbsheep" spellcheck="false">
+      <button id="go">开始鉴定</button>
+    </div>
+    <div class="tokentoggle">可选：<a href="#" id="toggleToken">填一个 GitHub Token</a>（匿名每 IP 每小时只有 60 次请求，填 Token 提升到 5000 次并支持深度扫描）</div>
+    <div class="tokenrow" id="tokenrow">
+      <input type="text" id="token" placeholder="ghp_… / github_pat_…（只在你浏览器本地使用，不会上传）" spellcheck="false">
+    </div>
+    <div id="status"></div>
+  </div>
+
+  <div id="result" class="hidden">
+    <div class="card">
+      <div class="verdict-head">
+        <div class="score-ring" id="ring"><span class="num" id="scoreNum">--</span><span class="unit">真实度</span></div>
+        <div style="flex:1; min-width:240px;">
+          <div class="verdict-title" id="verdictTitle"></div>
+          <div class="verdict-sub" id="verdictSub"></div>
+        </div>
+      </div>
+      <div class="statline" id="statline"></div>
+      <ul class="findings" id="findings"></ul>
+    </div>
+
+    <div class="card">
+      <div class="legend">
+        <span><i style="background:#2ea043"></i>真实提交</span>
+        <span><i style="background:#d29922"></i>存疑</span>
+        <span><i style="background:#f85149"></i>判定为刷</span>
+        <span><i style="background:rgba(255,255,255,0.10)"></i>无提交</span>
+        <span id="gridRange"></span>
+      </div>
+      <div class="months" id="months"></div>
+      <div id="grid"></div>
+      <div class="hint">鼠标悬停看某天明细。绿墙官方日历按作者日期计数 —— 下面这格图按同一口径重建，再逐条验伪。</div>
+    </div>
+
+    <div class="card">
+      <div style="font-weight:700; margin-bottom:8px;">逐日明细（从近到远）</div>
+      <div style="overflow-x:auto;">
+        <table class="days">
+          <thead><tr><th>日期</th><th>提交</th><th>鉴定</th><th>证据</th></tr></thead>
+          <tbody id="dayRows"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <footer id="foot"></footer>
+  </div>
+</div>
+
+<script>
+// ===ANALYZER_BEGIN===
+(function (global) {
+  'use strict';
+
+  var FP_RULES = [
+    { re: /^chore[:\s].*(daily|activity|auto|cron|schedule)/i, tag: '定时任务式 message', strong: true },
+    { re: /^commit #\d+/i, tag: '编号式 message（commit #N）', strong: true },
+    { re: /^\d{4}-\d{2}-\d{2}[T\s]/, tag: '纯时间戳 message', strong: true },
+    { re: /(update|append|touch)\s+(activity\.?log|log)/i, tag: '刷日志文件 message', strong: true },
+    { re: /^auto[- ]?commit/i, tag: 'auto-commit message', strong: true },
+    { re: /^(keep[- ]?alive|green|fill)\b/i, tag: '刷墙专用 message', strong: true }
+  ];
+
+  function dayKey(iso) { return (iso || '').slice(0, 10); }
+  function ts(s) { return new Date(s).getTime(); }
+
+  function normalizeTemplate(msg) {
+    return msg.replace(/\r/g, '').split('\n')[0].replace(/\d+/g, '#').replace(/\s+/g, ' ').trim().toLowerCase();
+  }
+
+  // 单条提交验伪：返回 [{tag, sev, detail}]，sev 越大越像造假
+  function classifyCommit(c, ctx) {
+    var reasons = [];
+    var a = ts(c.authorDate), m = ts(c.committerDate);
+    if (!isNaN(a) && !isNaN(m)) {
+      var gap = Math.abs(a - m);
+      if (gap >= 24 * 3600e3) {
+        reasons.push({ tag: '补写提交', sev: 2, detail: '作者日期写的是 ' + c.authorDate.slice(0, 16).replace('T', ' ') + '，实际创建于 ' + c.committerDate.slice(0, 16).replace('T', ' ') });
+      } else if (a - m >= 3600e3) {
+        reasons.push({ tag: '日期篡改', sev: 2, detail: '作者日期比创建时间还晚（改过日期）' });
+      }
+    }
+    for (var i = 0; i < FP_RULES.length; i++) {
+      if (FP_RULES[i].re.test(c.message)) {
+        reasons.push({ tag: 'message 指纹', sev: 2, detail: '「' + c.message.split('\n')[0].slice(0, 60) + '」命中“' + FP_RULES[i].tag + '”' });
+        break;
+      }
+    }
+    var burst = ctx.burstKeys[c.repo + '@' + c.day];
+    if (burst) {
+      reasons.push({ tag: '秒级连击', sev: 1.2, detail: '与另外 ' + (burst - 1) + ' 条提交在 ' + burst.toFixed(0) + ' 秒内接连生成（人类写代码不是这个节奏）' });
+    }
+    if (ctx.trivialRepos[c.repo]) {
+      reasons.push({ tag: '空壳仓库', sev: 2, detail: '该仓库实际只有「' + ctx.trivialRepos[c.repo] + '」这类文件在变动' });
+    }
+    if (c.templateDup) {
+      reasons.push({ tag: '复读机模板', sev: 0.8, detail: '全仓库 ' + c.templateDup + ' 条提交共用同一套 message 模板' });
+    } else if (/^site updated/i.test(c.message)) {
+      reasons.push({ tag: '自动部署提交', sev: 0.3, detail: 'Hexo/CI 类自动部署提交——由机器生成，但背后是真实写作' });
+    }
+    return reasons;
+  }
+
+  function analyzeCore(input) {
+    var login = input.login;
+    var fetchJson = input.fetchJson;
+    var onProgress = input.onProgress || function () {};
+    var deep = !!input.token;
+    var MAX_REPOS = deep ? 12 : 6;
+    var MAX_PAGES = deep ? 3 : 1;
+    var SAMPLE_PER_REPO = deep ? 3 : 1;
+
+    var user, repos, allCommits = [], events = [];
+    var perRepoCommits = {};
+
+    return fetchJson('/users/' + login).then(function (u) {
+      user = u;
+      onProgress('已定位用户 @' + u.login + '，扫描仓库列表…');
+      return fetchJson('/users/' + login + '/repos?per_page=100&sort=pushed');
+    }).then(function (rs) {
+      repos = (rs || []).filter(function (r) { return !r.fork; });
+      repos.sort(function (x, y) { return y.pushed_at < x.pushed_at ? -1 : 1; });
+      var candidates = repos.slice(0, MAX_REPOS);
+      var chain = Promise.resolve();
+      candidates.forEach(function (r) {
+        chain = chain.then(function () {
+          var pages = [];
+          for (var p = 1; p <= MAX_PAGES; p++) pages.push(p);
+          var fetchedAny = false;
+          return pages.reduce(function (ch, p) {
+            return ch.then(function (list) {
+              if (fetchedAny && list.length < 100) return list;
+              fetchedAny = true;
+              onProgress('读取 ' + r.full_name + ' 的提交（第 ' + p + ' 页）…');
+              return fetchJson('/repos/' + r.full_name + '/commits?per_page=100&author=' + encodeURIComponent(login) + '&page=' + p)
+                .then(function (cs) { return (list || []).concat(cs || []); });
+            });
+          }, Promise.resolve([])).then(function (cs) {
+            perRepoCommits[r.full_name] = cs || [];
+            cs.forEach(function (x) {
+              allCommits.push({
+                repo: r.full_name,
+                sha: (x.sha || '').slice(0, 7),
+                message: (x.commit && x.commit.message) || '',
+                authorDate: x.commit && x.commit.author && x.commit.author.date,
+                committerDate: x.commit && x.commit.committer && x.commit.committer.date
+              });
+            });
+          });
+        });
+      });
+      return chain;
+    }).then(function () {
+      onProgress('读取最近公开事件流（核对真实推送时间）…');
+      return fetchJson('/users/' + login + '/events/public?per_page=100').catch(function () { return []; });
+    }).then(function (evs) {
+      events = evs || [];
+      onProgress('分析中…');
+
+      // ---- 秒级连击聚类：同仓库同日，按作者时间排序，间隔≤5分钟算一簇 ----
+      var groups = {};
+      allCommits.forEach(function (c) {
+        c.day = dayKey(c.authorDate);
+        var k = c.repo + '@' + c.day;
+        (groups[k] = groups[k] || []).push(c);
+      });
+      var burstKeys = {};
+      Object.keys(groups).forEach(function (k) {
+        var g = groups[k].slice().sort(function (x, y) { return ts(x.authorDate) - ts(y.authorDate); });
+        var start = 0;
+        for (var i = 1; i <= g.length; i++) {
+          if (i === g.length || ts(g[i].authorDate) - ts(g[i - 1].authorDate) > 5 * 60e3) {
+            var span = g.slice(start, i);
+            if (span.length >= 3) {
+              var dur = (ts(span[span.length - 1].authorDate) - ts(span[0].authorDate)) / 1000;
+              burstKeys[k] = Math.max(dur, span.length); // 至少标出条数
+              span.forEach(function (c) { c._burst = Math.max(dur, 1); });
+            }
+            start = i;
+          }
+        }
+      });
+
+      // ---- 复读机模板：仓库内归一化 message 占比 ----
+      var tpl = {};
+      allCommits.forEach(function (c) {
+        var k = c.repo + '|' + normalizeTemplate(c.message);
+        (tpl[k] = tpl[k] || []).push(c);
+      });
+      Object.keys(tpl).forEach(function (k) {
+        var arr = tpl[k];
+        var repoTotal = allCommits.filter(function (c) { return c.repo === arr[0].repo; }).length;
+        if (arr.length >= 5 && arr.length >= 0.6 * repoTotal) {
+          arr.forEach(function (c) { c.templateDup = arr.length; });
+        }
+      });
+
+      var ctx = { burstKeys: burstKeys, trivialRepos: {} };
+
+      // ---- 空壳仓库抽样（预算有限，只抽提交最多的几个仓库）----
+      var repoNames = Object.keys(perRepoCommits).sort(function (a, b) { return perRepoCommits[b].length - perRepoCommits[a].length; });
+      var sampleBudget = deep ? 12 : 3;
+      var sampleChain = Promise.resolve();
+      repoNames.slice(0, sampleBudget).forEach(function (rn) {
+        var cs = perRepoCommits[rn];
+        if (!cs.length) return;
+        var picks = [];
+        for (var i = 0; i < Math.min(SAMPLE_PER_REPO, cs.length); i++) picks.push(cs[i]);
+        sampleChain = sampleChain.then(function () {
+          return Promise.all(picks.map(function (c) {
+            return fetchJson('/repos/' + rn + '/commits/' + c.sha).then(function (d) {
+              return (d.files || []).map(function (f) { return f.filename; });
+            }).catch(function () { return null; });
+          })).then(function (fileSets) {
+            var ok = fileSets.filter(Boolean);
+            if (ok.length && ok.every(function (fs) {
+              var core = fs.filter(function (f) { return !/^(LICENSE|README|\.gitignore|package-lock\.json)/i.test(f); });
+              return core.length <= 1;
+            })) {
+              var first = ok[0].filter(function (f) { return !/^(LICENSE|README|\.gitignore|package-lock\.json)/i.test(f); })[0] || ok[0][0];
+              ctx.trivialRepos[rn] = first || '少量文件';
+            }
+          });
+        });
+      });
+
+      return sampleChain.then(function () {
+        // ---- 逐条验伪、逐日归并 ----
+        var days = {};
+        allCommits.forEach(function (c) {
+          c.reasons = classifyCommit(c, ctx);
+          var sum = c.reasons.reduce(function (s, r) { return s + r.sev; }, 0);
+          c.fake = sum >= 2;
+          c.susp = !c.fake && sum >= 0.8;
+          var d = days[c.day] = days[c.day] || { day: c.day, total: 0, fake: 0, susp: 0, evidence: [] };
+          d.total++;
+          if (c.fake) d.fake++;
+          else if (c.susp) d.susp++;
+          c.reasons.forEach(function (r) {
+            if (d.evidence.indexOf(r.tag) < 0) d.evidence.push(r.tag);
+          });
+        });
+
+        // 事件流补刀：PushEvent 里 authordate 远早于推送时间的
+        var eventBackfill = 0;
+        events.forEach(function (e) {
+          if (e.type !== 'PushEvent' || !e.payload || !e.payload.commits) return;
+          e.payload.commits.forEach(function (pc) {
+            var full = allCommits.find(function (c) { return c.sha === (pc.sha || '').slice(0, 7) && pc.message === c.message.split('\n')[0]; });
+            if (!full && pc.sha) full = allCommits.find(function (c) { return pc.message && c.message.indexOf(pc.message) === 0; });
+            if (full && full.authorDate && e.created_at) {
+              var gap = ts(e.created_at) - ts(full.authorDate);
+              if (gap >= 24 * 3600e3) eventBackfill++;
+            }
+          });
+        });
+
+        // ---- 总分 ----
+        var total = allCommits.length;
+        var wsum = 0, wbad = 0, nfake = 0, nsusp = 0;
+        allCommits.forEach(function (c) {
+          wsum += 1;
+          if (c.fake) { wbad += 1.6; nfake++; }
+          else if (c.susp) { wbad += 0.5; nsusp++; }
+        });
+        var score = total === 0 ? null : Math.max(0, Math.min(100, Math.round(100 * (1 - wbad / wsum))));
+
+        var onlyPush = events.length > 0 && events.every(function (e) { return e.type === 'PushEvent' || e.type === 'CreateEvent'; });
+        var findings = [];
+        var nBack = allCommits.filter(function (c) { return c.reasons.some(function (r) { return r.tag === '补写提交'; }); }).length;
+        var nBurstDays = Object.keys(burstKeys).length;
+        var nTpl = allCommits.filter(function (c) { return c.templateDup; }).length;
+        var nTrivial = Object.keys(ctx.trivialRepos).length;
+        if (nBack) findings.push({ bad: true, text: nBack + ' 条提交的“作者日期”和“实际创建时间”对不上 —— 典型的补写（--date 伪造，committer 日期出卖了它）' });
+        if (nBurstDays) findings.push({ bad: true, text: nBurstDays + ' 天存在秒级连击：几条提交在几秒内接连生成，人类手速做不到' });
+        if (nTpl) findings.push({ bad: true, text: nTpl + ' 条提交是复读机模板（归一化后 message 完全一样）' });
+        if (nTrivial) findings.push({ bad: true, text: nTrivial + ' 个仓库里翻来覆去只有同一个文件在动（例如只会追加的 log）' });
+        if (eventBackfill) findings.push({ bad: true, text: eventBackfill + ' 条提交的推送时间比作者日期晚了 24 小时以上' });
+        if (onlyPush && total > 20) findings.push({ bad: true, text: '近期公开动态里只有 Push、没有任何 issue/PR/讨论 —— 正常开发者的动态不会这么单调' });
+        if (!findings.length && total > 0) findings.push({ bad: false, text: '没发现典型造假特征：时间有自然波动、message 多样、仓库内容真实变动' });
+
+        var dayList = Object.keys(days).map(function (k) { return days[k]; }).sort(function (a, b) { return a.day < b.day ? 1 : -1; });
+
+        return {
+          user: { login: user.login, name: user.name, avatar: user.avatar_url, html: user.html_url, created: user.created_at },
+          score: score,
+          label: score === null ? '样本不足' :
+            score >= 85 ? '看起来是真人格格子' :
+            score >= 60 ? '水分不小' :
+            score >= 30 ? '大概率是刷的' : '基本是脚本刷的',
+          totalCommits: total,
+          nfake: nfake, nsusp: nsusp,
+          repoScanned: Object.keys(perRepoCommits).length,
+          perDay: dayList,
+          findings: findings,
+          deep: deep
+        };
+      });
+    });
+  }
+
+  global.GreenWall = { analyzeCore: analyzeCore, classifyCommit: classifyCommit, dayKey: dayKey, FP_RULES: FP_RULES };
+})(typeof window !== 'undefined' ? window : globalThis);
+// ===ANALYZER_END===
+
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var btn = $('go'), input = $('login'), statusEl = $('status'), resultEl = $('result');
+
+  $('toggleToken').addEventListener('click', function (e) {
+    e.preventDefault();
+    $('tokenrow').classList.toggle('show');
+  });
+
+  function fmtDate(d) { return d.slice(5).replace('-', '/'); }
+
+  function renderDayRows(perDay) {
+    var tb = $('dayRows');
+    tb.textContent = '';
+    var shown = 0;
+    for (var i = 0; i < perDay.length && shown < 120; i++) {
+      var d = perDay[i];
+      var tr = document.createElement('tr');
+      var td1 = document.createElement('td'); td1.className = 'num'; td1.textContent = d.day;
+      var td2 = document.createElement('td'); td2.className = 'num'; td2.textContent = d.total + ' 条';
+      var td3 = document.createElement('td'); td3.className = 'num';
+      var pill = document.createElement('span');
+      var verdictText;
+      if (d.fake > 0) { pill.className = 'pill fake'; verdictText = '刷了 ' + d.fake + ' 条'; }
+      else if (d.susp > 0) { pill.className = 'pill susp'; verdictText = '存疑 ' + d.susp + ' 条'; }
+      else { pill.className = 'pill real'; verdictText = '真实'; }
+      pill.textContent = verdictText;
+      td3.appendChild(pill);
+      var td4 = document.createElement('td');
+      var evi = document.createElement('div'); evi.className = 'evi'; evi.textContent = d.evidence.join('；') || '—';
+      td4.appendChild(evi);
+      tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3); tr.appendChild(td4);
+      tb.appendChild(tr);
+      shown++;
+    }
+  }
+
+  function renderGrid(perDay) {
+    var map = {};
+    perDay.forEach(function (d) { map[d.day] = d; });
+    var grid = $('grid');
+    grid.textContent = '';
+    var today = new Date();
+    var cells = 371;
+    var start = new Date(today.getTime() - (cells - 1) * 86400e3);
+    var minD = null, maxD = null;
+    for (var i = 0; i < cells; i++) {
+      var dt = new Date(start.getTime() + i * 86400e3);
+      var key = dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
+      if (start.getDate() === dt.getDate() && i === 0) minD = key;
+      var d = map[key];
+      var cell = document.createElement('div');
+      cell.className = 'cell';
+      if (d) {
+        if (maxD === null) maxD = key;
+        var intensity = d.total >= 8 ? 1 : d.total >= 5 ? 0.8 : d.total >= 3 ? 0.62 : 0.45;
+        if (d.fake > 0) cell.style.background = 'rgba(248,81,73,' + (0.45 + 0.45 * intensity) + ')';
+        else if (d.susp > 0) cell.style.background = 'rgba(210,153,34,' + (0.4 + 0.4 * intensity) + ')';
+        else cell.style.background = 'rgba(46,160,67,' + intensity + ')';
+        cell.title = d.day + ' · ' + d.total + ' 条提交\n' +
+          (d.fake ? '判定刷：' + d.fake + ' 条\n' : '') + (d.susp ? '存疑：' + d.susp + ' 条\n' : '') +
+          (d.evidence.length ? d.evidence.join('；') : '无异常特征');
+      } else {
+        cell.title = key + ' · 无公开提交';
+      }
+      grid.appendChild(cell);
+    }
+    $('gridRange').textContent = minD && maxD ? '（' + minD + ' ~ ' + maxD + '）' : '';
+    // 月份标尺（粗略）
+    var months = $('months'); months.textContent = '';
+    var mstart = new Date(start);
+    for (var m = 0; m < 13; m++) {
+      var lab = document.createElement('span');
+      lab.style.flex = '1';
+      lab.textContent = (mstart.getMonth() + 1) + '月';
+      months.appendChild(lab);
+      mstart.setMonth(mstart.getMonth() + 1);
+    }
+  }
+
+  function render(r) {
+    resultEl.classList.remove('hidden');
+    var ring = $('ring'), num = $('scoreNum');
+    num.textContent = r.score === null ? '?' : r.score;
+    var color = r.score === null ? '#d29922' : r.score >= 85 ? '#2ea043' : r.score >= 60 ? '#d29922' : '#f85149';
+    ring.style.borderColor = color;
+    num.style.color = color;
+    $('verdictTitle').textContent = '@' + r.user.login + '：' + r.label;
+    $('verdictSub').textContent = r.totalCommits === 0
+      ? '在公开仓库里没有找到 TA 的提交（可能都在私有仓库 —— 这是本工具的天然盲区）。'
+      : '鉴定口径：公开 API 可见的 ' + r.totalCommits + ' 条提交（' + r.repoScanned + ' 个仓库），按 GitHub 官方日历的作者日期口径重建绿墙后逐条验伪。';
+    var st = $('statline'); st.textContent = '';
+    [['扫描提交', r.totalCommits + ' 条'], ['判定为刷', r.nfake + ' 条'], ['存疑', r.nsusp + ' 条'], ['扫描仓库', r.repoScanned + ' 个']].forEach(function (p) {
+      var div = document.createElement('div');
+      var b = document.createElement('b'); b.textContent = p[1];
+      div.appendChild(b); div.appendChild(document.createTextNode(p[0]));
+      st.appendChild(div);
+    });
+    var ul = $('findings'); ul.textContent = '';
+    r.findings.forEach(function (f) {
+      var li = document.createElement('li');
+      li.className = f.bad ? 'bad' : 'ok';
+      li.textContent = f.text;
+      ul.appendChild(li);
+    });
+    renderGrid(r.perDay);
+    renderDayRows(r.perDay);
+    $('foot').textContent = '';
+    var dis = document.createElement('div');
+    dis.textContent = '⚖️ 免责声明：本工具只看公开数据，用启发式规则娱乐性鉴定。规律提交也可能是自律真人；私有仓库贡献是盲区；刷与不刷，格子说了不算，仓库说了算。';
+    var back = document.createElement('div');
+    back.style.marginTop = '6px';
+    var a = document.createElement('a'); a.href = '/'; a.textContent = '← 回博客首页';
+    back.appendChild(a);
+    $('foot').appendChild(dis); $('foot').appendChild(back);
+  }
+
+  function apiFetch(token) {
+    return function (path) {
+      var headers = { 'Accept': 'application/vnd.github+json' };
+      if (token) headers['Authorization'] = 'Bearer ' + token;
+      return fetch('https://api.github.com' + path, { headers: headers }).then(function (resp) {
+        if (resp.status === 403 && resp.headers.get('X-RateLimit-Remaining') === '0') {
+          throw new Error('GitHub API 匿名额度用完了（每 IP 每小时 60 次）。填一个 Token 再试，或一小时后再来。');
+        }
+        if (resp.status === 404) throw new Error('找不到这个用户名，检查一下拼写？');
+        if (!resp.ok) throw new Error('GitHub API 返回 ' + resp.status);
+        return resp.json();
+      });
+    };
+  }
+
+  function run() {
+    var login = input.value.trim().replace(/^@/, '').replace(/^https?:\/\/github\.com\//i, '').replace(/\/$/, '');
+    if (!login) { statusEl.textContent = '先输入用户名'; return; }
+    var token = $('token').value.trim();
+    btn.disabled = true;
+    resultEl.classList.add('hidden');
+    statusEl.className = '';
+    statusEl.textContent = '正在连接 GitHub…';
+    GreenWall.analyzeCore({
+      login: login, token: token,
+      fetchJson: apiFetch(token),
+      onProgress: function (msg) { statusEl.textContent = msg; }
+    }).then(function (r) {
+      statusEl.textContent = '';
+      render(r);
+    }).catch(function (e) {
+      statusEl.className = 'err';
+      statusEl.textContent = '❌ ' + (e && e.message || e);
+    }).then(function () { btn.disabled = false; });
+  }
+
+  btn.addEventListener('click', run);
+  input.addEventListener('keydown', function (e) { if (e.key === 'Enter') run(); });
+})();
+</script>
+</body>
+</html>
