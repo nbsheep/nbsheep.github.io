@@ -303,7 +303,7 @@
     document.documentElement.setAttribute('lang', lang === 'en' ? 'en' : 'zh-CN');
   }
 
-  // 只替换首页卡片 + 侧边栏“最新文章”里的标题，文章页标题与正文保持中文
+  // 只替换首页卡片 + 侧边栏“最新文章” + 归档列表里的标题，文章页标题与正文保持中文
   function applyTitles(lang) {
     var t = window.I18N_TITLES || {};
     if (lang !== 'en') {
@@ -311,7 +311,7 @@
       for (var k in t) rev[t[k]] = k;
       t = rev;
     }
-    var scopes = document.querySelectorAll('.recent-post-info .article-title, .card-recent-post .content a.title');
+    var scopes = document.querySelectorAll('.recent-post-info .article-title, .card-recent-post .content a.title, .article-sort-item-title');
     for (var i = 0; i < scopes.length; i++) {
       var el = scopes[i];
       var w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false);
