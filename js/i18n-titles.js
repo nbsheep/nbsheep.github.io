@@ -6,5 +6,6 @@ window.I18N_TITLES = {
   "把大疆 M3E 无人机接进 RoboNIX：目前的进展": "Integrating the DJI M3E Drone into RoboNIX: Current Progress",
   "Linux 命令行入门学习手册": "Linux Command Line Beginner's Handbook",
   "用纯 Python 标准库写一个本地音频处理工具": "Building a Local Audio Tool with Pure Python's Standard Library",
-  "Windows 命令入门学习手册": "Windows Command Line Handbook"
+  "Windows 命令入门学习手册": "Windows Command Line Handbook",
+  "我刷了绿墙，然后写了个工具来抓自己": "I Faked My Green Wall, Then Built a Tool to Catch Myself"
 };
