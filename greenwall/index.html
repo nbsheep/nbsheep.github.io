@@ -557,6 +557,13 @@
 
   btn.addEventListener('click', run);
   input.addEventListener('keydown', function (e) { if (e.key === 'Enter') run(); });
+
+  var preset = '';
+  try { preset = (new URLSearchParams(location.search).get('user') || '').trim(); } catch (e) {}
+  if (preset) {
+    input.value = preset;
+    run();
+  }
 })();
 </script>
 </body>
