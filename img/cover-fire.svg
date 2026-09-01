@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="50%" stop-color="#2a1420"/>
+      <stop offset="100%" stop-color="#4a1c0e"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="400" fill="url(#g)"/>
+  <circle cx="660" cy="70" r="130" fill="rgba(255,140,50,0.08)"/>
+  <circle cx="120" cy="330" r="90" fill="rgba(255,140,50,0.06)"/>
+  <g fill="rgba(255,150,60,0.92)">
+    <path d="M400 118 C 428 158 452 180 446 226 A 46 50 0 1 1 354 226 C 348 184 372 160 400 118 Z"/>
+    <path d="M400 200 C 414 220 424 232 420 254 A 20 22 0 1 1 380 254 C 376 232 388 220 400 200 Z" fill="#0d1117" opacity="0.55"/>
+  </g>
+  <g stroke="rgba(255,150,60,0.85)" stroke-width="4" fill="none" stroke-linecap="round">
+    <path d="M310 150 L310 118 L342 118"/>
+    <path d="M490 150 L490 118 L458 118"/>
+    <path d="M310 270 L310 302 L342 302"/>
+    <path d="M490 270 L490 302 L458 302"/>
+  </g>
+  <text x="400" y="360" font-size="42" fill="rgba(255,160,70,0.92)" text-anchor="middle" font-family="Segoe UI, sans-serif" font-weight="bold">Smoke × Fire Detection</text>
+</svg>
