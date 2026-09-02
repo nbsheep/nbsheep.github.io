@@ -1,0 +1,295 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>给自己写了个小说阅读器，636 万字的书打开只要 0.16 秒 | shameless 的技术博客</title><meta name="author" content="shameless"><meta name="copyright" content="shameless"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#0d0d0d"><meta name="description" content="起因手机上看小说，应用商店里的阅读器一个比一个过分：开屏广告、看书时底部飘横幅、翻两页弹个「限时特惠」。我就想安安静静看本书，怎么这么难。 索性自己写一个。Flutter 写的，仓库在这里：nbsheep&#x2F;novel-reader（private）。支持 TXT &#x2F; EPUB 导入，八种背景色、字号行距字体随便调、四种翻页模式（滚动&#x2F;平移&#x2F;覆盖&#x2F;仿">
+<meta property="og:type" content="article">
+<meta property="og:title" content="给自己写了个小说阅读器，636 万字的书打开只要 0.16 秒">
+<meta property="og:url" content="https://nbsheep.github.io/2026/09/02/novel-reader-flutter/index.html">
+<meta property="og:site_name" content="shameless 的技术博客">
+<meta property="og:description" content="起因手机上看小说，应用商店里的阅读器一个比一个过分：开屏广告、看书时底部飘横幅、翻两页弹个「限时特惠」。我就想安安静静看本书，怎么这么难。 索性自己写一个。Flutter 写的，仓库在这里：nbsheep&#x2F;novel-reader（private）。支持 TXT &#x2F; EPUB 导入，八种背景色、字号行距字体随便调、四种翻页模式（滚动&#x2F;平移&#x2F;覆盖&#x2F;仿">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://nbsheep.github.io/img/cover-novel.svg">
+<meta property="article:published_time" content="2026-09-02T03:00:00.000Z">
+<meta property="article:modified_time" content="2026-09-02T02:05:02.128Z">
+<meta property="article:author" content="shameless">
+<meta property="article:tag" content="Android">
+<meta property="article:tag" content="Flutter">
+<meta property="article:tag" content="WebView">
+<meta property="article:tag" content="性能优化">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nbsheep.github.io/img/cover-novel.svg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "给自己写了个小说阅读器，636 万字的书打开只要 0.16 秒",
+  "url": "https://nbsheep.github.io/2026/09/02/novel-reader-flutter/",
+  "image": "https://nbsheep.github.io/img/cover-novel.svg",
+  "datePublished": "2026-09-02T03:00:00.000Z",
+  "dateModified": "2026-09-02T02:05:02.128Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "shameless",
+      "url": "https://nbsheep.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://nbsheep.github.io/2026/09/02/novel-reader-flutter/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.7.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.3.1/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        const data = { value }
+
+        if (ttl != null) {
+          data.expiry = Date.now() + ttl * 86400000
+        }
+
+        localStorage.setItem(key, JSON.stringify(data))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return
+
+        try {
+          const data = JSON.parse(itemStr)
+
+          if (data.expiry && Date.now() > data.expiry) {
+            localStorage.removeItem(key)
+            return
+          }
+
+          return data.value
+        } catch {
+          localStorage.removeItem(key)
+        }
+      }
+    }
+
+    const scriptCache = new Map()
+    const cssCache = new Map()
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => {
+        if (scriptCache.has(url)) {
+          return scriptCache.get(url)
+        }
+
+        const promise = new Promise((resolve, reject) => {
+          const script = document.createElement('script')
+
+          script.src = url
+          script.async = true
+
+          for (const key in attr) {
+            script.setAttribute(key, attr[key])
+          }
+
+          script.onload = resolve
+          script.onerror = reject
+
+          document.head.appendChild(script)
+        })
+
+        scriptCache.set(url, promise)
+
+        return promise
+      },
+      getCSS: (url, id) => {
+        if (cssCache.has(url)) {
+          return cssCache.get(url)
+        }
+
+        const promise = new Promise((resolve, reject) => {
+          const link = document.createElement('link')
+
+          link.rel = 'stylesheet'
+          link.href = url
+
+          if (id) {
+            link.id = id
+          }
+
+          link.onload = resolve
+          link.onerror = reject
+
+          document.head.appendChild(link)
+        })
+
+        cssCache.set(url, promise)
+
+        return promise
+      },
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const metaThemeColor = document.querySelector('meta[name="theme-color"]')
+      const activateDarkMode = () => {
+        document.documentElement.dataset.theme = 'dark'
+        if (metaThemeColor !== null) {
+          metaThemeColor.setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.dataset.theme = 'light'
+        if (metaThemeColor !== null) {
+          metaThemeColor.setAttribute('content', '0d1117')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '给自己写了个小说阅读器，636 万字的书打开只要 0.16 秒',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/custom.css?v=22"><meta name="generator" content="Hexo 8.1.2"></head><body><div class="bg-animation" id="web_bg" style="background: linear-gradient(135deg,;"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="https://github.com/nbsheep.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">11</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">39</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/top_img.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">shameless 的技术博客</span></a><a class="nav-page-title" href="/"><span class="site-name">给自己写了个小说阅读器，636 万字的书打开只要 0.16 秒</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">给自己写了个小说阅读器，636 万字的书打开只要 0.16 秒</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-09-02T03:00:00.000Z" title="发表于 2026-09-02 11:00:00">2026-09-02</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-09-02T02:05:02.128Z" title="更新于 2026-09-02 10:05:02">2026-09-02</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%BC%96%E7%A8%8B/">编程</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="起因"><a href="#起因" class="headerlink" title="起因"></a>起因</h2><p>手机上看小说，应用商店里的阅读器一个比一个过分：开屏广告、看书时底部飘横幅、翻两页弹个「限时特惠」。我就想安安静静看本书，怎么这么难。</p>
+<p>索性自己写一个。Flutter 写的，仓库在这里：<a target="_blank" rel="noopener" href="https://github.com/nbsheep/novel-reader">nbsheep&#x2F;novel-reader</a>（private）。支持 TXT &#x2F; EPUB 导入，八种背景色、字号行距字体随便调、四种翻页模式（滚动&#x2F;平移&#x2F;覆盖&#x2F;仿真）、进度记忆、书签、音量键翻页——这些是基本功，不展开。</p>
+<p>这篇主要讲这次大更新里最花心思的两件事：<strong>长书的性能</strong>，和<strong>站内搜索下载顺带去广告</strong>。</p>
+<h2 id="长书卡顿：双层磁盘缓存"><a href="#长书卡顿：双层磁盘缓存" class="headerlink" title="长书卡顿：双层磁盘缓存"></a>长书卡顿：双层磁盘缓存</h2><p>先说结论：636 万字的书（《太古神王》），首次打开全文分页 6.5 秒 → <strong>33 毫秒</strong>，解析 2 秒 → <strong>0.16 秒</strong>。</p>
+<p>一开始的架构很朴素：打开书 → 解析整本 → TextPainter 全书分页 → 渲染。书小的时候毫无问题，直到我把一本六百万字的书扔进去，主线程直接 ANR，系统把 App 杀了。用户视角就是「改个字号点确定，闪退」。</p>
+<p>修了三层：</p>
+<p><strong>1. 解析不碰主线程。</strong> <code>dart:ui</code> 的 <code>runOnPlatformThread</code>（平台线程 isolate，有文本测量能力）跑全书分页，主线程零参与；失败再回退到时间片分块（每片 6ms 让出事件循环）。</p>
+<p><strong>2. 解析结果落盘。</strong> 解析一次的代价没理由付两次。解析结果按书缓存成 JSON（<code>documents/cache/parse_v1_{id}.json</code>），头部存源文件的 size + mtime 做校验，文件变了自己失效重解析。编解码丢在 <code>compute</code> isolate 里，主线程只管读。</p>
+<p><strong>3. 分页也落盘。</strong> 分页结果的 key 是 <code>书id|字号|行距|字体|窗口尺寸</code>，命中直接读。改字号第一次会重排一次（算完落盘），之后再点开就是毫秒级。</p>
+<p>还有个体验细节：改字号触发重排时，<strong>旧分页继续显示</strong>，算完静默切换并用二分定位到当前阅读位置——而不是转圈等结果再跳回第一页。这个「不跳回第一页」比快 200 倍更让人觉得舒服。</p>
+<p>中间还修过一个阴间 bug：删掉的书会「复活」。原因是各处持有的 <code>BookLibrary</code> 实例各留一份列表、各自整份写回，后写的把先写的删除覆盖了。改成 static 共享缓存 + 写串行队列，load 时顺手清掉文件已丢的条目，自愈。</p>
+<h2 id="站内搜索下载：WebView-过-Cloudflare"><a href="#站内搜索下载：WebView-过-Cloudflare" class="headerlink" title="站内搜索下载：WebView 过 Cloudflare"></a>站内搜索下载：WebView 过 Cloudflare</h2><p>想在线搜书下载，源站是个盗版小说站（鬼书集）。它的搜索接口是 POST 表单，直接用 http 包请求会被 <strong>Cloudflare JS challenge</strong> 拦下来，返回 “Just a moment…”——App 里没有浏览器环境，过不了盾。</p>
+<p>但目录页和正文页是普通 GET，不带盾。于是混合架构：</p>
+<ul>
+<li><strong>搜索</strong>：内嵌 WebView 打开网站，真浏览器环境自动过 CF。原生搜索框里输入书名，注入 JS 填进网站的 <code>#schform</code> 表单然后 <code>f.submit()</code>；</li>
+<li><strong>下载</strong>：用户点进某本书的目录页后，Native 侧直接用 http 抓目录 + 遍历章节 ID 区间（这站的章节 ID 是连续的，目录页的 <code>og:novel:latest_chapter_url</code> 给出末章 ID），并发 3 + 每请求随机延迟防 429，抓完现场打包 EPUB 入书架。</li>
+</ul>
+<h2 id="去广告，以及一场自己制造的乌龙"><a href="#去广告，以及一场自己制造的乌龙" class="headerlink" title="去广告，以及一场自己制造的乌龙"></a>去广告，以及一场自己制造的乌龙</h2><p>内嵌 WebView 打开盗版站，广告密度可以想象：Google 锚定横幅、全屏插页、伪装成「深入探索」的推广列表。注入了一段去广告脚本：</p>
+<ol>
+<li>无条件删 <code>iframe / ins / #google-anno-sa / .google-auto-placed / div[id^=&quot;aswift&quot;]</code>；</li>
+<li>外链 <code>&lt;a&gt;</code>（host 不含本站域名）连同只包着它的小容器一起爬升删除；</li>
+<li>几何规则删悬浮层：全屏遮罩、视口底部带链接的宽条。</li>
+</ol>
+<p>这里有两个实测出来的坑：</p>
+<p><strong>坑一：Google 锚定广告的宿主 DIV 挂在 <code>&lt;html&gt;</code> 下面，<code>&lt;body&gt;</code> 之外。</strong> 只扫 body 永远删不掉它，必须从 <code>documentElement</code> 扫起。而且广告容器经常先插一个空壳、内容异步填充——图片加载不触发 childList 变动，MutationObserver 根本看不见。最后靠脚本内布 0.5s ~ 60s 十档延时补扫，配合 Dart 侧每 2 秒重新注入一次幂等脚本（<code>window.__nzAdClean</code> 标志防重复生效）兜底——因为 Cloudflare 的跳转链上 <code>onPageFinished</code> 有概率整个丢失，不能指望生命周期事件。</p>
+<p><strong>坑二是我自己挖的：去广告脚本把网站自己的搜索表单删了。</strong> 搜索突然永远失败，排查了半天导航代理、JS 桥、提交时机，最后用 JavaScriptChannel 探针把 <code>document.getElementById(&#39;schform&#39;)</code> 的结果推回来一看——<code>f=NULL</code>。搜索表单根本不在 DOM 里。</p>
+<p>凶手就是第一版脚本里一条看起来人畜无害的规则：<strong>「position:fixed 且宽或高小于 10px 的元素一律删除」</strong>——本意是清 0x0 的广告占位壳。而网站自己的搜索栏平时是隐藏的固定定位元素，宽 0 高 0，完美命中。之前搜索偶尔能成功纯属时序侥幸。</p>
+<p>修复方案也很直白：<strong>隐形元素根本不删</strong>（用户看不见的东西，删了只有风险没有收益），并且所有几何删除、外链爬升全部豁免含 <code>form / input / textarea / button / select</code> 的元素。改完之后搜索一次即中，三个页面实测零广告。</p>
+<h2 id="听书和其它"><a href="#听书和其它" class="headerlink" title="听书和其它"></a>听书和其它</h2><p>顺手把主流阅读器的标配补齐了：听书 TTS（逐块朗读、超长段落 3000 字切分连读、四档语速）、书内全文搜索（标题 + 正文，命中高亮）、章节追更检测（增量抓新章追加到 EPUB 末尾，不打乱已有进度）、自定义字体导入、自动阅读、屏幕常亮、点按分区翻页。</p>
+<h2 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h2><p>整个项目最有意思的部分其实不是某个功能，而是「去广告脚本杀死了搜索功能」这种自食其果的瞬间——每个「看起来肯定没问题」的激进规则，都在等你下一次操作。防御性代码的最高原则大概就是：<strong>只删你确定的，放过的永远比误杀的好。</strong></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://nbsheep.github.io">shameless</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://nbsheep.github.io/2026/09/02/novel-reader-flutter/">https://nbsheep.github.io/2026/09/02/novel-reader-flutter/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://nbsheep.github.io" target="_blank">shameless 的技术博客</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Flutter/">Flutter</a><a class="post-meta__tags" href="/tags/Android/">Android</a><a class="post-meta__tags" href="/tags/WebView/">WebView</a><a class="post-meta__tags" href="/tags/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">性能优化</a></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2026/09/01/smoke-detection-domain-gap/" title="烟雾检测模型：数据集上 84 分，一上实拍 56 分"><img class="cover" src="/img/cover-fire.svg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">烟雾检测模型：数据集上 84 分，一上实拍 56 分</div></div><div class="info-2"><div class="info-item-1">起因之前搞无人机烟火巡检，用 D-Fire 公开数据集微调了个 YOLO11n，测试集上成绩单相当体面：smoke 类 mAP50 &#x3D; 0.838，80 多分的优秀卷面。 今天拿了 5 段无人机实拍视频想验证一下效果，然后就被现实按在地上摩擦：逐帧看，只有 56% 的帧里烟雾被检出来，而且框忽隐忽现——这一帧有、下一帧没、再下一帧又有，跟信号不好的电视一样。 先做排除法：不是阈值和分辨率的锅遇到「效果不好」，第一步永远是量化，别急着猜。我写了段小脚本，在烟最多的那段视频上扫了一遍置信度阈值和推理分辨率：    配置 帧检出率 平均置信度    conf&#x3D;0.25, imgsz&#x3D;640（当前） 56% 0.52   conf&#x3D;0.1, imgsz&#x3D;640 69% 0.39   conf&#x3D;0.25, imgsz&#x3D;1280 29% 0.47   两个反直觉的结论：  阈值从 0.25 降到 0.1 能救回一些帧，但天花板就在 70% 附近； 把分辨率提高一倍反而暴跌。如果模型是「看不清小目标」，提高分辨率应该更好——...</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="https://github.com/nbsheep.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">shameless</div><div class="author-info-description">记录机器人、无人机、嵌入式开发的学习与踩坑笔记</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">11</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">39</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/nbsheep"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/nbsheep" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">Welcome to My Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B5%B7%E5%9B%A0"><span class="toc-number">1.</span> <span class="toc-text">起因</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%95%BF%E4%B9%A6%E5%8D%A1%E9%A1%BF%EF%BC%9A%E5%8F%8C%E5%B1%82%E7%A3%81%E7%9B%98%E7%BC%93%E5%AD%98"><span class="toc-number">2.</span> <span class="toc-text">长书卡顿：双层磁盘缓存</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AB%99%E5%86%85%E6%90%9C%E7%B4%A2%E4%B8%8B%E8%BD%BD%EF%BC%9AWebView-%E8%BF%87-Cloudflare"><span class="toc-number">3.</span> <span class="toc-text">站内搜索下载：WebView 过 Cloudflare</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8E%BB%E5%B9%BF%E5%91%8A%EF%BC%8C%E4%BB%A5%E5%8F%8A%E4%B8%80%E5%9C%BA%E8%87%AA%E5%B7%B1%E5%88%B6%E9%80%A0%E7%9A%84%E4%B9%8C%E9%BE%99"><span class="toc-number">4.</span> <span class="toc-text">去广告，以及一场自己制造的乌龙</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%AC%E4%B9%A6%E5%92%8C%E5%85%B6%E5%AE%83"><span class="toc-number">5.</span> <span class="toc-text">听书和其它</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%80%E5%90%8E"><span class="toc-number">6.</span> <span class="toc-text">最后</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/09/02/novel-reader-flutter/" title="给自己写了个小说阅读器，636 万字的书打开只要 0.16 秒"><img src="/img/cover-novel.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="给自己写了个小说阅读器，636 万字的书打开只要 0.16 秒"/></a><div class="content"><a class="title" href="/2026/09/02/novel-reader-flutter/" title="给自己写了个小说阅读器，636 万字的书打开只要 0.16 秒">给自己写了个小说阅读器，636 万字的书打开只要 0.16 秒</a><time datetime="2026-09-02T03:00:00.000Z" title="发表于 2026-09-02 11:00:00">2026-09-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/01/smoke-detection-domain-gap/" title="烟雾检测模型：数据集上 84 分，一上实拍 56 分"><img src="/img/cover-fire.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="烟雾检测模型：数据集上 84 分，一上实拍 56 分"/></a><div class="content"><a class="title" href="/2026/09/01/smoke-detection-domain-gap/" title="烟雾检测模型：数据集上 84 分，一上实拍 56 分">烟雾检测模型：数据集上 84 分，一上实拍 56 分</a><time datetime="2026-09-01T09:00:00.000Z" title="发表于 2026-09-01 17:00:00">2026-09-01</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/01/price-compare/" title="想做个比价工具，官方 API 不给我，那我自己爬"><img src="/img/cover-python.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="想做个比价工具，官方 API 不给我，那我自己爬"/></a><div class="content"><a class="title" href="/2026/09/01/price-compare/" title="想做个比价工具，官方 API 不给我，那我自己爬">想做个比价工具，官方 API 不给我，那我自己爬</a><time datetime="2026-09-01T07:30:00.000Z" title="发表于 2026-09-01 15:30:00">2026-09-01</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/31/greenwall-detector/" title="我刷了绿墙，然后写了个工具来抓自己"><img src="/img/cover-git.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="我刷了绿墙，然后写了个工具来抓自己"/></a><div class="content"><a class="title" href="/2026/08/31/greenwall-detector/" title="我刷了绿墙，然后写了个工具来抓自己">我刷了绿墙，然后写了个工具来抓自己</a><time datetime="2026-08-31T02:30:00.000Z" title="发表于 2026-08-31 10:30:00">2026-08-31</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/26/github-auto-commits/" title="GitHub 自动提交刷绿墙：从一行 cron 到一个带面板的小软件"><img src="/img/cover-git.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="GitHub 自动提交刷绿墙：从一行 cron 到一个带面板的小软件"/></a><div class="content"><a class="title" href="/2026/08/26/github-auto-commits/" title="GitHub 自动提交刷绿墙：从一行 cron 到一个带面板的小软件">GitHub 自动提交刷绿墙：从一行 cron 到一个带面板的小软件</a><time datetime="2026-08-26T07:30:00.000Z" title="发表于 2026-08-26 15:30:00">2026-08-26</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By shameless</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.7.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.7.0"></script><script src="/js/main.js?v=5.7.0"></script><div class="js-pjax"></div><script src="/js/click-effect.js?v=1"></script><script src="/js/i18n.js?v=23"></script><script src="/js/i18n-titles.js?v=23"></script><script src="/js/custom.js?v=23"></script><audio id="bgm-player" loop preload="none"></audio><div id="music-tip"><div class="music-tip-box"><h3>♫ 背景音乐</h3><p class="sub">开启后选择你本地的 mp3 文件播放</p><div class="btns"><button class="yes" onclick="startMusic()">开启音乐</button><button class="no" onclick="closeMusicTip()">暂不开启</button></div></div></div><div id="music-btn" onclick="toggleMusic()" title="背景音乐">♫</div><script id="canvas_nest" defer="defer" color="0,212,255" opacity="0.7" zIndex="-1" count="99" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/canvas-nest.min.js"></script><script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.min.js" defer="defer"></script><script>document.addEventListener('DOMContentLoaded', () => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"]):not([data-fancybox])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: false,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => {
+      try {
+        fn()
+      } catch (err) {
+        console.debug('Pjax callback failed:', err)
+      }
+    })
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      if (!item.parentNode) return
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || ''
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    const responseURL = e.request && e.request.responseURL
+    if (e.request && e.request.status === 404) {
+      false
+        ? pjax.loadUrl('/404.html')
+        : responseURL && (window.location.href = responseURL)
+    } else if (responseURL) {
+      window.location.href = responseURL
+    }
+  })
+})</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

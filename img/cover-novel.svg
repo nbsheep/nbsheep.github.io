@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="50%" stop-color="#241b40"/>
+      <stop offset="100%" stop-color="#3b2f63"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="400" fill="url(#g)"/>
+  <circle cx="660" cy="70" r="130" fill="rgba(170,140,255,0.08)"/>
+  <circle cx="140" cy="340" r="100" fill="rgba(170,140,255,0.06)"/>
+  <g stroke="rgba(170,140,255,0.85)" stroke-width="10" fill="none" stroke-linecap="round">
+    <path d="M 400 130 C 370 110, 330 110, 300 125 L 300 260 C 330 245, 370 245, 400 265"/>
+    <path d="M 400 130 C 430 110, 470 110, 500 125 L 500 260 C 470 245, 430 245, 400 265"/>
+  </g>
+  <g stroke="rgba(170,140,255,0.35)" stroke-width="6" stroke-linecap="round">
+    <line x1="325" y1="155" x2="370" y2="150"/>
+    <line x1="325" y1="185" x2="370" y2="180"/>
+    <line x1="325" y1="215" x2="370" y2="210"/>
+    <line x1="430" y1="150" x2="475" y2="155"/>
+    <line x1="430" y1="180" x2="475" y2="185"/>
+    <line x1="430" y1="210" x2="475" y2="215"/>
+  </g>
+  <text x="400" y="320" font-size="42" fill="rgba(200,185,255,0.92)" text-anchor="middle" font-family="Segoe UI, sans-serif" font-weight="bold">Flutter · 小说阅读器</text>
+</svg>
