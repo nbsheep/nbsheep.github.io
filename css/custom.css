@@ -1,0 +1,521 @@
+/* 背景音乐播放按钮（右下角悬浮） */
+#music-btn {
+  position: fixed;
+  bottom: 96px;
+  right: 18px;
+  z-index: 9998;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(0, 212, 255, 0.12);
+  color: #00d4ff;
+  border: 1px solid rgba(0, 212, 255, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 0 16px rgba(0, 212, 255, 0.25);
+  transition: all .3s ease;
+  user-select: none;
+}
+#music-btn:hover {
+  transform: scale(1.12);
+  background: rgba(0, 212, 255, 0.24);
+}
+#music-btn.playing {
+  animation: musicSpin 3s linear infinite;
+}
+@keyframes musicSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* 进入页面时的音乐询问弹窗 */
+#music-tip {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.65);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+#music-tip.show { display: flex; }
+.music-tip-box {
+  background: #161b22;
+  border: 1px solid rgba(0, 212, 255, 0.4);
+  border-radius: 14px;
+  padding: 30px 38px;
+  text-align: center;
+  color: #e6edf3;
+  box-shadow: 0 0 40px rgba(0, 212, 255, 0.2);
+  animation: tipIn .4s ease;
+}
+.music-tip-box h3 { margin: 0 0 6px; color: #00d4ff; font-size: 18px; }
+.music-tip-box .sub { margin: 0 0 22px; font-size: 13px; color: #8b949e; }
+.music-tip-box .btns { display: flex; gap: 12px; justify-content: center; }
+.music-tip-box button {
+  padding: 8px 22px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid rgba(0, 212, 255, 0.5);
+  font-size: 14px;
+  transition: all .25s ease;
+}
+.music-tip-box .yes { background: #00d4ff; color: #0d1117; border: none; }
+.music-tip-box .yes:hover { box-shadow: 0 0 18px rgba(0, 212, 255, 0.6); }
+.music-tip-box .no { background: transparent; color: #8b949e; }
+.music-tip-box .no:hover { color: #e6edf3; border-color: #8b949e; }
+@keyframes tipIn {
+  from { opacity: 0; transform: scale(.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ============ 首页 hero 深色星空化 + 打字机闪烁光标 ============ */
+
+/* 打字机末尾的闪烁光标 */
+#subtitle .typed-cursor,
+.site-subtitle .typed-cursor,
+.typed-cursor {
+  color: #fff;
+  margin-left: 3px;
+  animation: typed-blink 1s step-end infinite;
+}
+@keyframes typed-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* 首页 hero 标题排版（深色背景上更清晰） */
+#page-header.full_page #site-title {
+  font-size: 2.9em;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: #ffffff;
+  /* 小而清晰的贴边阴影，不再铺一大圈光晕 */
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85), 0 1px 10px rgba(0, 0, 0, 0.6);
+}
+#page-header.full_page #site-subtitle {
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9), 0 1px 12px rgba(0, 0, 0, 0.7);
+}
+
+/* ============ 宇航员图片：整站固定背景，无论怎么滚动都垫在内容后面 ============ */
+html {
+  background: #141927 !important;
+}
+body {
+  position: relative;
+  background: transparent !important;
+}
+/* 宇航员图固定铺满全屏，垫在最底层 */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: #141927 url('/img/top_img.jpg') center / cover no-repeat;
+}
+/* 深色压暗层，盖在宇航员图上、内容之下，保证文字可读 */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: rgba(8, 12, 24, 0.42);
+}
+
+/* ============ 提亮正文：卡片略亮 + 文字更清晰 ============ */
+[data-theme='dark'] {
+  /* 卡片半透明，透出背后的宇航员图；仍略亮于底色，保证可读 */
+  --card-bg: rgba(20, 27, 46, 0.75);
+  --sidebar-bg: rgba(20, 27, 46, 0.75);
+  --global-bg: transparent;
+  /* 文字接近纯白，提高可读性 */
+  --font-color: alpha(#FFFFFF, .92);
+  --light-grey: alpha(#FFFFFF, .86);
+  --white: #ffffff;
+  /* 日期/作者/分类 等次要文字从灰提亮 */
+  --card-meta: rgba(255, 255, 255, .8);
+  /* --- 以下覆盖主题 darkmode 中被压暗/偏灰的变量，一律提到白，杜绝黑字 --- */
+  --dark-grey: alpha(#FFFFFF, .78);          /* 次要元信息不再暗灰 */
+  --gray: alpha(#FFFFFF, .8);                /* meta 灰色信息 */
+  --text-highlight-color: alpha(#FFFFFF, .94);
+  --btn-color: #ffffff;                      /* 实心按钮文字 */
+  --btn-default-color: alpha(#FFFFFF, .88);  /* 描边按钮文字 */
+  --btn-hover-color: alpha(#FFFFFF, .95);
+  --toc-link-color: alpha(#FFFFFF, .82);     /* 目录链接 */
+  --blockquote-color: alpha(#FFFFFF, .92);
+  --hr-border: alpha(#FFFFFF, .32);
+  --hr-before-color: alpha(#FFFFFF, .8);
+  --search-input-color: alpha(#FFFFFF, .92);
+  --search-a-color: alpha(#FFFFFF, .92);
+  --preloader-color: alpha(#FFFFFF, .92);
+}
+
+/* 文章卡片：标题/摘要/日期 全部白色，放在深蓝卡片上非常清楚 */
+.recent-post-info > .content,
+.recent-post-item > .recent-post-info .content {
+  color: rgba(255, 255, 255, .92);
+}
+.recent-post-info .article-title,
+.recent-post-item > .recent-post-info .article-title {
+  color: #ffffff;
+}
+.recent-post-info .article-meta-wrap,
+.recent-post-item > .recent-post-info .article-meta-wrap {
+  color: rgba(255, 255, 255, .82);
+}
+
+/* 侧边栏作者卡：名字/描述/统计数字强制白色 */
+[data-theme='dark'] .card-info .author-info-name,
+[data-theme='dark'] .card-info .author-info-description {
+  color: #ffffff;
+}
+[data-theme='dark'] .card-info .site-data .headline,
+[data-theme='dark'] .card-info .site-data .length-num,
+[data-theme='dark'] .card-info .site-data > a {
+  color: #ffffff !important;
+}
+[data-theme='dark'] .card-info .site-data .headline {
+  opacity: .8;
+}
+
+/* ============ 侧边栏各组件：所有文字一律强制白色（保留彩色小图标） ============ */
+[data-theme='dark'] #aside-content .card-widget span,
+[data-theme='dark'] #aside-content .card-widget a,
+[data-theme='dark'] #aside-content .card-widget time,
+[data-theme='dark'] #aside-content .card-widget li,
+[data-theme='dark'] #aside-content .card-widget .item-name,
+[data-theme='dark'] #aside-content .card-widget .item-count,
+[data-theme='dark'] #aside-content .card-widget .headline,
+[data-theme='dark'] #aside-content .card-widget .length-num,
+[data-theme='dark'] #aside-content .card-widget .title,
+[data-theme='dark'] #aside-content .card-widget .announcement_content,
+[data-theme='dark'] #aside-content .card-widget .category-list-name,
+[data-theme='dark'] #aside-content .card-widget .category-list-count,
+[data-theme='dark'] #aside-content .card-widget .archive-list-link,
+[data-theme='dark'] #aside-content .card-widget .archive-list-count,
+[data-theme='dark'] #aside-content .card-widget .archive-list-date {
+  color: rgba(255, 255, 255, .92) !important;
+}
+/* 侧边栏组件标题的小图标（喇叭/时钟/文件夹/标签/归档/折线）也一并变白 */
+[data-theme='dark'] #aside-content .card-widget .item-headline i,
+[data-theme='dark'] #aside-content .card-widget .item-headline svg {
+  color: #ffffff !important;
+}
+/* Follow Me 按钮里的 GitHub 图标及文字改成白色 */
+[data-theme='dark'] #aside-content #card-info-btn,
+[data-theme='dark'] #aside-content #card-info-btn i {
+  color: #ffffff !important;
+}
+/* Follow Me 按钮下方的社交图标：配置里给的是近黑 #24292e，压成白色以免看不见 */
+[data-theme='dark'] #aside-content .card-info-social-icons .social-icon,
+[data-theme='dark'] #aside-content .card-info-social-icons .social-icon i {
+  color: rgba(255, 255, 255, .92) !important;
+}
+
+/* ============ 文章页顶部 banner 的 meta（日期/分类）：主题用 #78818a 深灰蓝=黑，强制白 ============
+   注意：有封面图的文章 #post-info 挂在 #page-header 下、不在 #post 里，因此必须用更通用的
+   #post-info #post-meta（post-meta 永远是 post-info 的子孙），才能两种情形都命中 */
+[data-theme='dark'] #post-info #post-meta,
+[data-theme='dark'] #post-info #post-meta a,
+[data-theme='dark'] #post-info #post-meta .post-meta-label,
+[data-theme='dark'] #post-info #post-meta .post-meta-date,
+[data-theme='dark'] #post-info #post-meta .post-meta-separator,
+[data-theme='dark'] #post-info #post-meta .post-meta-icon,
+[data-theme='dark'] #post-info #post-meta time,
+[data-theme='dark'] #post-info #post-meta .post-meta__tag-list,
+[data-theme='dark'] #post-info #post-meta .post-meta__tags {
+  color: rgba(255, 255, 255, .95) !important;
+}
+
+/* ============ 文章正文：所有文字强制白色（段落/标题/列表/表格），代码块与行内代码除外 ============ */
+[data-theme='dark'] .post-content,
+[data-theme='dark'] .post-content p,
+[data-theme='dark'] .post-content li,
+[data-theme='dark'] .post-content td,
+[data-theme='dark'] .post-content th,
+[data-theme='dark'] .post-content strong,
+[data-theme='dark'] .post-content em,
+[data-theme='dark'] .post-content a,
+[data-theme='dark'] .post-content blockquote,
+[data-theme='dark'] .post-content blockquote p,
+[data-theme='dark'] .post-content .tabs,
+[data-theme='dark'] .post-content .note {
+  color: rgba(255, 255, 255, .92) !important;
+}
+[data-theme='dark'] .post-content h1,
+[data-theme='dark'] .post-content h2,
+[data-theme='dark'] .post-content h3,
+[data-theme='dark'] .post-content h4,
+[data-theme='dark'] .post-content h5,
+[data-theme='dark'] .post-content h6 {
+  color: #ffffff !important;
+}
+
+/* 文章底部版权声明卡：标签/内容/链接全部强制白色（独立于 .post-content） */
+[data-theme='dark'] .post-copyright,
+[data-theme='dark'] .post-copyright-meta,
+[data-theme='dark'] .post-copyright-info,
+[data-theme='dark'] .post-copyright-info a {
+  color: rgba(255, 255, 255, .92) !important;
+}
+[data-theme='dark'] .post-copyright-meta i {
+  color: rgba(255, 255, 255, .92) !important;
+}
+
+/* ============ 兜底：全页文字/图标一律不出现黑字（代码块与彩色标签除外） ============ */
+[data-theme='dark'] #nav,
+[data-theme='dark'] #nav a,
+[data-theme='dark'] #nav i,
+[data-theme='dark'] #nav .menus-item a,
+[data-theme='dark'] #nav .navButton,
+[data-theme='dark'] #nav .site-name,
+[data-theme='dark'] #nav .back-home,
+[data-theme='dark'] .post-title,
+[data-theme='dark'] .post-title a,
+[data-theme='dark'] .post-meta,
+[data-theme='dark'] .post-meta i,
+[data-theme='dark'] .post-meta a,
+[data-theme='dark'] .post-meta .post-meta__item,
+[data-theme='dark'] .post-meta .post-meta__separator,
+[data-theme='dark'] .recent-post-item,
+[data-theme='dark'] .recent-post-item .article-meta-wrap,
+[data-theme='dark'] .recent-post-item a,
+[data-theme='dark'] .relatedPosts,
+[data-theme='dark'] .relatedPosts .headline,
+[data-theme='dark'] .relatedPosts .headline i,
+[data-theme='dark'] .relatedPosts .headline span,
+[data-theme='dark'] .relatedPosts a,
+[data-theme='dark'] .relatedPosts a .info,
+[data-theme='dark'] .relatedPosts .info,
+[data-theme='dark'] .relatedPosts .info-1,
+[data-theme='dark'] .relatedPosts .info-1 .info-item-1,
+[data-theme='dark'] .relatedPosts .info-1 .info-item-2,
+[data-theme='dark'] .relatedPosts .info-item-1,
+[data-theme='dark'] .relatedPosts .info-item-2,
+[data-theme='dark'] .relatedPosts .info-2,
+[data-theme='dark'] .relatedPosts .info-2 .info-item-1,
+[data-theme='dark'] .relatedPosts .info i,
+[data-theme='dark'] .pagination,
+[data-theme='dark'] .pagination a,
+[data-theme='dark'] .pagination .page-number,
+[data-theme='dark'] .pagination .prev,
+[data-theme='dark'] .pagination .next,
+[data-theme='dark'] .pagination .space,
+[data-theme='dark'] .pagination i,
+[data-theme='dark'] #footer,
+[data-theme='dark'] #footer a,
+[data-theme='dark'] #footer i,
+[data-theme='dark'] #footer .social-icons a,
+[data-theme='dark'] #footer .social-icons i,
+[data-theme='dark'] #footer .copyright,
+[data-theme='dark'] .wv,
+[data-theme='dark'] .wv i,
+[data-theme='dark'] .post-reward,
+[data-theme='dark'] .post-reward .reward-button,
+[data-theme='dark'] .post-reward .reward-pop,
+[data-theme='dark'] .post-reward .reward-pop a,
+[data-theme='dark'] .post-reward .reward-pop i,
+[data-theme='dark'] .post-reward .reward-pop-up,
+[data-theme='dark'] .tag_share,
+[data-theme='dark'] .tag_share .post-share,
+[data-theme='dark'] .tag_share .post-share a,
+[data-theme='dark'] .tag_share .post-share i,
+[data-theme='dark'] .tag_share .post-share .share-icon,
+[data-theme='dark'] #card-toc .toc,
+[data-theme='dark'] #card-toc .toc a,
+[data-theme='dark'] #card-toc .toc .toc-item,
+[data-theme='dark'] #card-toc .toc .toc-link,
+[data-theme='dark'] #rightside,
+[data-theme='dark'] #rightside a,
+[data-theme='dark'] #rightside i,
+[data-theme='dark'] #rightside .rightside-item,
+[data-theme='dark'] .btn,
+[data-theme='dark'] .btn a,
+[data-theme='dark'] .btn i,
+[data-theme='dark'] .wv-btn,
+[data-theme='dark'] .wv-btn i,
+[data-theme='dark'] .tabs .tab-button,
+[data-theme='dark'] .tabs .nav-tabs,
+[data-theme='dark'] .tabs .tab-tab,
+[data-theme='dark'] .card-widget .headline,
+[data-theme='dark'] .card-info .author-info-name,
+[data-theme='dark'] .card-info .author-info-description {
+  color: rgba(255, 255, 255, .92) !important;
+}
+
+/* ============ 手机端导航 & 汉堡抽屉菜单：文字一律白色 ============
+   手机上汉堡展开后，导航项（首页/Archives/Category/Tag/关于）在 #sidebar-menus 抽屉里，
+   之前只写了 #nav a，没覆盖到它，导致黑字。这里把顶部导航与侧边抽屉全部提白。 */
+[data-theme='dark'] #nav .site-page,
+[data-theme='dark'] #nav .menus_item a,
+[data-theme='dark'] #nav .menus_items .menus_item a,
+[data-theme='dark'] #nav .site-page i,
+[data-theme='dark'] #nav #toggle-menu .site-page,
+[data-theme='dark'] #nav #toggle-menu .site-page i,
+[data-theme='dark'] #nav #search-button .site-page i,
+[data-theme='dark'] #sidebar,
+[data-theme='dark'] #sidebar #sidebar-menus,
+[data-theme='dark'] #sidebar #sidebar-menus .site-page,
+[data-theme='dark'] #sidebar #sidebar-menus .menus_item a,
+[data-theme='dark'] #sidebar #sidebar-menus .menus_items .menus_item a,
+[data-theme='dark'] #sidebar #sidebar-menus .menus_item a.site-page,
+[data-theme='dark'] #sidebar #sidebar-menus .menus_item a.site-page i,
+[data-theme='dark'] #sidebar #sidebar-menus .site-page i,
+[data-theme='dark'] #sidebar #sidebar-menus .site-data a,
+[data-theme='dark'] #sidebar #sidebar-menus .site-data .headline,
+[data-theme='dark'] #sidebar #sidebar-menus .site-data .length-num {
+  color: rgba(255, 255, 255, .92) !important;
+}
+
+/* ============ 整站文字默认白（兜底：正文类元素一律提白，代码/彩色标签除外） ============ */
+[data-theme='dark'] #body-wrap :is(p, li, h1, h2, h3, h4, h5, h6, strong, em, td, th, time, blockquote, del) {
+  color: rgba(255, 255, 255, .92) !important;
+}
+
+/* ============ 漏网链接类文字（归档/分类/标签/关于页 里的链接与统计数字） ============ */
+[data-theme='dark'] .article-sort,
+[data-theme='dark'] .article-sort-item,
+[data-theme='dark'] .article-sort-item-title,
+[data-theme='dark'] .article-sort-item-title a,
+[data-theme='dark'] .article-sort-item-info,
+[data-theme='dark'] .article-sort-item-info a,
+[data-theme='dark'] .article-sort-item-time a,
+[data-theme='dark'] .article-sort .year,
+[data-theme='dark'] #archive,
+[data-theme='dark'] #archive .post-title,
+[data-theme='dark'] #archive .post-title a,
+[data-theme='dark'] #archive .post-meta,
+[data-theme='dark'] #archive .post-meta a,
+[data-theme='dark'] .category-list,
+[data-theme='dark'] .category-list-link,
+[data-theme='dark'] .category-list-count,
+[data-theme='dark'] .category-list-name,
+[data-theme='dark'] .category-list-item a,
+[data-theme='dark'] .tag-list,
+[data-theme='dark'] .tag-list-link,
+[data-theme='dark'] .tag-list-count,
+[data-theme='dark'] .tag-list-name,
+[data-theme='dark'] .page-content,
+[data-theme='dark'] .page-content a,
+[data-theme='dark'] .page-content p a,
+[data-theme='dark'] .page-card,
+[data-theme='dark'] .page-card a {
+  color: rgba(255, 255, 255, .92) !important;
+}
+
+/* ============ 中英文语言切换（右下角悬浮，音乐按钮上方） ============ */
+.lang-switch {
+  position: fixed;
+  bottom: 150px;
+  right: 18px;
+  z-index: 9997;
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.12);
+}
+.lang-switch .lang-opt {
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  user-select: none;
+}
+.lang-switch .lang-opt:hover { color: #ffffff; }
+.lang-switch .lang-opt.active {
+  color: #0d1117;
+  background: #ffffff;
+  font-weight: 600;
+}
+.lang-switch .lang-opt.active:hover { color: #0d1117; }
+#page-header.full_page #site-subtitle {
+  letter-spacing: 1px;
+  opacity: .95;
+}
+
+/* ============ footer：去掉主题默认的亮蓝色背景 ============ */
+#footer {
+  background-color: transparent;
+  background-image: none;
+}
+
+/* 让首页标题/副标题浮在星野之上，不被盖住 */
+#page-header.full_page #site-info,
+#page-header.full_page #site-title,
+#page-header.full_page #site-subtitle {
+  position: relative;
+  z-index: 3;
+}
+
+/* 星野容器：铺满 hero，位于内容之下 */
+.hero-stars {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+.hero-stars span {
+  position: absolute;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0;
+  animation: starTwinkle linear infinite;
+}
+@keyframes starTwinkle {
+  0%   { opacity: 0; }
+  40%  { opacity: .9; }
+  60%  { opacity: .7; }
+  100% { opacity: 0; }
+}
+
+/* ============ 全屏流星特效：仍是往右下落，但进场位置在「顶部」和「左侧」之间随机 ============ */
+.meteor-wrap {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+.meteor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: meteor-fall var(--dur, 5s) linear var(--delay, 0s) infinite;
+}
+.meteor .line {
+  display: block;
+  width: 150px;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent 0%, rgba(0, 212, 255, 0.55) 55%, #ffffff 100%);
+  transform: rotate(45deg);   /* 统一方向：亮头朝右下，往右下坠落 */
+  transform-origin: right center;
+  filter: drop-shadow(0 0 4px rgba(0, 212, 255, 0.7));
+}
+@keyframes meteor-fall {
+  0%   { opacity: 0; transform: translate(0, 0); }
+  8%   { opacity: .9; }
+  100% { opacity: 0; transform: translate(120vw, 95vh); }
+}

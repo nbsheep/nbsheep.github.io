@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="50%" stop-color="#3a2415"/>
+      <stop offset="100%" stop-color="#7a4a20"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="400" fill="url(#g)"/>
+  <circle cx="660" cy="70" r="130" fill="rgba(233,84,32,0.12)"/>
+  <circle cx="140" cy="340" r="100" fill="rgba(233,84,32,0.08)"/>
+  <!-- 仿终端：提示符 + 命令 + 光标 -->
+  <g>
+    <rect x="270" y="140" width="300" height="76" rx="8" fill="rgba(233,84,32,0.08)" stroke="rgba(233,84,32,0.5)" stroke-width="2"/>
+    <text x="290" y="176" font-size="26" fill="rgba(255,200,160,0.95)" font-family="Consolas, monospace">$</text>
+    <text x="312" y="176" font-size="26" fill="rgba(255,255,255,0.9)" font-family="Consolas, monospace">ls -l</text>
+    <rect x="392" y="156" width="9" height="22" fill="rgba(255,255,255,0.85)"/>
+    <text x="290" y="202" font-size="20" fill="rgba(255,200,160,0.7)" font-family="Consolas, monospace">user@host:~$</text>
+  </g>
+  <text x="400" y="285" font-size="42" fill="rgba(233,84,32,0.95)" text-anchor="middle" font-family="Segoe UI, sans-serif" font-weight="bold">Linux · 命令行</text>
+</svg>

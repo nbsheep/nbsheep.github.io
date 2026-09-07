@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="50%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#0f3460"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="400" fill="url(#g)"/>
+  <circle cx="660" cy="70" r="130" fill="rgba(0,212,255,0.08)"/>
+  <circle cx="140" cy="340" r="100" fill="rgba(0,212,255,0.06)"/>
+  <text x="400" y="215" font-size="46" fill="rgba(0,212,255,0.9)" text-anchor="middle" font-family="Segoe UI, sans-serif" font-weight="bold">nbsheep</text>
+</svg>
