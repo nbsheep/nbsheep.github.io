@@ -926,7 +926,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const init = () => {
       const masonryItem = new InfiniteGrid.MasonryInfiniteGrid('.recent-post-items', {
-        gap: { horizontal: 10, vertical: 20 },
+        gap: { horizontal: 10, vertical: 28 },
         useTransform: true,
         useResizeObserver: true
       })
