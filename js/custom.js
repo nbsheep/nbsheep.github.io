@@ -263,13 +263,13 @@
   }
 })();
 
-// ============ 中英界面切换：默认英文，可一键切换，localStorage 记忆 ============
+// ============ 中英界面切换：默认中文，可一键切换，localStorage 记忆 ============
 (function () {
-  var LANG_KEY = 'site-lang';
+  var LANG_KEY = 'site-lang-v2';
 
   function getMap() { return window.I18N || {}; }
   function getLang() {
-    try { return localStorage.getItem(LANG_KEY) || 'en'; } catch (e) { return 'en'; }
+    try { return localStorage.getItem(LANG_KEY) || 'zh-CN'; } catch (e) { return 'zh-CN'; }
   }
   function setLang(v) { try { localStorage.setItem(LANG_KEY, v); } catch (e) {} }
 
