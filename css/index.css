@@ -2625,19 +2625,6 @@ figure.highlight pre .javascript .function {
   position: relative;
   overflow: hidden;
   margin-bottom: 20px;
-  display: inline-block;
-  width: calc(100% / 2 - 8px);
-  vertical-align: top;
-}
-@media screen and (max-width: 768px) {
-  #recent-posts .recent-post-item {
-    width: 100%;
-  }
-}
-@media screen and (min-width: 2000px) {
-  #recent-posts .recent-post-item {
-    width: calc(100% / 3 - 8px);
-  }
 }
 #recent-posts .recent-post-item:hover .post-bg {
   -webkit-transform: scale(1.1);

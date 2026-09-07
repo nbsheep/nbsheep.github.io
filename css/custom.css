@@ -520,13 +520,19 @@ body::after {
   100% { opacity: 0; transform: translate(120vw, 95vh); }
 }
 
-/* ============ 首页文章卡片：干净 3 列卡片 ============ */
-/* 封面 SVG 原图都是 800×400(2:1)，这里让封面按 2:1 完整显示、不再被裁成窄条。
-   卡片上下/左右间距由 main.js 的 masonry gap 控制（已改成 horizontal 16 / vertical 30）。 */
+/* ============ 首页文章卡片：3 列网格，统一间距，无瀑布流错位 ============ */
+/* 改用纯 CSS Grid 布局（index_layout 已从 6 改为 4，禁用了 JS 瀑布流的 transform 定位）。
+   这样卡片上下左右间距完全一致、每行对齐，也避免 transform 造成的文字重影。 */
 
-/* 3 列（桌面） */
+#recent-posts .recent-post-items {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
 #recent-posts .recent-post-item {
-  width: calc(100% / 3 - 12px) !important;
+  width: auto !important;
+  margin-bottom: 0 !important;
 }
 
 /* 封面：2:1 自适应高度，完整显示不裁切 */
@@ -547,16 +553,16 @@ body::after {
   }
 }
 
-/* 平板：退回 2 列 */
+/* 平板：2 列 */
 @media screen and (max-width: 1100px) {
-  #recent-posts .recent-post-item {
-    width: calc(100% / 2 - 8px) !important;
+  #recent-posts .recent-post-items {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 /* 手机：单列 */
 @media screen and (max-width: 768px) {
-  #recent-posts .recent-post-item {
-    width: 100% !important;
+  #recent-posts .recent-post-items {
+    grid-template-columns: 1fr;
   }
 }
