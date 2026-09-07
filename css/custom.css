@@ -520,14 +520,34 @@ body::after {
   100% { opacity: 0; transform: translate(120vw, 95vh); }
 }
 
-/* ============ 首页文章卡片：桌面 3 列 + 加大上下间距 ============ */
-/* 主题默认 index_layout:6 瀑布流是 2 列，这里覆盖成 3 列，
-   垂直间距由 main.js 里的 masonry gap.vertical 控制（已改成 28px） */
+/* ============ 首页文章卡片：干净 3 列卡片 ============ */
+/* 封面 SVG 原图都是 800×400(2:1)，这里让封面按 2:1 完整显示、不再被裁成窄条。
+   卡片上下/左右间距由 main.js 的 masonry gap 控制（已改成 horizontal 16 / vertical 30）。 */
+
+/* 3 列（桌面） */
 #recent-posts .recent-post-item {
-  width: calc(100% / 3 - 8px) !important;
+  width: calc(100% / 3 - 12px) !important;
 }
 
-/* 平板：退回 2 列，避免太挤 */
+/* 封面：2:1 自适应高度，完整显示不裁切 */
+#recent-posts .recent-post-item .post_cover {
+  height: auto !important;
+  aspect-ratio: 2 / 1;
+}
+
+/* 信息区留白收紧，卡片更协调 */
+#recent-posts .recent-post-item .recent-post-info {
+  padding: 16px 20px 20px !important;
+}
+
+/* 桌面 3 列时标题稍小，避免在窄卡片里过大 */
+@media screen and (min-width: 769px) {
+  #recent-posts .recent-post-item .article-title {
+    font-size: 1.2em !important;
+  }
+}
+
+/* 平板：退回 2 列 */
 @media screen and (max-width: 1100px) {
   #recent-posts .recent-post-item {
     width: calc(100% / 2 - 8px) !important;
