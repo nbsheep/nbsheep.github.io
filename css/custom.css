@@ -566,3 +566,46 @@ body::after {
     grid-template-columns: 1fr;
   }
 }
+
+/* ============ 首页卡片文字排版优化 ============ */
+/* 标题固定占两行高度 → 每张卡的信息区起点完全对齐；
+   摘要统一 3 行、整行填满，省略号交给浏览器补，不再按字数硬切在半句话上；
+   日期/分类压到辅助层级，和标题、正文拉开层次。 */
+
+#recent-posts .recent-post-item .recent-post-info .article-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  min-height: 2.9em;          /* = 2 行 × line-height，标题长短不一时也保持对齐 */
+  line-height: 1.45;
+  letter-spacing: .2px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+#recent-posts .recent-post-item .recent-post-info .content {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  font-size: .92em;
+  line-height: 1.75;
+  color: rgba(255, 255, 255, .72);
+  margin-top: 2px;
+}
+
+#recent-posts .recent-post-item .recent-post-info .article-meta-wrap {
+  font-size: .8em;
+  color: rgba(255, 255, 255, .55);
+  margin: 0 0 8px;
+}
+
+#recent-posts .recent-post-item .recent-post-info .article-meta-wrap a,
+#recent-posts .recent-post-item .recent-post-info .article-meta-wrap time {
+  color: rgba(255, 255, 255, .68);
+}
+
+#recent-posts .recent-post-item .recent-post-info .article-meta-wrap a:hover {
+  color: #00d4ff;
+}
