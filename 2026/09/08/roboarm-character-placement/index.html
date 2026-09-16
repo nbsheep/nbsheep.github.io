@@ -1,0 +1,363 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>机械臂摆「8周年快乐」，字全给我放倒了——排查到最后是一个符号反了 | shameless 的技术博客</title><meta name="author" content="shameless"><meta name="copyright" content="shameless"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#0d0d0d"><meta name="description" content="起因有台 Piper 六轴机械臂，我给它布置了个任务：把桌面上散落的五个正方形字块——「8」「周」「年」「快」「乐」——一个个抓起来，按顺序摆成一排，凑出「8周年快乐」四个字加一个数字。要求也不高：每个字放下之后，字头得朝上、正着朝向你，别倒着、别横着。 听起来简单，抓起来摆个积木嘛。结果它干出来的活儿：字是抓起来了，排也排成一排了，方向却全乱了——有的偏左 90°、有的偏右 90°，个别直接 1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机械臂摆「8周年快乐」，字全给我放倒了——排查到最后是一个符号反了">
+<meta property="og:url" content="https://nbsheep.github.io/2026/09/08/roboarm-character-placement/index.html">
+<meta property="og:site_name" content="shameless 的技术博客">
+<meta property="og:description" content="起因有台 Piper 六轴机械臂，我给它布置了个任务：把桌面上散落的五个正方形字块——「8」「周」「年」「快」「乐」——一个个抓起来，按顺序摆成一排，凑出「8周年快乐」四个字加一个数字。要求也不高：每个字放下之后，字头得朝上、正着朝向你，别倒着、别横着。 听起来简单，抓起来摆个积木嘛。结果它干出来的活儿：字是抓起来了，排也排成一排了，方向却全乱了——有的偏左 90°、有的偏右 90°，个别直接 1">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://nbsheep.github.io/img/cover-roboarm.svg">
+<meta property="article:published_time" content="2026-09-08T02:30:00.000Z">
+<meta property="article:modified_time" content="2026-09-16T16:10:20.171Z">
+<meta property="article:author" content="shameless">
+<meta property="article:tag" content="PyTorch">
+<meta property="article:tag" content="YOLO">
+<meta property="article:tag" content="机器人">
+<meta property="article:tag" content="机械臂">
+<meta property="article:tag" content="计算机视觉">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nbsheep.github.io/img/cover-roboarm.svg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "机械臂摆「8周年快乐」，字全给我放倒了——排查到最后是一个符号反了",
+  "url": "https://nbsheep.github.io/2026/09/08/roboarm-character-placement/",
+  "image": "https://nbsheep.github.io/img/cover-roboarm.svg",
+  "datePublished": "2026-09-08T02:30:00.000Z",
+  "dateModified": "2026-09-16T16:10:20.171Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "shameless",
+      "url": "https://nbsheep.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://nbsheep.github.io/2026/09/08/roboarm-character-placement/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.7.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.3.1/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        const data = { value }
+
+        if (ttl != null) {
+          data.expiry = Date.now() + ttl * 86400000
+        }
+
+        localStorage.setItem(key, JSON.stringify(data))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return
+
+        try {
+          const data = JSON.parse(itemStr)
+
+          if (data.expiry && Date.now() > data.expiry) {
+            localStorage.removeItem(key)
+            return
+          }
+
+          return data.value
+        } catch {
+          localStorage.removeItem(key)
+        }
+      }
+    }
+
+    const scriptCache = new Map()
+    const cssCache = new Map()
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => {
+        if (scriptCache.has(url)) {
+          return scriptCache.get(url)
+        }
+
+        const promise = new Promise((resolve, reject) => {
+          const script = document.createElement('script')
+
+          script.src = url
+          script.async = true
+
+          for (const key in attr) {
+            script.setAttribute(key, attr[key])
+          }
+
+          script.onload = resolve
+          script.onerror = reject
+
+          document.head.appendChild(script)
+        })
+
+        scriptCache.set(url, promise)
+
+        return promise
+      },
+      getCSS: (url, id) => {
+        if (cssCache.has(url)) {
+          return cssCache.get(url)
+        }
+
+        const promise = new Promise((resolve, reject) => {
+          const link = document.createElement('link')
+
+          link.rel = 'stylesheet'
+          link.href = url
+
+          if (id) {
+            link.id = id
+          }
+
+          link.onload = resolve
+          link.onerror = reject
+
+          document.head.appendChild(link)
+        })
+
+        cssCache.set(url, promise)
+
+        return promise
+      },
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const metaThemeColor = document.querySelector('meta[name="theme-color"]')
+      const activateDarkMode = () => {
+        document.documentElement.dataset.theme = 'dark'
+        if (metaThemeColor !== null) {
+          metaThemeColor.setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.dataset.theme = 'light'
+        if (metaThemeColor !== null) {
+          metaThemeColor.setAttribute('content', '0d1117')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '机械臂摆「8周年快乐」，字全给我放倒了——排查到最后是一个符号反了',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/custom.css?v=25"><meta name="generator" content="Hexo 8.1.2"></head><body><div class="bg-animation" id="web_bg" style="background: linear-gradient(135deg,;"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="https://github.com/nbsheep.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">41</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/top_img.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">shameless 的技术博客</span></a><a class="nav-page-title" href="/"><span class="site-name">机械臂摆「8周年快乐」，字全给我放倒了——排查到最后是一个符号反了</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">机械臂摆「8周年快乐」，字全给我放倒了——排查到最后是一个符号反了</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-09-08T02:30:00.000Z" title="发表于 2026-09-08 10:30:00">2026-09-08</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-09-16T16:10:20.171Z" title="更新于 2026-09-17 00:10:20">2026-09-17</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%BC%96%E7%A8%8B/">编程</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="起因"><a href="#起因" class="headerlink" title="起因"></a>起因</h2><p>有台 Piper 六轴机械臂，我给它布置了个任务：把桌面上散落的五个正方形字块——「8」「周」「年」「快」「乐」——一个个抓起来，按顺序摆成一排，凑出「8周年快乐」四个字加一个数字。要求也不高：<strong>每个字放下之后，字头得朝上、正着朝向你</strong>，别倒着、别横着。</p>
+<p>听起来简单，抓起来摆个积木嘛。结果它干出来的活儿：字是抓起来了，排也排成一排了，<strong>方向却全乱了</strong>——有的偏左 90°、有的偏右 90°，个别直接 180° 倒过来，而且每次跑出来的偏向都不一样。更气人的是，我看了一眼它识别的中间结果，方向明明判的是对的。</p>
+<p>这篇就复盘一下：这东西到底怎么搭的、怎么认方向的，以及最后那个「方向全乱」是怎么查出来——根因不是一个复杂的算法问题，而是一个<strong>符号写反了</strong>。</p>
+<p>代码和调试记录都开源了：<a target="_blank" rel="noopener" href="https://github.com/nbsheep/roboarm-placement">nbsheep&#x2F;roboarm-placement</a>。</p>
+<h2 id="系统长啥样"><a href="#系统长啥样" class="headerlink" title="系统长啥样"></a>系统长啥样</h2><p>先说硬件和底座，一句话概括：<strong>Piper 六轴机械臂（USB-CAN 连接）+ Orbbec Gemini 336L 深度相机（USB）</strong>，跑在一个 VMware 的 Ubuntu 虚拟机里，软件栈是 LeRobot 那套框架，二次开发基于 <a target="_blank" rel="noopener" href="https://github.com/cloud666666666/AIIT-Roboarm">cloud666666666&#x2F;AIIT-Roboarm</a>。</p>
+<p>自己搭的时候有几个纯折腾人的坑，都记在部署指南里了：CAN 得每次开机手动激活（<code>can0</code>、1Mbps），Orbbec 相机要先装 udev 权限规则、VMware 的 USB 控制器还得从 2.0 改 3.1，不然相机直接 <code>openUsbDevice failed</code>。这些跟今天要讲的主题无关，跳过。</p>
+<h2 id="识别链路：检测-→-摆平-→-判方向-→-放下"><a href="#识别链路：检测-→-摆平-→-判方向-→-放下" class="headerlink" title="识别链路：检测 → 摆平 → 判方向 → 放下"></a>识别链路：检测 → 摆平 → 判方向 → 放下</h2><p>要让机械臂把字摆正，整条视觉链路是这样的：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">OBB 旋转框检测 (YOLO11x-obb)</span><br><span class="line">        │  给出每个字块的四角点</span><br><span class="line">        ▼</span><br><span class="line">透视摆平 (deskew，单应变换 → 96×96 灰度图)</span><br><span class="line">        │  把歪着的字块&quot;掰正&quot;成标准小图</span><br><span class="line">        ▼</span><br><span class="line">方向分类 (OrientCNN，4 分类：还需转 0/90/180/270° 才正立)</span><br><span class="line">        │  输出字头朝向角 angle_up</span><br><span class="line">        ▼</span><br><span class="line">机械臂放置补转角（按 angle_up 反着转，把字头转回朝上）</span><br></pre></td></tr></table></figure>
+
+<p>两层模型各有分工：</p>
+<ul>
+<li><strong>检测</strong>用 YOLO11x-obb，旋转框（OBB）能直接给出带角度的框，比普通水平框更适合旋转摆放的字符。训练时有个关键点——<strong>禁止左右&#x2F;上下翻转</strong>，因为中文字符镜像之后就是无效字，翻转增强只会把模型教坏。</li>
+<li><strong>方向分类</strong>用自己写的小网络 OrientCNN，输入是透视摆平后的灰度图，输出 4 类的 softmax，分别对应「这个字块还需要逆时针转 0&#x2F;90&#x2F;180&#x2F;270° 才正立」。</li>
+</ul>
+<p>检测负责「哪个字在哪儿、框是啥角度」，分类负责「这个字的头朝哪边」，两者接力，理论上就能把每个字摆得端端正正。</p>
+<h2 id="出问题：方向认对了，摆出来还是歪"><a href="#出问题：方向认对了，摆出来还是歪" class="headerlink" title="出问题：方向认对了，摆出来还是歪"></a>出问题：方向认对了，摆出来还是歪</h2><p>链子搭好后，一跑就发现不对：字能抓起、能摆成排，方向却乱套。而且那个乱法很典型——<strong>干干净净地偏 90°，或者 180°</strong>，不是随便偏个 17°、23° 这种。</p>
+<p>干净的 90° 本身就给了第一条线索：能让结果精确落在 90° 倍数上的，只能是「以 90° 为单位的量」——比如 4 分类判出来的 k，或者正方形「哪条算长边」的判定。连续量（标定误差、关节偏差）不会给出这么整齐的 90°。所以我一开始就盯着这两个 90° 源怀疑。</p>
+<h2 id="弯路一：先怀疑分类器"><a href="#弯路一：先怀疑分类器" class="headerlink" title="弯路一：先怀疑分类器"></a>弯路一：先怀疑分类器</h2><p>第一反应是 OrientCNN 认错了方向。尤其「周」「快」这种字，正着倒着都有点像，4 分类的 k 判错一个，方向就翻 90°。</p>
+<p>于是加了多帧软投票（跨帧累加 softmax）+ 置信度门限，想把 k 稳住。</p>
+<p>结果被自己打脸：单独跑了个自查脚本 <code>check_orient.py</code>，把每个字「摆正之后」的图拼出来看——<strong>所有字都是正的，置信度 0.86~0.99</strong>。识别没问题。</p>
+<p>这里栽了个认知坑：<code>check_orient</code> 只能证明「图像里认得对」，不代表「摆得对」。从图像认对，到机械臂真正摆对，中间还隔着<strong>图像→机械臂的坐标转换、实际夹取、逆运动学</strong>三个环节，这些自查脚本一个都不碰。</p>
+<h2 id="弯路二：再怀疑正方形"><a href="#弯路二：再怀疑正方形" class="headerlink" title="弯路二：再怀疑正方形"></a>弯路二：再怀疑正方形</h2><p>第二个怀疑对象是「正方形」本身。积木 w≈h，<code>gripper_angle_by_longer</code> 判「哪条是长边」时会随机翻，抓取角跟着跳 90°，字块进夹爪时就被物理带转 90°。</p>
+<p>于是改成「沿两条边轴取 4 个候选腕姿，选放置角最靠近 0° 的」。结果<strong>更糟了</strong>：候选让抓取角直接跑出了 ±90°（出现了 164°、-154° 这种离谱值），而下爪的趋近偏移 <code>offset×cos(抓取角)</code> 方向随之翻转，夹爪从物体<strong>反面</strong>下爪，把字块推歪——不光转 90°，位置也歪七扭八、排都不成排了。</p>
+<p>只能 <code>git restore</code> 回退到当天最早版本，把工作版备份起来。教训：抓取趋近偏移必须用 ∈[-90°,90°] 的原始几何角，不能让它超范围。</p>
+<h2 id="转折：写个只读脚本，一次把整条链量出来"><a href="#转折：写个只读脚本，一次把整条链量出来" class="headerlink" title="转折：写个只读脚本，一次把整条链量出来"></a>转折：写个只读脚本，一次把整条链量出来</h2><p>连着猜错两次之后，我决定不猜了，也不拿真机试错了——试错一次太贵。改为写一个<strong>只读、不动机械臂</strong>的诊断脚本 <code>diag_place_angle.py</code>：</p>
+<ul>
+<li>不连 CAN、不发任何运动命令；</li>
+<li>用一个纯运动学助手直接从 URDF 建运动学链，读关节限位和手眼标定矩阵，纯做正&#x2F;逆运动学数值计算；</li>
+<li>每个字打印一整串量：<code>angle_up</code>、几何抓取角、逐帧极差、两种放置策略的净转角、干 IK 的「下发 yaw vs 实际可达 yaw」（查腕关节 J6 有没有被限位截断）、以及符号两种假设下的预测字头。</li>
+</ul>
+<p>一次把整条放置链拆开量，三个假设当场毙掉两个：</p>
+<table>
+<thead>
+<tr>
+<th>假设</th>
+<th>判据</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>识别不稳</td>
+<td><code>angle_up</code> 逐帧极差 &lt;1°</td>
+<td>❌ 排除，识别很稳</td>
+</tr>
+<tr>
+<td>正方形几何角乱跳</td>
+<td>抓取角逐帧极差 0.4~0.8°</td>
+<td>❌ 排除，抓取角很稳</td>
+</tr>
+<tr>
+<td>腕关节 J6(±120°) 限位截断</td>
+<td>放置位姿干 IK 偏差 ≈0°</td>
+<td>❌ 排除，够得着</td>
+</tr>
+<tr>
+<td><strong>旋转符号反了</strong></td>
+<td>见下</td>
+<td>✅ <strong>命中</strong></td>
+</tr>
+</tbody></table>
+<h2 id="锁定：一个符号反了"><a href="#锁定：一个符号反了" class="headerlink" title="锁定：一个符号反了"></a>锁定：一个符号反了</h2><p>问题出在「图像坐标系 → 机械臂坐标系」的<strong>旋转符号</strong>上。代码里有个 <code>place_rotate_sign</code>（±1），决定放置补转角是顺着转还是反着转。它一直是 -1，而正确的值应该是 <strong>+1</strong>。</p>
+<p>符号问题有三条独立证据：</p>
+<ol>
+<li>手眼标定的 homography 矩阵线性部分 <strong>det &lt; 0</strong>——这是个镜像变换，意味着「图像里逆时针 &#x3D; 机械臂顺时针」，两边旋向本来就是反的；</li>
+<li>默认放置姿态工具朝下（RY&#x3D;180），实测「机械臂 rot 每 +1° → 末端 yaw 反而是 -1°」，又叠了一重翻转；</li>
+<li>之前 sign&#x3D;-1 开分类器跑，误差正好散成 <code>2×angle_up</code>——这正是「符号反了」的数学特征。</li>
+</ol>
+<p>放置角公式本来是这样的：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">delta_deg        = place_rotate_sign × (place_text_img_deg − angle_up)</span><br><span class="line">place_rotate_rad = gripper_angle_rad + deg2rad(delta_deg + manual_offset_deg)</span><br></pre></td></tr></table></figure>
+
+<p>最终字头朝向可以推成一个很干净的关系：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">字头_最终 = angle_up × (1 − s_img × place_rotate_sign)</span><br></pre></td></tr></table></figure>
+
+<p><code>s_img</code> 是「机械臂转 1° 对应图像里字头转几度」的符号，由相机安装决定，代码里看不出来，只能靠标定矩阵和实测去推。算出来：</p>
+<ul>
+<li>若 <code>s_img × place_rotate_sign = +1</code> → 字头 &#x3D; 0°（<strong>摆正</strong>）</li>
+<li>若 <code>= −1</code> → 字头 &#x3D; <code>2×angle_up</code>（<strong>东倒西歪</strong>）</li>
+</ul>
+<p>答案一目了然。改 <code>config.yaml</code> 里 <code>place_rotate_sign: -1</code> → <code>1</code>，上真机跑一遍，<strong>五个字全部摆正</strong>。</p>
+<h2 id="经验"><a href="#经验" class="headerlink" title="经验"></a>经验</h2><p>这次排查花了点时间，但换回来几条现在回头看很值钱的经验：</p>
+<ul>
+<li><strong>「认得对」≠「摆得对」</strong>。识别正确只是第一环，坐标转换、夹取、逆运动学，每一环都是独立的故障点，自查脚本只管得着第一环。</li>
+<li><strong>干净的 90° 只来自「以 90° 量化的量」</strong>。先找量化源（4 分类的 k、长短边判定）；符号、标定、限位截断这些连续量，给不出整齐的 90°。</li>
+<li><strong>真机试错太贵，先做离线只读诊断</strong>。<code>diag_place_angle.py</code> 免相机、不动臂，把整条链拆开一次性量完，一次定位，省掉无数次空跑。</li>
+<li><strong>手眼矩阵可能是镜像（det&lt;0）</strong>。图像系和机械臂系的旋向不一定一致，凡涉及旋转，务必先核对符号。</li>
+<li><strong>区分「符号错」和「标定偏置」</strong>。符号错 → 各字误差散成 <code>2×angle_up</code>（东倒西歪）；标定偏置 → 各字统一偏一个固定角。后者调 <code>place_text_img_deg</code>，<strong>别去动符号</strong>。</li>
+</ul>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><ul>
+<li>成果仓（只含我自己在框架上的二次开发部分）：<a target="_blank" rel="noopener" href="https://github.com/nbsheep/roboarm-placement">nbsheep&#x2F;roboarm-placement</a><ul>
+<li><code>stage4_infer.py</code> 端到端推理、<code>orient_cnn.pt</code> 方向分类器权重</li>
+<li><code>classification/</code> 方向分类与放置脚本（含只读诊断 <code>diag_place_angle.py</code>）</li>
+<li><code>object_detect/</code> YOLO OBB 检测与训练</li>
+<li><code>docs/</code> 完整的放置方向调试记录 + 环境部署指南</li>
+</ul>
+</li>
+<li>上游框架：<a target="_blank" rel="noopener" href="https://github.com/cloud666666666/AIIT-Roboarm">cloud666666666&#x2F;AIIT-Roboarm</a></li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://nbsheep.github.io">shameless</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://nbsheep.github.io/2026/09/08/roboarm-character-placement/">https://nbsheep.github.io/2026/09/08/roboarm-character-placement/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://nbsheep.github.io" target="_blank">shameless 的技术博客</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/YOLO/">YOLO</a><a class="post-meta__tags" href="/tags/PyTorch/">PyTorch</a><a class="post-meta__tags" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/">计算机视觉</a><a class="post-meta__tags" href="/tags/%E6%9C%BA%E6%A2%B0%E8%87%82/">机械臂</a><a class="post-meta__tags" href="/tags/%E6%9C%BA%E5%99%A8%E4%BA%BA/">机器人</a></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2026/09/02/novel-reader-flutter/" title="给自己写了个小说阅读器，636 万字的书打开只要 0.16 秒"><img class="cover" src="/img/cover-novel.svg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">给自己写了个小说阅读器，636 万字的书打开只要 0.16 秒</div></div><div class="info-2"><div class="info-item-1">起因手机上看小说，应用商店里的阅读器一个比一个过分：开屏广告、看书时底部飘横幅、翻两页弹个「限...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/09/01/smoke-detection-domain-gap/" title="烟雾检测模型：数据集上 84 分，一上实拍 56 分"><img class="cover" src="/img/cover-fire.svg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-09-01</div><div class="info-item-2">烟雾检测模型：数据集上 84 分，一上实拍 56 分</div></div><div class="info-2"><div class="info-item-1">起因之前搞无人机烟火巡检，用 D-Fire 公开数据集微调了个 YOLO11n，测试集上成绩单...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="https://github.com/nbsheep.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">shameless</div><div class="author-info-description">记录机器人、无人机、嵌入式开发的学习与踩坑笔记</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">41</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/nbsheep"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/nbsheep" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">Welcome to My Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B5%B7%E5%9B%A0"><span class="toc-number">1.</span> <span class="toc-text">起因</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B3%BB%E7%BB%9F%E9%95%BF%E5%95%A5%E6%A0%B7"><span class="toc-number">2.</span> <span class="toc-text">系统长啥样</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%86%E5%88%AB%E9%93%BE%E8%B7%AF%EF%BC%9A%E6%A3%80%E6%B5%8B-%E2%86%92-%E6%91%86%E5%B9%B3-%E2%86%92-%E5%88%A4%E6%96%B9%E5%90%91-%E2%86%92-%E6%94%BE%E4%B8%8B"><span class="toc-number">3.</span> <span class="toc-text">识别链路：检测 → 摆平 → 判方向 → 放下</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%BA%E9%97%AE%E9%A2%98%EF%BC%9A%E6%96%B9%E5%90%91%E8%AE%A4%E5%AF%B9%E4%BA%86%EF%BC%8C%E6%91%86%E5%87%BA%E6%9D%A5%E8%BF%98%E6%98%AF%E6%AD%AA"><span class="toc-number">4.</span> <span class="toc-text">出问题：方向认对了，摆出来还是歪</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%AF%E8%B7%AF%E4%B8%80%EF%BC%9A%E5%85%88%E6%80%80%E7%96%91%E5%88%86%E7%B1%BB%E5%99%A8"><span class="toc-number">5.</span> <span class="toc-text">弯路一：先怀疑分类器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%AF%E8%B7%AF%E4%BA%8C%EF%BC%9A%E5%86%8D%E6%80%80%E7%96%91%E6%AD%A3%E6%96%B9%E5%BD%A2"><span class="toc-number">6.</span> <span class="toc-text">弯路二：再怀疑正方形</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BD%AC%E6%8A%98%EF%BC%9A%E5%86%99%E4%B8%AA%E5%8F%AA%E8%AF%BB%E8%84%9A%E6%9C%AC%EF%BC%8C%E4%B8%80%E6%AC%A1%E6%8A%8A%E6%95%B4%E6%9D%A1%E9%93%BE%E9%87%8F%E5%87%BA%E6%9D%A5"><span class="toc-number">7.</span> <span class="toc-text">转折：写个只读脚本，一次把整条链量出来</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%94%81%E5%AE%9A%EF%BC%9A%E4%B8%80%E4%B8%AA%E7%AC%A6%E5%8F%B7%E5%8F%8D%E4%BA%86"><span class="toc-number">8.</span> <span class="toc-text">锁定：一个符号反了</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%8F%E9%AA%8C"><span class="toc-number">9.</span> <span class="toc-text">经验</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81"><span class="toc-number">10.</span> <span class="toc-text">代码</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/09/08/roboarm-character-placement/" title="机械臂摆「8周年快乐」，字全给我放倒了——排查到最后是一个符号反了"><img src="/img/cover-roboarm.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="机械臂摆「8周年快乐」，字全给我放倒了——排查到最后是一个符号反了"/></a><div class="content"><a class="title" href="/2026/09/08/roboarm-character-placement/" title="机械臂摆「8周年快乐」，字全给我放倒了——排查到最后是一个符号反了">机械臂摆「8周年快乐」，字全给我放倒了——排查到最后是一个符号反了</a><time datetime="2026-09-08T02:30:00.000Z" title="发表于 2026-09-08 10:30:00">2026-09-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/02/novel-reader-flutter/" title="给自己写了个小说阅读器，636 万字的书打开只要 0.16 秒"><img src="/img/cover-novel.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="给自己写了个小说阅读器，636 万字的书打开只要 0.16 秒"/></a><div class="content"><a class="title" href="/2026/09/02/novel-reader-flutter/" title="给自己写了个小说阅读器，636 万字的书打开只要 0.16 秒">给自己写了个小说阅读器，636 万字的书打开只要 0.16 秒</a><time datetime="2026-09-02T03:00:00.000Z" title="发表于 2026-09-02 11:00:00">2026-09-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/01/smoke-detection-domain-gap/" title="烟雾检测模型：数据集上 84 分，一上实拍 56 分"><img src="/img/cover-fire.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="烟雾检测模型：数据集上 84 分，一上实拍 56 分"/></a><div class="content"><a class="title" href="/2026/09/01/smoke-detection-domain-gap/" title="烟雾检测模型：数据集上 84 分，一上实拍 56 分">烟雾检测模型：数据集上 84 分，一上实拍 56 分</a><time datetime="2026-09-01T09:00:00.000Z" title="发表于 2026-09-01 17:00:00">2026-09-01</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/01/price-compare/" title="想做个比价工具，官方 API 不给我，那我自己爬"><img src="/img/cover-python.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="想做个比价工具，官方 API 不给我，那我自己爬"/></a><div class="content"><a class="title" href="/2026/09/01/price-compare/" title="想做个比价工具，官方 API 不给我，那我自己爬">想做个比价工具，官方 API 不给我，那我自己爬</a><time datetime="2026-09-01T07:30:00.000Z" title="发表于 2026-09-01 15:30:00">2026-09-01</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/31/greenwall-detector/" title="我刷了绿墙，然后写了个工具来抓自己"><img src="/img/cover-git.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="我刷了绿墙，然后写了个工具来抓自己"/></a><div class="content"><a class="title" href="/2026/08/31/greenwall-detector/" title="我刷了绿墙，然后写了个工具来抓自己">我刷了绿墙，然后写了个工具来抓自己</a><time datetime="2026-08-31T02:30:00.000Z" title="发表于 2026-08-31 10:30:00">2026-08-31</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By shameless</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.7.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.7.0"></script><script src="/js/main.js?v=5.7.0"></script><div class="js-pjax"></div><script src="/js/click-effect.js?v=1"></script><script src="/js/i18n.js?v=23"></script><script src="/js/i18n-titles.js?v=23"></script><script src="/js/custom.js?v=24"></script><audio id="bgm-player" loop preload="none"></audio><div id="music-tip"><div class="music-tip-box"><h3>♫ 背景音乐</h3><p class="sub">开启后选择你本地的 mp3 文件播放</p><div class="btns"><button class="yes" onclick="startMusic()">开启音乐</button><button class="no" onclick="closeMusicTip()">暂不开启</button></div></div></div><div id="music-btn" onclick="toggleMusic()" title="背景音乐">♫</div><script id="canvas_nest" defer="defer" color="0,212,255" opacity="0.7" zIndex="-1" count="99" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/canvas-nest.min.js"></script><script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.min.js" defer="defer"></script><script>document.addEventListener('DOMContentLoaded', () => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"]):not([data-fancybox])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: false,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => {
+      try {
+        fn()
+      } catch (err) {
+        console.debug('Pjax callback failed:', err)
+      }
+    })
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      if (!item.parentNode) return
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || ''
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    const responseURL = e.request && e.request.responseURL
+    if (e.request && e.request.status === 404) {
+      false
+        ? pjax.loadUrl('/404.html')
+        : responseURL && (window.location.href = responseURL)
+    } else if (responseURL) {
+      window.location.href = responseURL
+    }
+  })
+})</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
