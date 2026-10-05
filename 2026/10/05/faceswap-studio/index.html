@@ -1,0 +1,295 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>给自己搭了个换脸工作台：上传两张图，点一下就出结果 | shameless 的技术博客</title><meta name="author" content="shameless"><meta name="copyright" content="shameless"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#0d0d0d"><meta name="description" content="换脸工具不是要装整套 GUI，就是要把照片丢到别人的云上。索性用 inswapper + ArcFace 搭个开箱即跑的网页工作台：模型内置、纯 CPU 就能跑，顺手把四个「一眼假」的坑填平了。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="给自己搭了个换脸工作台：上传两张图，点一下就出结果">
+<meta property="og:url" content="https://nbsheep.github.io/2026/10/05/faceswap-studio/index.html">
+<meta property="og:site_name" content="shameless 的技术博客">
+<meta property="og:description" content="换脸工具不是要装整套 GUI，就是要把照片丢到别人的云上。索性用 inswapper + ArcFace 搭个开箱即跑的网页工作台：模型内置、纯 CPU 就能跑，顺手把四个「一眼假」的坑填平了。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://nbsheep.github.io/img/cover-faceswap.svg">
+<meta property="article:published_time" content="2026-10-05T02:00:00.000Z">
+<meta property="article:modified_time" content="2026-10-05T14:18:47.262Z">
+<meta property="article:author" content="shameless">
+<meta property="article:tag" content="FastAPI">
+<meta property="article:tag" content="ONNX">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="换脸">
+<meta property="article:tag" content="深度学习">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nbsheep.github.io/img/cover-faceswap.svg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "给自己搭了个换脸工作台：上传两张图，点一下就出结果",
+  "url": "https://nbsheep.github.io/2026/10/05/faceswap-studio/",
+  "image": "https://nbsheep.github.io/img/cover-faceswap.svg",
+  "datePublished": "2026-10-05T02:00:00.000Z",
+  "dateModified": "2026-10-05T14:18:47.262Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "shameless",
+      "url": "https://nbsheep.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://nbsheep.github.io/2026/10/05/faceswap-studio/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.7.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.3.1/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        const data = { value }
+
+        if (ttl != null) {
+          data.expiry = Date.now() + ttl * 86400000
+        }
+
+        localStorage.setItem(key, JSON.stringify(data))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return
+
+        try {
+          const data = JSON.parse(itemStr)
+
+          if (data.expiry && Date.now() > data.expiry) {
+            localStorage.removeItem(key)
+            return
+          }
+
+          return data.value
+        } catch {
+          localStorage.removeItem(key)
+        }
+      }
+    }
+
+    const scriptCache = new Map()
+    const cssCache = new Map()
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => {
+        if (scriptCache.has(url)) {
+          return scriptCache.get(url)
+        }
+
+        const promise = new Promise((resolve, reject) => {
+          const script = document.createElement('script')
+
+          script.src = url
+          script.async = true
+
+          for (const key in attr) {
+            script.setAttribute(key, attr[key])
+          }
+
+          script.onload = resolve
+          script.onerror = reject
+
+          document.head.appendChild(script)
+        })
+
+        scriptCache.set(url, promise)
+
+        return promise
+      },
+      getCSS: (url, id) => {
+        if (cssCache.has(url)) {
+          return cssCache.get(url)
+        }
+
+        const promise = new Promise((resolve, reject) => {
+          const link = document.createElement('link')
+
+          link.rel = 'stylesheet'
+          link.href = url
+
+          if (id) {
+            link.id = id
+          }
+
+          link.onload = resolve
+          link.onerror = reject
+
+          document.head.appendChild(link)
+        })
+
+        cssCache.set(url, promise)
+
+        return promise
+      },
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const metaThemeColor = document.querySelector('meta[name="theme-color"]')
+      const activateDarkMode = () => {
+        document.documentElement.dataset.theme = 'dark'
+        if (metaThemeColor !== null) {
+          metaThemeColor.setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.dataset.theme = 'light'
+        if (metaThemeColor !== null) {
+          metaThemeColor.setAttribute('content', '0d1117')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '给自己搭了个换脸工作台：上传两张图，点一下就出结果',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/custom.css?v=26"><meta name="generator" content="Hexo 8.1.2"></head><body><div class="bg-animation" id="web_bg" style="background: linear-gradient(135deg,;"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="https://github.com/nbsheep.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">13</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">45</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/top_img.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">shameless 的技术博客</span></a><a class="nav-page-title" href="/"><span class="site-name">给自己搭了个换脸工作台：上传两张图，点一下就出结果</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">给自己搭了个换脸工作台：上传两张图，点一下就出结果</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-10-05T02:00:00.000Z" title="发表于 2026-10-05 10:00:00">2026-10-05</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-10-05T14:18:47.262Z" title="更新于 2026-10-05 22:18:47">2026-10-05</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%BC%96%E7%A8%8B/">编程</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="起因"><a href="#起因" class="headerlink" title="起因"></a>起因</h2><p>刷到过太多「AI 换脸」的成品，一直好奇那套东西到底怎么转起来的。真到动手时发现，门槛其实不高——主流链路就一条，模型全是开源的。但「能用」和「不一眼假」之间，隔着一堆没人写清楚的坑。</p>
+<p>现有的工具也各有各的别扭：FaceFusion 要装一整套 GUI 环境，Deep-Live-Cam 是给摄像头直播用的，在线换脸又得把照片传上去——拿自己的脸去喂别人的服务器，我是真不放心。</p>
+<p>于是自己搭一个：浏览器上传两张图，点一下就出结果。模型权重随项目内置，不用 GPU、不用注册任何云服务，纯 CPU 就能跑。已经推到 GitHub：<a target="_blank" rel="noopener" href="https://github.com/nbsheep/faceswap-studio">nbsheep&#x2F;faceswap-studio</a>。</p>
+<h2 id="主流链路就一条：inswapper-ArcFace"><a href="#主流链路就一条：inswapper-ArcFace" class="headerlink" title="主流链路就一条：inswapper + ArcFace"></a>主流链路就一条：inswapper + ArcFace</h2><p>市面上一大半换脸产品（FaceFusion、Roop、Deep-Live-Cam）用的是同一条链路：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">源脸照片 ── YuNet 检测 ── ArcFace 提身份向量 ── 经 emap 投影</span><br><span class="line">                                                     │</span><br><span class="line">目标照片 ── YuNet 检测 ── 对齐 128×128 ── inswapper 生成新脸 ── 贴回原图</span><br></pre></td></tr></table></figure>
+
+<p>它和「把源脸像素剪下来贴过去」的几何法有本质区别：inswapper 是在<strong>特征空间里重画</strong>一张脸——姿态、表情、光照属于目标，五官身份属于源脸。所以目标大笑时，换上去的脸也跟着笑，这是几何法做不到的。</p>
+<p>项目里做了三个引擎：<code>deep</code>（inswapper + ArcFace，默认）、<code>classic</code>（纯几何法，零模型兜底）、<code>insightface</code>（官方包版，一般用不到）。启动时自动选「当前可用的最强引擎」。</p>
+<h2 id="四个「一眼假」的坑"><a href="#四个「一眼假」的坑" class="headerlink" title="四个「一眼假」的坑"></a>四个「一眼假」的坑</h2><p>同样是 inswapper + ArcFace，下面四步做错任何一步，出来的脸都会一眼假。这些才是这个项目真正值钱的部分。</p>
+<h3 id="1-身份向量必须先过-emap-投影，否则换出来的是「路人脸」"><a href="#1-身份向量必须先过-emap-投影，否则换出来的是「路人脸」" class="headerlink" title="1. 身份向量必须先过 emap 投影，否则换出来的是「路人脸」"></a>1. 身份向量必须先过 emap 投影，否则换出来的是「路人脸」</h3><p>inswapper 的 <code>source</code> 输入<strong>不是</strong> ArcFace 的原始 embedding，而是要先乘上模型图里藏着的最后一个 initializer——一个 512×512 的方阵，社区习惯叫 <code>emap</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">latent = normed_embedding @ emap        <span class="comment"># 投影到 inswapper 自己的身份空间</span></span><br><span class="line">latent /= np.linalg.norm(latent)        <span class="comment"># 再归一化</span></span><br></pre></td></tr></table></figure>
+
+<p>漏掉这一步，模型读到的是一个「无效身份」，会输出一张跟谁都不像的通用脸。实测自换脸（源&#x3D;目标）的身份余弦相似度：<strong>漏掉 emap 是 0.05，补上是 0.85</strong>。</p>
+<h3 id="2-输入输出格式反直觉，反了就得到一张灰蒙蒙的糊图"><a href="#2-输入输出格式反直觉，反了就得到一张灰蒙蒙的糊图" class="headerlink" title="2. 输入输出格式反直觉，反了就得到一张灰蒙蒙的糊图"></a>2. 输入输出格式反直觉，反了就得到一张灰蒙蒙的糊图</h3><ul>
+<li>输入是 <code>x/255</code> 的 RGB（不是常见的 ±1 归一化）</li>
+<li>输出是 <code>pred * 255</code>（不是 <code>pred * 127.5 + 127.5</code>）</li>
+</ul>
+<p>这两条反了，模型不会报错，只是安静地给你一张灰蒙蒙的糊图——和「stdout 是协议通道」那类 bug 一样烦人。</p>
+<h3 id="3-蒙版椭圆的位置要按对齐空间实测标定"><a href="#3-蒙版椭圆的位置要按对齐空间实测标定" class="headerlink" title="3. 蒙版椭圆的位置要按对齐空间实测标定"></a>3. 蒙版椭圆的位置要按对齐空间实测标定</h3><p>ArcFace 对齐后人脸在画布里的位置是<strong>固定</strong>的，所以蒙版可以用固定椭圆，但参数必须以对齐空间为基准量出来。我早先写成「五官质心与嘴心的中点」，圆心落到了 <code>y≈0.75*size</code>，椭圆整体下坠 0.15 个画布——额头整块露在蒙版外，融合接缝正好横在发际线上，非常显眼。</p>
+<p>实测标定后的参数：眼睛 <code>y≈0.46</code>、鼻尖 <code>y≈0.64</code>、嘴巴 <code>y≈0.82</code>、发际 <code>y≈0.25</code>、下巴 <code>y≈0.93</code>，人脸外接椭圆圆心 <code>(0.50, 0.585)</code>、半轴 <code>(0.305, 0.385)</code>。</p>
+<h3 id="4-颜色迁移要「轻」，细节回填要「只压暗」"><a href="#4-颜色迁移要「轻」，细节回填要「只压暗」" class="headerlink" title="4. 颜色迁移要「轻」，细节回填要「只压暗」"></a>4. 颜色迁移要「轻」，细节回填要「只压暗」</h3><p>inswapper 的输出本来就已经继承了目标图的色调（实测 L&#x2F;a&#x2F;b 均值误差 &lt;2），所以 LAB 颜色迁移只该轻轻推一把。我早期用的权重公式明明只想微调，却把 a 通道从 134 压到 129，整张脸发白。现在改成严格插值 <code>out = (1-w)*src + w*matched</code>。</p>
+<p>更大的破绽在细节：inswapper 只输出 128px 的「光板脸」，搭在脸上的<strong>碎发、睫毛、皮肤纹理</strong>会被整片抹掉。回填的办法是把目标原图的高频明暗调制 <code>k = ref / gaussian(ref)</code> 乘回生成脸。但 <code>k</code> 的上界必须卡在 <strong>1.0</strong>——只压暗、不提亮，否则会把目标脸上的高光&#x2F;腮红再叠一层，脸就”发白”了。眼睛和嘴唇还要单独降权到 25%，不然会把目标的牙缝、睫毛糊上去。</p>
+<h2 id="128-太糊，接-CodeFormer-又踩一坑"><a href="#128-太糊，接-CodeFormer-又踩一坑" class="headerlink" title="128 太糊，接 CodeFormer 又踩一坑"></a>128 太糊，接 CodeFormer 又踩一坑</h2><p>inswapper 只出 128px，直接贴回大图就是「塑料脸」。接上 CodeFormer（FaceFusion 官方 ONNX 转换版，360MB）把 128 双三次放大到 512 重建细节，脸才算能看。</p>
+<p>这里藏着一个隐蔽坑：对齐矩阵 <code>matrix</code> 是「原图 → 128 对齐空间」的，换到 512 空间后<strong>必须整体乘 4</strong>，否则脸会以 1&#x2F;4 尺寸被甩到图角落上。而且引擎把形状错误静默吞掉，表面看起来”像没换”——排查手段是看 <code>cos(结果, 目标)</code>，如果接近 1.0，说明目标原脸原封不动留在那了。</p>
+<p>CodeFormer 的保真度权重也是个平衡点：0 &#x3D; 画质猛但可能”换头”，1 &#x3D; 最忠实输入。换脸场景 0.6~0.8 比较稳（默认 0.7），开它之后整条链路从 ~0.8s 变 ~5s（CPU）。</p>
+<h2 id="不靠真脸的自检"><a href="#不靠真脸的自检" class="headerlink" title="不靠真脸的自检"></a>不靠真脸的自检</h2><p>调参得有验收指标，但总不能拿真人照片反复试。所以写了个 <code>selftest.py</code>：程序自己画两张「假脸」当素材，检查输出尺寸、脸区域是否真的被改动、背景是否被误伤、色彩匹配是否生效、强度&#x3D;0 是否等于原图……共 12 项，全部不依赖网络和真实照片。<code>compare.py</code> 则直接打印三个数：<code>cos(结果, 源)</code>、<code>cos(结果, 目标)</code>、<code>脸/脖 LAB 偏差</code>，调参时照着看就行。</p>
+<h2 id="关于合规，多说一句"><a href="#关于合规，多说一句" class="headerlink" title="关于合规，多说一句"></a>关于合规，多说一句</h2><p>换脸技术本身中立，但<strong>未经同意把别人的脸换到任何内容上，在绝大多数司法辖区都是违法的</strong>。做产品前得想清楚肖像权授权、不可去除的水印、内容审核、数据最小化这几件事。这个雏形只供学习、研究和经本人同意的娱乐用途——技术可以迭代，法律风险一次就够死。</p>
+<h2 id="结尾"><a href="#结尾" class="headerlink" title="结尾"></a>结尾</h2><p>整个项目里最有意思的，不是把换脸跑通，而是那几个「看起来肯定没问题、结果一眼假」的细节：一个 emap 矩阵把相似度从 0.05 拉到 0.85，一个 ×4 的缩放把脸甩到图角落，一个椭圆圆心偏了 0.15 就把接缝横在发际线上。深度模型的东西就是这样——<strong>它不报错，只是安静地给你一个错的结果</strong>，得靠你自己一层层量出来。</p>
+<p>源码在 <a target="_blank" rel="noopener" href="https://github.com/nbsheep/faceswap-studio">nbsheep&#x2F;faceswap-studio</a>，模型权重按 README 从 ModelScope &#x2F; hf-mirror 下，别在 GitHub 上找（1.2GB，传不上去也没必要传）。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://nbsheep.github.io">shameless</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://nbsheep.github.io/2026/10/05/faceswap-studio/">https://nbsheep.github.io/2026/10/05/faceswap-studio/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://nbsheep.github.io" target="_blank">shameless 的技术博客</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Python/">Python</a><a class="post-meta__tags" href="/tags/FastAPI/">FastAPI</a><a class="post-meta__tags" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a><a class="post-meta__tags" href="/tags/%E6%8D%A2%E8%84%B8/">换脸</a><a class="post-meta__tags" href="/tags/ONNX/">ONNX</a></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2026/09/08/roboarm-character-placement/" title="机械臂摆「8周年快乐」，字全给我放倒了——排查到最后是一个符号反了"><img class="cover" src="/img/cover-roboarm.svg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">机械臂摆「8周年快乐」，字全给我放倒了——排查到最后是一个符号反了</div></div><div class="info-2"><div class="info-item-1">机械臂要把五个字块摆成「8周年快乐」，结果方向全乱：偏左 90°、偏右 90°、个别直接倒过来，每次还不一样。</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/09/01/price-compare/" title="想做个比价工具，官方 API 不给我，那我自己爬"><img class="cover" src="/img/cover-python.svg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-09-01</div><div class="info-item-2">想做个比价工具，官方 API 不给我，那我自己爬</div></div><div class="info-2"><div class="info-item-1">想知道同一个商品在淘宝、京东、拼多多各卖多少钱、有什么券，可官方 API 个人开发者拿不到，那就自己爬。</div></div></div></a><a class="pagination-related" href="/2026/08/26/github-auto-commits/" title="GitHub 自动提交刷绿墙：从一行 cron 到一个带面板的小软件"><img class="cover" src="/img/cover-git.svg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-08-26</div><div class="info-item-2">GitHub 自动提交刷绿墙：从一行 cron 到一个带面板的小软件</div></div><div class="info-2"><div class="info-item-1">不想为了填格子硬造「有意义」的提交，就写了个靠 GitHub Actions 定时跑的机器人，每晚随机提交几次。</div></div></div></a><a class="pagination-related" href="/2026/09/01/smoke-detection-domain-gap/" title="烟雾检测模型：数据集上 84 分，一上实拍 56 分"><img class="cover" src="/img/cover-fire.svg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-09-01</div><div class="info-item-2">烟雾检测模型：数据集上 84 分，一上实拍 56 分</div></div><div class="info-2"><div class="info-item-1">YOLO11n 在 D-Fire 数据集上 smoke 类 mAP50 有 0.838，看着挺体面。无人机实拍一验，逐帧检出率只有 56%。</div></div></div></a><a class="pagination-related" href="/2026/08/24/python-stdlib-local-audio-tool/" title="用纯 Python 标准库写一个本地音频处理工具"><img class="cover" src="/img/cover-python.svg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-08-24</div><div class="info-item-2">用纯 Python 标准库写一个本地音频处理工具</div></div><div class="info-2"><div class="info-item-1">想把一批音频统一转成 mp3，不想装依赖、不想传到在线服务，于是用纯 Python 标准库写了个本地工具。</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="https://github.com/nbsheep.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">shameless</div><div class="author-info-description">记录机器人、无人机、嵌入式开发的学习与踩坑笔记</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">13</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">45</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/nbsheep"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/nbsheep" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">Welcome to My Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B5%B7%E5%9B%A0"><span class="toc-number">1.</span> <span class="toc-text">起因</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BB%E6%B5%81%E9%93%BE%E8%B7%AF%E5%B0%B1%E4%B8%80%E6%9D%A1%EF%BC%9Ainswapper-ArcFace"><span class="toc-number">2.</span> <span class="toc-text">主流链路就一条：inswapper + ArcFace</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E4%B8%AA%E3%80%8C%E4%B8%80%E7%9C%BC%E5%81%87%E3%80%8D%E7%9A%84%E5%9D%91"><span class="toc-number">3.</span> <span class="toc-text">四个「一眼假」的坑</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E8%BA%AB%E4%BB%BD%E5%90%91%E9%87%8F%E5%BF%85%E9%A1%BB%E5%85%88%E8%BF%87-emap-%E6%8A%95%E5%BD%B1%EF%BC%8C%E5%90%A6%E5%88%99%E6%8D%A2%E5%87%BA%E6%9D%A5%E7%9A%84%E6%98%AF%E3%80%8C%E8%B7%AF%E4%BA%BA%E8%84%B8%E3%80%8D"><span class="toc-number">3.1.</span> <span class="toc-text">1. 身份向量必须先过 emap 投影，否则换出来的是「路人脸」</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E6%A0%BC%E5%BC%8F%E5%8F%8D%E7%9B%B4%E8%A7%89%EF%BC%8C%E5%8F%8D%E4%BA%86%E5%B0%B1%E5%BE%97%E5%88%B0%E4%B8%80%E5%BC%A0%E7%81%B0%E8%92%99%E8%92%99%E7%9A%84%E7%B3%8A%E5%9B%BE"><span class="toc-number">3.2.</span> <span class="toc-text">2. 输入输出格式反直觉，反了就得到一张灰蒙蒙的糊图</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E8%92%99%E7%89%88%E6%A4%AD%E5%9C%86%E7%9A%84%E4%BD%8D%E7%BD%AE%E8%A6%81%E6%8C%89%E5%AF%B9%E9%BD%90%E7%A9%BA%E9%97%B4%E5%AE%9E%E6%B5%8B%E6%A0%87%E5%AE%9A"><span class="toc-number">3.3.</span> <span class="toc-text">3. 蒙版椭圆的位置要按对齐空间实测标定</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E9%A2%9C%E8%89%B2%E8%BF%81%E7%A7%BB%E8%A6%81%E3%80%8C%E8%BD%BB%E3%80%8D%EF%BC%8C%E7%BB%86%E8%8A%82%E5%9B%9E%E5%A1%AB%E8%A6%81%E3%80%8C%E5%8F%AA%E5%8E%8B%E6%9A%97%E3%80%8D"><span class="toc-number">3.4.</span> <span class="toc-text">4. 颜色迁移要「轻」，细节回填要「只压暗」</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#128-%E5%A4%AA%E7%B3%8A%EF%BC%8C%E6%8E%A5-CodeFormer-%E5%8F%88%E8%B8%A9%E4%B8%80%E5%9D%91"><span class="toc-number">4.</span> <span class="toc-text">128 太糊，接 CodeFormer 又踩一坑</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%8D%E9%9D%A0%E7%9C%9F%E8%84%B8%E7%9A%84%E8%87%AA%E6%A3%80"><span class="toc-number">5.</span> <span class="toc-text">不靠真脸的自检</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E4%BA%8E%E5%90%88%E8%A7%84%EF%BC%8C%E5%A4%9A%E8%AF%B4%E4%B8%80%E5%8F%A5"><span class="toc-number">6.</span> <span class="toc-text">关于合规，多说一句</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%93%E5%B0%BE"><span class="toc-number">7.</span> <span class="toc-text">结尾</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/10/05/faceswap-studio/" title="给自己搭了个换脸工作台：上传两张图，点一下就出结果"><img src="/img/cover-faceswap.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="给自己搭了个换脸工作台：上传两张图，点一下就出结果"/></a><div class="content"><a class="title" href="/2026/10/05/faceswap-studio/" title="给自己搭了个换脸工作台：上传两张图，点一下就出结果">给自己搭了个换脸工作台：上传两张图，点一下就出结果</a><time datetime="2026-10-05T02:00:00.000Z" title="发表于 2026-10-05 10:00:00">2026-10-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/08/roboarm-character-placement/" title="机械臂摆「8周年快乐」，字全给我放倒了——排查到最后是一个符号反了"><img src="/img/cover-roboarm.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="机械臂摆「8周年快乐」，字全给我放倒了——排查到最后是一个符号反了"/></a><div class="content"><a class="title" href="/2026/09/08/roboarm-character-placement/" title="机械臂摆「8周年快乐」，字全给我放倒了——排查到最后是一个符号反了">机械臂摆「8周年快乐」，字全给我放倒了——排查到最后是一个符号反了</a><time datetime="2026-09-08T02:30:00.000Z" title="发表于 2026-09-08 10:30:00">2026-09-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/02/novel-reader-flutter/" title="给自己写了个小说阅读器，636 万字的书打开只要 0.16 秒"><img src="/img/cover-novel.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="给自己写了个小说阅读器，636 万字的书打开只要 0.16 秒"/></a><div class="content"><a class="title" href="/2026/09/02/novel-reader-flutter/" title="给自己写了个小说阅读器，636 万字的书打开只要 0.16 秒">给自己写了个小说阅读器，636 万字的书打开只要 0.16 秒</a><time datetime="2026-09-02T03:00:00.000Z" title="发表于 2026-09-02 11:00:00">2026-09-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/01/smoke-detection-domain-gap/" title="烟雾检测模型：数据集上 84 分，一上实拍 56 分"><img src="/img/cover-fire.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="烟雾检测模型：数据集上 84 分，一上实拍 56 分"/></a><div class="content"><a class="title" href="/2026/09/01/smoke-detection-domain-gap/" title="烟雾检测模型：数据集上 84 分，一上实拍 56 分">烟雾检测模型：数据集上 84 分，一上实拍 56 分</a><time datetime="2026-09-01T09:00:00.000Z" title="发表于 2026-09-01 17:00:00">2026-09-01</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/01/price-compare/" title="想做个比价工具，官方 API 不给我，那我自己爬"><img src="/img/cover-python.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="想做个比价工具，官方 API 不给我，那我自己爬"/></a><div class="content"><a class="title" href="/2026/09/01/price-compare/" title="想做个比价工具，官方 API 不给我，那我自己爬">想做个比价工具，官方 API 不给我，那我自己爬</a><time datetime="2026-09-01T07:30:00.000Z" title="发表于 2026-09-01 15:30:00">2026-09-01</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By shameless</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.7.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.7.0"></script><script src="/js/main.js?v=5.7.0"></script><div class="js-pjax"></div><script src="/js/click-effect.js?v=1"></script><script src="/js/i18n.js?v=23"></script><script src="/js/i18n-titles.js?v=23"></script><script src="/js/custom.js?v=24"></script><audio id="bgm-player" loop preload="none"></audio><div id="music-tip"><div class="music-tip-box"><h3>♫ 背景音乐</h3><p class="sub">开启后选择你本地的 mp3 文件播放</p><div class="btns"><button class="yes" onclick="startMusic()">开启音乐</button><button class="no" onclick="closeMusicTip()">暂不开启</button></div></div></div><div id="music-btn" onclick="toggleMusic()" title="背景音乐">♫</div><script id="canvas_nest" defer="defer" color="0,212,255" opacity="0.7" zIndex="-1" count="99" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/canvas-nest.min.js"></script><script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.min.js" defer="defer"></script><script>document.addEventListener('DOMContentLoaded', () => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"]):not([data-fancybox])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: false,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => {
+      try {
+        fn()
+      } catch (err) {
+        console.debug('Pjax callback failed:', err)
+      }
+    })
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      if (!item.parentNode) return
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || ''
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    const responseURL = e.request && e.request.responseURL
+    if (e.request && e.request.status === 404) {
+      false
+        ? pjax.loadUrl('/404.html')
+        : responseURL && (window.location.href = responseURL)
+    } else if (responseURL) {
+      window.location.href = responseURL
+    }
+  })
+})</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

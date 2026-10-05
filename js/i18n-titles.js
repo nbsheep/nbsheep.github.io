@@ -11,5 +11,6 @@ window.I18N_TITLES = {
   "烟雾检测模型：数据集上 84 分，一上实拍 56 分": "My Smoke Detector Aced the Benchmark, Then Failed in the Field",
   "机械臂摆「8周年快乐」，字全给我放倒了——排查到最后是一个符号反了": "Robotic Arm Kept Placing '8周年快乐' 90° Off — the Root Cause Was a Single Sign Flip",
   "Windows 命令入门学习手册": "Windows Command Line Handbook",
-  "用纯 Python 标准库写一个本地音频处理工具": "Building a Local Audio Tool with Pure Python's Standard Library"
+  "用纯 Python 标准库写一个本地音频处理工具": "Building a Local Audio Tool with Pure Python's Standard Library",
+  "给自己搭了个换脸工作台：上传两张图，点一下就出结果": "A Local Face Swap Workbench: inswapper + ArcFace on CPU"
 };
